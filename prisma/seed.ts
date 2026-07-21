@@ -7,7 +7,7 @@ import "dotenv/config";
 import { prisma } from "../src/lib/prisma";
 
 // Helper para leer CSV asegurando que si está en ANSI/Latin1, mantenga las tildes y Ñ
-function readCSV(filename: string): any[] {
+function readCSV(filename: string, delimiter: string = ','): any[] {
   const filePath = path.join(__dirname, "../input_Catalog", filename);
   const buffer = fs.readFileSync(filePath);
   
@@ -22,7 +22,7 @@ function readCSV(filename: string): any[] {
     // Attempt utf-8, if fails use latin1
     try {
       const utf8Str = buffer.toString('utf8');
-      if (utf8Str.includes('')) {
+      if (utf8Str.includes('\uFFFD')) {
          content = iconv.decode(buffer, "win1252");
       } else {
          content = utf8Str;
@@ -33,9 +33,11 @@ function readCSV(filename: string): any[] {
   }
 
   const records = parse(content, {
+    delimiter,
     columns: true,
     skip_empty_lines: true,
     trim: true,
+    relax_quotes: true,
   });
 
   return records;
@@ -177,7 +179,6 @@ async function main() {
       }
     }
 
-    // Since createMany skipDuplicates is a thing, we can use it
     await prisma.icd10Code.createMany({
       data: dataToInsert,
       skipDuplicates: true,
@@ -187,7 +188,157 @@ async function main() {
     console.log(`Insertados ${count}/${cie10.length} registros CIE-10...`);
   }
 
-  console.log("¡Seeding completado con éxito!");
+  // --- CONSULTA CATALOGS ---
+  console.log("Cargando Catálogos de Consultas...");
+
+  // 1. Tipo de consulta
+  const tipoConsulta = readCSV("consulta/tipo consulta.csv");
+  for (const tc of tipoConsulta) {
+    const name = tc["Nombre"] || tc["nombre"];
+    if (name) {
+      const existing = await prisma.encounterType.findFirst({ where: { name } });
+      if (!existing) {
+         await prisma.encounterType.create({ data: { name } });
+      }
+    }
+  }
+
+  // 2. Aptitud médica
+  const aptitudes = readCSV("consulta/AptitudMedica.csv");
+  for (const ap of aptitudes) {
+    const name = ap["Nombre"];
+    if (name) {
+      const existing = await prisma.medicalAptitude.findFirst({ where: { name } });
+      if (!existing) {
+         await prisma.medicalAptitude.create({ data: { name } });
+      }
+    }
+  }
+
+  // 3. Cirugía
+  const cirugias = readCSV("consulta/cirugia.csv");
+  for (const c of cirugias) {
+    const name = c["Nombre"];
+    if (name) {
+      const existing = await prisma.surgicalProcedureCatalog.findFirst({ where: { name } });
+      if (!existing) {
+         await prisma.surgicalProcedureCatalog.create({ data: { name } });
+      }
+    }
+  }
+
+  // 4. Exposición
+  const exposiciones = readCSV("consulta/exposicion.csv");
+  for (const e of exposiciones) {
+    const name = e["Nombre"];
+    if (name) {
+      await prisma.occupationalExposure.upsert({
+        where: { name },
+        update: {},
+        create: { name }
+      });
+    }
+  }
+
+  // 5. Incapacidad
+  const incapacidades = readCSV("consulta/incapacidad.csv");
+  for (const i of incapacidades) {
+    const name = i["Nombre"];
+    if (name) {
+      await prisma.workDisability.upsert({
+        where: { name },
+        update: {},
+        create: { name }
+      });
+    }
+  }
+
+  // 6. Referencia
+  const referencias = readCSV("consulta/Referencia.csv");
+  for (const r of referencias) {
+    const name = r["Nombre"];
+    if (name) {
+      await prisma.referralLevel.upsert({
+        where: { name },
+        update: {},
+        create: { name }
+      });
+    }
+  }
+
+  // 7. Tipo enfermedad
+  const tipoEnfermedad = readCSV("consulta/tipo enfermedad.csv");
+  for (const te of tipoEnfermedad) {
+    const name = te["Nombre"];
+    if (name) {
+      await prisma.diseaseTypeCatalog.upsert({
+        where: { name },
+        update: {},
+        create: { name }
+      });
+    }
+  }
+
+  // 8. Alergia
+  const alergias = readCSV("consulta/alergia.csv", " ");
+  for (const a of alergias) {
+    const catName = a["Categoría"] || a["Categora"]; // handle malformed UTF-8 fallback if any
+    const name = a["Nombre"];
+    
+    if (catName && name) {
+      // find or create category
+      const category = await prisma.allergyCategory.upsert({
+        where: { name: catName },
+        update: {},
+        create: { name: catName }
+      });
+
+      // find or create allergen
+      const existingAllergen = await prisma.allergenCatalog.findFirst({
+        where: { name, allergyCategoryId: category.id }
+      });
+      if (!existingAllergen) {
+        await prisma.allergenCatalog.create({
+          data: { name, allergyCategoryId: category.id }
+        });
+      }
+    }
+  }
+
+  // 17. Seed Admin User
+  console.log("Creando usuario administrador...");
+  
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: "admin@clinica.com" }
+  });
+
+  if (!existingAdmin) {
+    const { auth } = require("../src/lib/auth");
+    
+    await auth.api.signUpEmail({
+      body: {
+        email: "admin@clinica.com",
+        password: "AdminPassword123!",
+        name: "Administrador del Sistema"
+      }
+    });
+
+    await prisma.user.update({
+      where: { email: "admin@clinica.com" },
+      data: { role: "ADMIN" }
+    });
+
+    console.log("✅ Usuario administrador creado: admin@clinica.com / AdminPassword123!");
+  } else {
+    // Si ya existe, nos aseguramos que tenga rol de ADMIN
+    await prisma.user.update({
+      where: { email: "admin@clinica.com" },
+      data: { role: "ADMIN" }
+    });
+    console.log("✅ El usuario administrador ya existe y tiene rol ADMIN.");
+  }
+
+  console.log("🚀 Seeding completado con éxito!");
 }
 
 main()
