@@ -42,3 +42,6 @@ next-env.d.ts
 #agents
 .agents
 /src/generated/prisma
+
+#miscelaneous
+/input_Catalog
