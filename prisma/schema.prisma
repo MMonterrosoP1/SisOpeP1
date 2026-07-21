@@ -33,24 +33,9 @@ enum DocumentType {
   OTHER
 }
 
-enum MaritalStatus {
-  SINGLE
-  MARRIED
-  DIVORCED
-  WIDOWED
-  FREE_UNION
-}
 
-enum BloodType {
-  A_POS
-  A_NEG
-  B_POS
-  B_NEG
-  AB_POS
-  AB_NEG
-  O_POS
-  O_NEG
-}
+
+
 
 enum PregnancyStatus {
   PREGNANT
@@ -165,7 +150,6 @@ model Company {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  workplaces Workplace[]
   patients   Patient[]
 
   @@map("company")
@@ -173,30 +157,23 @@ model Company {
 
 model Workplace {
   id        Int      @id @default(autoincrement())
-  companyId Int
-  name      String
+  name      String   @unique
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  workAreas WorkArea[]
   patients  Patient[]
 
-  @@unique([companyId, name])
   @@map("workplace")
 }
 
 model WorkArea {
   id          Int      @id @default(autoincrement())
-  workplaceId Int
-  name        String
+  name        String   @unique
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
 
-  workplace Workplace @relation(fields: [workplaceId], references: [id], onDelete: Cascade)
   patients  Patient[]
 
-  @@unique([workplaceId, name])
   @@map("work_area")
 }
 
@@ -318,6 +295,27 @@ model AllergyCategory {
   @@map("allergy_category")
 }
 
+model MaritalStatusCatalog {
+  id     Int     @id @default(autoincrement())
+  name   String
+  sex    Sex?
+  active Boolean @default(true)
+
+  patients Patient[]
+
+  @@map("marital_status_catalog")
+}
+
+model BloodTypeCatalog {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  active Boolean @default(true)
+
+  patients Patient[]
+
+  @@map("blood_type_catalog")
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 // ENTIDADES PRINCIPALES
 // ═══════════════════════════════════════════════════════════════════════
@@ -330,21 +328,23 @@ model Patient {
   identityDocument String        @unique
   birthDate        DateTime      @db.Date
   sex              Sex
-  maritalStatus    MaritalStatus
+  maritalStatusId  Int
   phone            String?
   companyId        Int
   workplaceId      Int
   workAreaId       Int
   jobPositionId    Int
-  bloodType        BloodType?
+  bloodTypeId      Int?
   active           Boolean       @default(true)
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
-  company     Company     @relation(fields: [companyId], references: [id])
-  workplace   Workplace   @relation(fields: [workplaceId], references: [id])
-  workArea    WorkArea    @relation(fields: [workAreaId], references: [id])
-  jobPosition JobPosition @relation(fields: [jobPositionId], references: [id])
+  company        Company              @relation(fields: [companyId], references: [id])
+  workplace      Workplace            @relation(fields: [workplaceId], references: [id])
+  workArea       WorkArea             @relation(fields: [workAreaId], references: [id])
+  jobPosition    JobPosition          @relation(fields: [jobPositionId], references: [id])
+  maritalStatus  MaritalStatusCatalog @relation(fields: [maritalStatusId], references: [id])
+  bloodType      BloodTypeCatalog?    @relation(fields: [bloodTypeId], references: [id])
 
   emergencyContacts   EmergencyContact[]
   encounters          Encounter[]
