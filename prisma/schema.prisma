@@ -33,10 +33,6 @@ enum DocumentType {
   OTHER
 }
 
-
-
-
-
 enum PregnancyStatus {
   PREGNANT
   POSTPARTUM
@@ -72,15 +68,15 @@ enum AuditAction {
 // ═══════════════════════════════════════════════════════════════════════
 
 model User {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  image         String?   @db.Text
-  role          UserRole  @default(VIEWER)
-  active        Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?  @db.Text
+  role          UserRole @default(VIEWER)
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relaciones better-auth
   sessions Session[]
@@ -90,6 +86,12 @@ model User {
   encounters          Encounter[]
   medicalCertificates MedicalCertificate[]
   auditLogs           AuditLog[]
+
+  banned      Boolean?     @default(false)
+  banReason   String?      @db.Text
+  banExpires  DateTime?
+  members     Member[]
+  invitations Invitation[]
 
   @@map("user")
 }
@@ -106,7 +108,11 @@ model Session {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  activeOrganizationId String? @db.Text
+  impersonatedBy       String? @db.Text
+
   @@map("session")
+  @@index([userId(length: 191)])
 }
 
 model Account {
@@ -127,6 +133,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("account")
+  @@index([userId(length: 191)])
 }
 
 model Verification {
@@ -138,6 +145,7 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@map("verification")
+  @@index([identifier(length: 191)])
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -150,7 +158,7 @@ model Company {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  patients   Patient[]
+  patients Patient[]
 
   @@map("company")
 }
@@ -161,18 +169,18 @@ model Workplace {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  patients  Patient[]
+  patients Patient[]
 
   @@map("workplace")
 }
 
 model WorkArea {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
 
-  patients  Patient[]
+  patients Patient[]
 
   @@map("work_area")
 }
@@ -189,8 +197,8 @@ model JobPosition {
 }
 
 model EncounterType {
-  id   Int    @id @default(autoincrement())
-  code String @unique
+  id   Int     @id @default(autoincrement())
+  code String? @unique
   name String
 
   encounters Encounter[]
@@ -220,7 +228,7 @@ model WorkDisability {
 
 model SurgicalProcedureCatalog {
   id     Int     @id @default(autoincrement())
-  code   String  @unique
+  code   String? @unique
   name   String
   active Boolean @default(true)
 
@@ -240,8 +248,8 @@ model ReferralLevel {
 }
 
 model MedicalAptitude {
-  id   Int    @id @default(autoincrement())
-  code String @unique
+  id   Int     @id @default(autoincrement())
+  code String? @unique
   name String
 
   encounters Encounter[]
@@ -275,24 +283,37 @@ model Icd10Code {
   @@map("icd10_code")
 }
 
-model HabitType {
-  id     Int     @id @default(autoincrement())
-  name   String  @unique
-  active Boolean @default(true)
-
-  habits Habit[]
-
-  @@map("habit_type")
-}
-
 model AllergyCategory {
   id     Int     @id @default(autoincrement())
   name   String  @unique
   active Boolean @default(true)
 
-  allergies Allergy[]
+  allergens AllergenCatalog[]
 
   @@map("allergy_category")
+}
+
+model AllergenCatalog {
+  id                Int     @id @default(autoincrement())
+  name              String
+  allergyCategoryId Int
+  active            Boolean @default(true)
+
+  allergyCategory AllergyCategory @relation(fields: [allergyCategoryId], references: [id])
+  allergies       Allergy[]
+
+  @@unique([name, allergyCategoryId])
+  @@map("allergen_catalog")
+}
+
+model DiseaseTypeCatalog {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  active Boolean @default(true)
+
+  diagnoses Diagnosis[]
+
+  @@map("disease_type_catalog")
 }
 
 model MaritalStatusCatalog {
@@ -321,12 +342,12 @@ model BloodTypeCatalog {
 // ═══════════════════════════════════════════════════════════════════════
 
 model Patient {
-  id               Int           @id @default(autoincrement())
+  id               Int          @id @default(autoincrement())
   givenNames       String
   familyNames      String
-  documentType     DocumentType  @default(DPI)
-  identityDocument String        @unique
-  birthDate        DateTime      @db.Date
+  documentType     DocumentType @default(DPI)
+  identityDocument String       @unique
+  birthDate        DateTime     @db.Date
   sex              Sex
   maritalStatusId  Int
   phone            String?
@@ -335,16 +356,16 @@ model Patient {
   workAreaId       Int
   jobPositionId    Int
   bloodTypeId      Int?
-  active           Boolean       @default(true)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  active           Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
-  company        Company              @relation(fields: [companyId], references: [id])
-  workplace      Workplace            @relation(fields: [workplaceId], references: [id])
-  workArea       WorkArea             @relation(fields: [workAreaId], references: [id])
-  jobPosition    JobPosition          @relation(fields: [jobPositionId], references: [id])
-  maritalStatus  MaritalStatusCatalog @relation(fields: [maritalStatusId], references: [id])
-  bloodType      BloodTypeCatalog?    @relation(fields: [bloodTypeId], references: [id])
+  company       Company              @relation(fields: [companyId], references: [id])
+  workplace     Workplace            @relation(fields: [workplaceId], references: [id])
+  workArea      WorkArea             @relation(fields: [workAreaId], references: [id])
+  jobPosition   JobPosition          @relation(fields: [jobPositionId], references: [id])
+  maritalStatus MaritalStatusCatalog @relation(fields: [maritalStatusId], references: [id])
+  bloodType     BloodTypeCatalog?    @relation(fields: [bloodTypeId], references: [id])
 
   emergencyContacts   EmergencyContact[]
   encounters          Encounter[]
@@ -375,25 +396,25 @@ model EmergencyContact {
 // ═══════════════════════════════════════════════════════════════════════
 
 model Encounter {
-  id                     Int             @id @default(autoincrement())
-  patientId              Int
-  practitionerId         String
-  encounterTypeId        Int
-  date                   DateTime        @default(now())
-  isFirstVisit           Boolean         @default(false)
-  symptomatology         String?         @db.Text
-  illnessHistory         String?         @db.Text
-  gynecologicalHistory   String?         @db.Text
-  pregnancyStatus        PregnancyStatus @default(NOT_APPLICABLE)
-  sleepHours             Float?
-  medicationsAdministered String?        @db.Text
-  suspensionHours        Int?
-  referralLevelId        Int?
-  medicalAptitudeId      Int?
-  internalObservation    String?         @db.Text
-  employerObservation    String?         @db.Text
-  followUpDate           DateTime?       @db.Date
-  createdAt              DateTime        @default(now())
+  id                      Int             @id @default(autoincrement())
+  patientId               Int
+  practitionerId          String
+  encounterTypeId         Int
+  date                    DateTime        @default(now())
+  isFirstVisit            Boolean         @default(false)
+  symptomatology          String?         @db.Text
+  illnessHistory          String?         @db.Text
+  gynecologicalHistory    String?         @db.Text
+  pregnancyStatus         PregnancyStatus @default(NOT_APPLICABLE)
+  sleepHours              Float?
+  medicationsAdministered String?         @db.Text
+  suspensionHours         Int?
+  referralLevelId         Int?
+  medicalAptitudeId       Int?
+  internalObservation     String?         @db.Text
+  employerObservation     String?         @db.Text
+  followUpDate            DateTime?       @db.Date
+  createdAt               DateTime        @default(now())
 
   // Relaciones
   patient         Patient          @relation(fields: [patientId], references: [id])
@@ -403,19 +424,19 @@ model Encounter {
   medicalAptitude MedicalAptitude? @relation(fields: [medicalAptitudeId], references: [id])
 
   // Datos clínicos
-  vitalSign                    VitalSign?
-  anthropometry                Anthropometry?
-  occupationalExposureEntries  OccupationalExposureEntry[]
-  workDisabilityEntries        WorkDisabilityEntry[]
-  medicalHistoryEntries        MedicalHistoryEntry[]
-  surgicalHistoryEntries       SurgicalHistoryEntry[]
-  traumaHistoryEntries         TraumaHistoryEntry[]
-  familyHistoryEntries         FamilyHistoryEntry[]
-  allergies                    Allergy[]
-  habits                       Habit[]
-  exercises                    Exercise[]
-  diagnoses                    Diagnosis[]
-  medicalCertificate           MedicalCertificate?
+  vitalSign                   VitalSign?
+  anthropometry               Anthropometry?
+  occupationalExposureEntries OccupationalExposureEntry[]
+  workDisabilityEntries       WorkDisabilityEntry[]
+  medicalHistoryEntries       MedicalHistoryEntry[]
+  surgicalHistoryEntries      SurgicalHistoryEntry[]
+  traumaHistoryEntries        TraumaHistoryEntry[]
+  familyHistoryEntries        FamilyHistoryEntry[]
+  allergies                   Allergy[]
+  habits                      Habit[]
+  exercises                   Exercise[]
+  diagnoses                   Diagnosis[]
+  medicalCertificate          MedicalCertificate?
 
   @@index([patientId])
   @@index([date])
@@ -428,16 +449,17 @@ model Encounter {
 // ═══════════════════════════════════════════════════════════════════════
 
 /// Signos vitales — FHIR: Observation (category: vital-signs)
+
 model VitalSign {
   id               Int      @id @default(autoincrement())
   encounterId      Int      @unique
-  systolicBP       Float?   // PA sistólica (mmHg)
-  diastolicBP      Float?   // PA diastólica (mmHg)
-  heartRate        Float?   // FC (bpm)
-  respiratoryRate  Float?   // FR (/min)
-  oxygenSaturation Float?   // SPO2 (%)
-  glucose          Float?   // Glucosa (mg/dL)
-  temperature      Float?   // Temperatura (°C)
+  systolicBP       Float? // PA sistólica (mmHg)
+  diastolicBP      Float? // PA diastólica (mmHg)
+  heartRate        Float? // FC (bpm)
+  respiratoryRate  Float? // FR (/min)
+  oxygenSaturation Float? // SPO2 (%)
+  glucose          Float? // Glucosa (mg/dL)
+  temperature      Float? // Temperatura (°C)
   recordedAt       DateTime @default(now())
 
   encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
@@ -446,14 +468,15 @@ model VitalSign {
 }
 
 /// Antropometría — FHIR: Observation (category: body-measurement)
+
 model Anthropometry {
   id                     Int          @id @default(autoincrement())
   encounterId            Int          @unique
-  weight                 Float?       // kg
-  height                 Float?       // cm
-  bmi                    Float?       // Calculado: weight / (height/100)²
+  weight                 Float? // kg
+  height                 Float? // cm
+  bmi                    Float? // Calculado: weight / (height/100)²
   bmiCategory            BmiCategory? // Clasificación automática OMS
-  abdominalCircumference Float?       // cm
+  abdominalCircumference Float? // cm
   recordedAt             DateTime     @default(now())
 
   encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
@@ -462,20 +485,22 @@ model Anthropometry {
 }
 
 /// Exposición laboral por consulta
+
 model OccupationalExposureEntry {
   id                     Int     @id @default(autoincrement())
   encounterId            Int
   occupationalExposureId Int
   observations           String? @db.Text
 
-  encounter             Encounter            @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  occupationalExposure  OccupationalExposure  @relation(fields: [occupationalExposureId], references: [id])
+  encounter            Encounter            @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  occupationalExposure OccupationalExposure @relation(fields: [occupationalExposureId], references: [id])
 
   @@unique([encounterId, occupationalExposureId])
   @@map("occupational_exposure_entry")
 }
 
 /// Incapacidad laboral por consulta
+
 model WorkDisabilityEntry {
   id               Int     @id @default(autoincrement())
   encounterId      Int
@@ -490,6 +515,7 @@ model WorkDisabilityEntry {
 }
 
 /// Antecedentes médicos — FHIR: Condition (category: problem-list)
+
 model MedicalHistoryEntry {
   id           Int     @id @default(autoincrement())
   encounterId  Int
@@ -503,19 +529,21 @@ model MedicalHistoryEntry {
 }
 
 /// Antecedentes quirúrgicos — FHIR: Procedure
-model SurgicalHistoryEntry {
-  id                   Int     @id @default(autoincrement())
-  encounterId          Int
-  surgicalProcedureId  Int
-  observations         String? @db.Text
 
-  encounter          Encounter                @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  surgicalProcedure  SurgicalProcedureCatalog  @relation(fields: [surgicalProcedureId], references: [id])
+model SurgicalHistoryEntry {
+  id                  Int     @id @default(autoincrement())
+  encounterId         Int
+  surgicalProcedureId Int
+  observations        String? @db.Text
+
+  encounter         Encounter                @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  surgicalProcedure SurgicalProcedureCatalog @relation(fields: [surgicalProcedureId], references: [id])
 
   @@map("surgical_history_entry")
 }
 
 /// Antecedentes traumáticos — FHIR: Condition (category: trauma)
+
 model TraumaHistoryEntry {
   id           Int     @id @default(autoincrement())
   encounterId  Int
@@ -529,6 +557,7 @@ model TraumaHistoryEntry {
 }
 
 /// Antecedentes familiares — FHIR: FamilyMemberHistory
+
 model FamilyHistoryEntry {
   id           Int     @id @default(autoincrement())
   encounterId  Int
@@ -542,35 +571,37 @@ model FamilyHistoryEntry {
 }
 
 /// Alergias — FHIR: AllergyIntolerance
+
 model Allergy {
   id                Int    @id @default(autoincrement())
   encounterId       Int
-  allergyCategoryId Int
+  allergenCatalogId Int
   detail            String @db.Text
 
   encounter       Encounter       @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  allergyCategory AllergyCategory @relation(fields: [allergyCategoryId], references: [id])
+  allergenCatalog AllergenCatalog @relation(fields: [allergenCatalogId], references: [id])
 
   @@map("allergy")
 }
 
 /// Hábitos
+
 model Habit {
-  id           Int            @id @default(autoincrement())
+  id           Int             @id @default(autoincrement())
   encounterId  Int
-  habitTypeId  Int
-  duration     String?        // hace cuánto tiempo
+  name         String // Fumar, Drogas, Bebidas Alcohólicas, etc.
+  duration     String? // hace cuánto tiempo
   quantity     Float?
   frequency    HabitFrequency?
-  observations String?        @db.Text
+  observations String?         @db.Text
 
   encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  habitType HabitType @relation(fields: [habitTypeId], references: [id])
 
   @@map("habit")
 }
 
 /// Ejercicio
+
 model Exercise {
   id           Int     @id @default(autoincrement())
   encounterId  Int
@@ -584,16 +615,18 @@ model Exercise {
 }
 
 /// Diagnóstico — FHIR: Condition (category: encounter-diagnosis)
-model Diagnosis {
-  id           Int     @id @default(autoincrement())
-  encounterId  Int
-  icd10CodeId  Int
-  diseaseType  String? // tipo de enfermedad por diagnóstico
-  observations String? @db.Text
-  isPrimary    Boolean @default(false)
 
-  encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  icd10Code Icd10Code @relation(fields: [icd10CodeId], references: [id])
+model Diagnosis {
+  id            Int     @id @default(autoincrement())
+  encounterId   Int
+  icd10CodeId   Int
+  diseaseTypeId Int?
+  observations  String? @db.Text
+  isPrimary     Boolean @default(false)
+
+  encounter   Encounter           @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  icd10Code   Icd10Code           @relation(fields: [icd10CodeId], references: [id])
+  diseaseType DiseaseTypeCatalog? @relation(fields: [diseaseTypeId], references: [id])
 
   @@map("diagnosis")
 }
@@ -626,10 +659,10 @@ model AuditLog {
   id           Int         @id @default(autoincrement())
   userId       String
   action       AuditAction
-  entityType   String      // nombre de la tabla afectada
-  entityId     String      // PK del registro afectado
-  previousData Json?       // snapshot antes del cambio
-  newData      Json?       // snapshot después del cambio
+  entityType   String // nombre de la tabla afectada
+  entityId     String // PK del registro afectado
+  previousData Json? // snapshot antes del cambio
+  newData      Json? // snapshot después del cambio
   ipAddress    String?
   userAgent    String?     @db.Text
   description  String?     @db.Text
@@ -641,4 +674,49 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([createdAt])
   @@map("audit_log")
+}
+
+model Organization {
+  id          String       @id
+  name        String       @db.Text
+  slug        String
+  logo        String?      @db.Text
+  createdAt   DateTime
+  metadata    String?      @db.Text
+  members     Member[]
+  invitations Invitation[]
+
+  @@unique([slug])
+  @@map("organization")
+}
+
+model Member {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String       @db.Text
+  createdAt      DateTime
+
+  @@index([organizationId(length: 191)])
+  @@index([userId(length: 191)])
+  @@map("member")
+}
+
+model Invitation {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String       @db.Text
+  role           String?      @db.Text
+  status         String       @db.Text
+  expiresAt      DateTime
+  createdAt      DateTime     @default(now())
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId(length: 191)])
+  @@index([email(length: 191)])
+  @@map("invitation")
 }

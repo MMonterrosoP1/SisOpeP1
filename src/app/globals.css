@@ -1,8 +1,11 @@
 @import "tailwindcss";
+@import "@heroui/styles";
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --accent: #FFCC00;
+  --accent-foreground: #000000;
 }
 
 @theme inline {
@@ -16,6 +19,8 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --accent: #FFCC00;
+    --accent-foreground: #000000;
   }
 }
 
