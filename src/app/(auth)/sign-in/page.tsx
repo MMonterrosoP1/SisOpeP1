@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Form, Card, TextField, Label, InputGroup } from "@heroui/react";
+import { Button, Input, Form, Card, TextField, Label, InputGroup, FieldError } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Eye, EyeOff, Building2 } from "lucide-react";
@@ -75,24 +75,22 @@ export default function SignInPage() {
             </Card.Header>
             <Card.Content className="px-6 py-4">
               <Form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <TextField isRequired>
+                <TextField name="email" type="email" isRequired>
                   <Label>Correo Electrónico</Label>
                   <Input
                     placeholder="ejemplo@clinica.com"
-                    type="email"
-                    variant="secondary"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
+                  <FieldError />
                 </TextField>
 
                 <div className="flex w-full flex-col gap-1">
-                  <TextField isRequired>
+                  <TextField name="password" type={isVisible ? "text" : "password"} isRequired>
                     <Label>Contraseña</Label>
-                    <InputGroup variant="secondary">
+                    <InputGroup>
                       <InputGroup.Input
                         placeholder="••••••••"
-                        type={isVisible ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />
@@ -106,6 +104,7 @@ export default function SignInPage() {
                         </button>
                       </InputGroup.Suffix>
                     </InputGroup>
+                    <FieldError />
                   </TextField>
                   <div className="flex justify-end">
                     <Button
