@@ -107,7 +107,6 @@ model Session {
   user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   impersonatedBy String? @db.Text
 
-  @@index([userId(length: 191)])
   @@map("session")
 }
 
@@ -128,7 +127,6 @@ model Account {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId(length: 191)])
   @@map("account")
 }
 
@@ -673,10 +671,10 @@ model AuditLog {
 }
 
 model RateLimit {
-  id          String   @id
+  id          String @id
   key         String
   count       Int
-  lastRequest DateTime
+  lastRequest BigInt
 
   @@map("rate_limit")
 }
