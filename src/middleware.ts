@@ -17,15 +17,29 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   
+  const isAuthRoute = pathname.startsWith("/sign-in") || pathname.startsWith("/api/auth");
+  const isStaticRoute = pathname.startsWith("/_next") || pathname === "/favicon.ico" || pathname.startsWith("/public") || pathname.endsWith(".png");
+
+  if (isStaticRoute) {
+    return NextResponse.next();
+  }
+
   if (!session) {
-    if (pathname === "/") {
+    if (!isAuthRoute) {
       return NextResponse.redirect(new URL("/sign-in", request.url));
     }
-    // You can add more protected routes here
   } else {
-    // Redirect authenticated users away from sign-in
-    if (pathname === "/sign-in") {
-      return NextResponse.redirect(new URL("/", request.url));
+    // Check if user is active and not banned
+    const user = session.user as any;
+    if (user.active === false || user.banned === true) {
+      if (!isAuthRoute) {
+         return NextResponse.redirect(new URL("/sign-in?error=inactive", request.url));
+      }
+    } else {
+      // Redirect authenticated users away from sign-in
+      if (pathname === "/sign-in") {
+        return NextResponse.redirect(new URL("/", request.url));
+      }
     }
   }
 
@@ -33,5 +47,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
 };
