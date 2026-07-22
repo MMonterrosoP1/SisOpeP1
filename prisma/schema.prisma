@@ -87,11 +87,9 @@ model User {
   medicalCertificates MedicalCertificate[]
   auditLogs           AuditLog[]
 
-  banned      Boolean?     @default(false)
-  banReason   String?      @db.Text
-  banExpires  DateTime?
-  members     Member[]
-  invitations Invitation[]
+  banned     Boolean?  @default(false)
+  banReason  String?   @db.Text
+  banExpires DateTime?
 
   @@map("user")
 }
@@ -106,13 +104,11 @@ model Session {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String? @db.Text
 
-  activeOrganizationId String? @db.Text
-  impersonatedBy       String? @db.Text
-
-  @@map("session")
   @@index([userId(length: 191)])
+  @@map("session")
 }
 
 model Account {
@@ -132,8 +128,8 @@ model Account {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("account")
   @@index([userId(length: 191)])
+  @@map("account")
 }
 
 model Verification {
@@ -144,8 +140,8 @@ model Verification {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@map("verification")
   @@index([identifier(length: 191)])
+  @@map("verification")
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -676,47 +672,11 @@ model AuditLog {
   @@map("audit_log")
 }
 
-model Organization {
-  id          String       @id
-  name        String       @db.Text
-  slug        String
-  logo        String?      @db.Text
-  createdAt   DateTime
-  metadata    String?      @db.Text
-  members     Member[]
-  invitations Invitation[]
+model RateLimit {
+  id          String   @id
+  key         String
+  count       Int
+  lastRequest DateTime
 
-  @@unique([slug])
-  @@map("organization")
-}
-
-model Member {
-  id             String       @id
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userId         String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role           String       @db.Text
-  createdAt      DateTime
-
-  @@index([organizationId(length: 191)])
-  @@index([userId(length: 191)])
-  @@map("member")
-}
-
-model Invitation {
-  id             String       @id
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  email          String       @db.Text
-  role           String?      @db.Text
-  status         String       @db.Text
-  expiresAt      DateTime
-  createdAt      DateTime     @default(now())
-  inviterId      String
-  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
-
-  @@index([organizationId(length: 191)])
-  @@index([email(length: 191)])
-  @@map("invitation")
+  @@map("rate_limit")
 }
