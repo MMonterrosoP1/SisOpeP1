@@ -64,7 +64,7 @@ export function PatientTable({ data, totalCount }: PatientTableProps) {
                 <TableCell className="font-medium">
                   {patient.givenNames} {patient.familyNames}
                 </TableCell>
-                <TableCell>{patient.companyName || "-"}</TableCell>
+                <TableCell>{patient.companyAcronym || patient.companyName || "-"}</TableCell>
                 <TableCell>{patient.workplaceName || "-"}</TableCell>
                 <TableCell>
                   <Badge
@@ -77,29 +77,34 @@ export function PatientTable({ data, totalCount }: PatientTableProps) {
                 <TableCell>
                   <div className="flex items-center gap-1">
                     <Tooltip>
-                      <TooltipTrigger>
-                        <Link href={`/patients/${patient.id}`}>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                        </Link>
-                      </TooltipTrigger>
+                      <TooltipTrigger
+                        render={
+                          <Link href={`/patients/${patient.id}`}>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                        }
+                      />
                       <TooltipContent>Ver detalles</TooltipContent>
                     </Tooltip>
 
                     <Tooltip>
-                      <TooltipTrigger>
-                        <Link href={`/patients/${patient.id}/edit`}>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                        </Link>
-                      </TooltipTrigger>
+                      <TooltipTrigger
+                        render={
+                          <Link href={`/patients/${patient.id}/edit`}>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                        }
+                      />
                       <TooltipContent>Editar paciente</TooltipContent>
                     </Tooltip>
 
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger
+                        render={
                         <Button
                           variant="ghost"
                           size="sm"
@@ -115,7 +120,8 @@ export function PatientTable({ data, totalCount }: PatientTableProps) {
                             <ShieldCheck className="w-4 h-4 text-green-600" />
                           )}
                         </Button>
-                      </TooltipTrigger>
+                        }
+                      />
                       <TooltipContent>
                         {patient.active ? "Desactivar" : "Activar"}
                       </TooltipContent>

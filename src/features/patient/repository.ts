@@ -29,7 +29,7 @@ export const patientRepository = {
         take: pagination.take,
         orderBy: [{ familyNames: "asc" }, { givenNames: "asc" }],
         include: {
-          company: { select: { name: true } },
+          company: { select: { name: true, acronym: true } },
           workplace: { select: { name: true } },
         },
       }),
@@ -46,6 +46,7 @@ export const patientRepository = {
       sex: p.sex,
       active: p.active,
       companyName: p.company?.name,
+      companyAcronym: p.company?.acronym,
       workplaceName: p.workplace?.name,
     }));
 
