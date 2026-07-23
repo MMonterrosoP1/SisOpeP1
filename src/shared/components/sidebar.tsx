@@ -3,7 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Drawer, Tooltip } from "@heroui/react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   LayoutDashboard,
   Users,
@@ -60,7 +65,7 @@ export function Sidebar({ user, isMobileOpen, onMobileClose }: SidebarProps) {
     <div className="flex-1 overflow-y-auto space-y-1 no-scrollbar">
       {!collapsed && (
         <div className="px-3 pt-5 pb-2">
-          <span className="text-xs font-normal text-default-500">Menú Principal</span>
+          <span className="text-xs font-normal text-muted-foreground">Menú Principal</span>
         </div>
       )}
 
@@ -72,23 +77,28 @@ export function Sidebar({ user, isMobileOpen, onMobileClose }: SidebarProps) {
             key={item.href}
             href={item.href}
             onClick={() => onMobileClose()}
-            className={`flex items-center gap-3 px-3 py-2 mx-2 rounded-md cursor-pointer transition-colors ${isActive
-              ? "bg-default-100"
-              : "hover:bg-default-100"
-              } ${collapsed ? "justify-center" : ""}`}
+            className={`flex items-center gap-3 px-3 py-2 mx-2 rounded-md cursor-pointer transition-colors ${
+              isActive ? "bg-muted" : "hover:bg-muted"
+            } ${collapsed ? "justify-center" : ""}`}
           >
-            <item.icon className={`w-4 h-4 stroke-[1.5] shrink-0 ${isActive ? "text-foreground" : "text-default-400"
-              }`} />
+            <item.icon
+              className={`w-4 h-4 stroke-[1.5] shrink-0 ${
+                isActive ? "text-foreground" : "text-muted-foreground"
+              }`}
+            />
 
             {!collapsed && (
-              <span className={`text-sm font-medium ${isActive ? "text-foreground" : "text-default-700"
-                }`}>
+              <span
+                className={`text-sm font-medium ${
+                  isActive ? "text-foreground" : "text-foreground/70"
+                }`}
+              >
                 {item.name}
               </span>
             )}
 
             {!collapsed && item.isNew && (
-              <span className="ml-auto text-[10px] uppercase tracking-wider font-bold bg-success-100 text-success-700 px-2 py-0.5 rounded-full">
+              <span className="ml-auto text-[10px] uppercase tracking-wider font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
                 New
               </span>
             )}
@@ -97,13 +107,13 @@ export function Sidebar({ user, isMobileOpen, onMobileClose }: SidebarProps) {
 
         if (collapsed) {
           return (
-            <Tooltip key={item.href} delay={0}>
-              <Tooltip.Trigger>
+            <Tooltip key={item.href}>
+              <TooltipTrigger>
                 {content}
-              </Tooltip.Trigger>
-              <Tooltip.Content placement="right">
+              </TooltipTrigger>
+              <TooltipContent side="right">
                 <p>{item.name}</p>
-              </Tooltip.Content>
+              </TooltipContent>
             </Tooltip>
           );
         }
@@ -117,15 +127,26 @@ export function Sidebar({ user, isMobileOpen, onMobileClose }: SidebarProps) {
     <>
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden lg:flex flex-col h-screen bg-background border-r border-default-100 py-4 px-2 transition-all duration-300 ${isCollapsed ? "w-[80px]" : "w-64"
-          }`}
+        className={`hidden lg:flex flex-col h-screen bg-background border-r border-border py-4 px-2 transition-all duration-300 ${
+          isCollapsed ? "w-[80px]" : "w-64"
+        }`}
       >
         {/* Logo Area */}
         <div className="px-3 pb-3 flex items-center justify-center">
           {isCollapsed ? (
-            <img key="logo-collapsed" src="/premed-dark-logo.png" alt="Logo" className="w-10 h-10 object-contain" />
+            <img
+              key="logo-collapsed"
+              src="/premed-dark-logo.png"
+              alt="Logo"
+              className="w-10 h-10 object-contain"
+            />
           ) : (
-            <img key="logo-expanded" src="/premed-dark.png" alt="FM-PREMED Logo" className="h-13 w-auto object-contain mt-4" />
+            <img
+              key="logo-expanded"
+              src="/premed-dark.png"
+              alt="FM-PREMED Logo"
+              className="h-13 w-auto object-contain mt-4"
+            />
           )}
         </div>
 
@@ -137,49 +158,47 @@ export function Sidebar({ user, isMobileOpen, onMobileClose }: SidebarProps) {
           <div className={`px-3 ${isCollapsed ? "flex justify-center" : ""}`}>
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="flex items-center justify-center p-1.5 rounded-md hover:bg-default-100 text-default-600 transition-colors"
+              className="flex items-center justify-center p-1.5 rounded-md hover:bg-muted text-muted-foreground transition-colors"
             >
-              {isCollapsed ? <PanelLeft className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+              {isCollapsed ? (
+                <PanelLeft className="w-4 h-4" />
+              ) : (
+                <PanelLeftClose className="w-4 h-4" />
+              )}
             </button>
           </div>
 
-          <div className="border-t border-default-100">
+          <div className="border-t border-border">
             <UserMenu user={user} isCollapsed={isCollapsed} />
           </div>
         </div>
       </aside>
 
-      {/* Mobile Drawer */}
-      <Drawer
-        isOpen={isMobileOpen}
-        onOpenChange={(open) => !open && onMobileClose()}
-      >
-        <Drawer.Backdrop>
-          <Drawer.Content placement="left">
-            <Drawer.Dialog className="max-w-xs bg-background py-4 px-2">
-              <Drawer.CloseTrigger />
-              <Drawer.Body className="p-0 flex flex-col h-full">
+      {/* Mobile Sheet */}
+      <Sheet open={isMobileOpen} onOpenChange={(open) => !open && onMobileClose()}>
+        <SheetContent side="left" className="w-64 p-0 bg-background">
+          <div className="flex flex-col h-full py-4 px-2">
+            {/* Logo Area */}
+            <div className="px-3 pb-6 pt-4 flex items-center justify-center">
+              <img
+                src="/premed-dark.png"
+                alt="FM-PREMED Logo"
+                className="h-10 w-auto object-contain"
+              />
+            </div>
 
-                {/* Logo Area */}
-                <div className="px-3 pb-6 pt-4 flex items-center justify-center">
-                  <img src="/premed-dark.png" alt="FM-PREMED Logo" className="h-10 w-auto object-contain" />
-                </div>
+            {/* Main Content */}
+            {renderNavItems(false)}
 
-                {/* Main Content */}
-                {renderNavItems(false)}
-
-                {/* Footer */}
-                <div className="mt-auto flex flex-col gap-4">
-                  <div className="border-t border-default-100">
-                    <UserMenu user={user} isCollapsed={false} />
-                  </div>
-                </div>
-
-              </Drawer.Body>
-            </Drawer.Dialog>
-          </Drawer.Content>
-        </Drawer.Backdrop>
-      </Drawer>
+            {/* Footer */}
+            <div className="mt-auto flex flex-col gap-4">
+              <div className="border-t border-border">
+                <UserMenu user={user} isCollapsed={false} />
+              </div>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

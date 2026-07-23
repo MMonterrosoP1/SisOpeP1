@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Form, Card, TextField, Label, InputGroup, FieldError } from "@heroui/react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
-import NextImage from "next/image";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -65,50 +67,56 @@ export default function SignInPage() {
           <img src="/premed-dark.png" alt="FM-PREMED Logo" className="h-16 w-auto object-contain" />
         </div>
 
-        <Card className="w-full p-2 shadow-sm border border-default-200">
-          <Card.Header className="flex-col items-start px-6 pt-6 pb-2">
-            <Card.Title className="text-2xl font-semibold">Bienvenido de nuevo</Card.Title>
-            <Card.Description className="text-sm text-default-500">Ingresa tus credenciales para acceder al sistema.</Card.Description>
-          </Card.Header>
-          <Card.Content className="px-6 py-4">
-            <Form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <TextField name="email" type="email" isRequired>
-                <Label>Correo Electrónico</Label>
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle className="text-2xl">Bienvenido de nuevo</CardTitle>
+            <CardDescription>Ingresa tus credenciales para acceder al sistema.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="email">Correo Electrónico</Label>
                 <Input
+                  id="email"
+                  type="email"
                   placeholder="ejemplo@clinica.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
-                <FieldError />
-              </TextField>
+              </div>
 
-              <div className="flex w-full flex-col gap-1">
-                <TextField name="password" type={isVisible ? "text" : "password"} isRequired>
-                  <Label>Contraseña</Label>
-                  <InputGroup>
-                    <InputGroup.Input
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <InputGroup.Suffix>
-                      <button className="focus:outline-none flex items-center pr-2" type="button" onClick={toggleVisibility}>
-                        {isVisible ? (
-                          <EyeOff className="text-2xl text-default-400" />
-                        ) : (
-                          <Eye className="text-2xl text-default-400" />
-                        )}
-                      </button>
-                    </InputGroup.Suffix>
-                  </InputGroup>
-                  <FieldError />
-                </TextField>
+              <div className="flex w-full flex-col gap-2">
+                <Label htmlFor="password">Contraseña</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={isVisible ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="pr-10"
+                  />
+                  <button
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    type="button"
+                    onClick={toggleVisibility}
+                  >
+                    {isVisible ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
                 <div className="flex justify-end">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="px-0"
-                    onPress={handleForgotPassword}
+                    className="px-0 h-auto"
+                    onClick={handleForgotPassword}
+                    type="button"
                   >
                     ¿Olvidaste tu contraseña?
                   </Button>
@@ -117,14 +125,13 @@ export default function SignInPage() {
 
               <Button
                 type="submit"
-                variant="primary"
                 className="w-full font-medium"
-                isDisabled={loading}
+                disabled={loading}
               >
                 Iniciar Sesión
               </Button>
-            </Form>
-          </Card.Content>
+            </form>
+          </CardContent>
         </Card>
       </div>
     </div>
