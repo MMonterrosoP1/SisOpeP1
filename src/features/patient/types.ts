@@ -34,5 +34,6 @@ export type PatientListItem = {
   sex: string;
   active: boolean;
   companyName?: string;
+  companyAcronym?: string | null;
   workplaceName?: string;
 };

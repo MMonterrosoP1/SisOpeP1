@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SearchableSelect } from "../../../components/ui/searchable-select";
+import { ComboboxSelect } from "../../../components/ui/combobox-select";
 import { PatientWithRelations } from "../types";
 import { createPatient, updatePatient } from "../actions";
 import { toast } from "sonner";
@@ -20,6 +22,7 @@ import { useRouter } from "next/navigation";
 type CatalogItem = {
   id: number;
   name: string;
+  acronym?: string | null;
 };
 
 type SelectOption = {
@@ -77,27 +80,6 @@ function formatDateInputValue(value?: Date | string | null): string {
   return date.toISOString().split("T")[0] ?? "";
 }
 
-function calculateAge(birthDate: string): number | null {
-  if (!birthDate) return null;
-
-  const date = new Date(`${birthDate}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return null;
-
-  const today = new Date();
-  if (date > today) return null;
-
-  let years = today.getFullYear() - date.getFullYear();
-  const hasNotHadBirthdayThisYear =
-    today.getMonth() < date.getMonth() ||
-    (today.getMonth() === date.getMonth() && today.getDate() < date.getDate());
-
-  if (hasNotHadBirthdayThisYear) {
-    years -= 1;
-  }
-
-  return years;
-}
-
 function toOptionalNumber(value: string): number | undefined {
   if (!value) return undefined;
 
@@ -128,7 +110,13 @@ function CatalogSelectField({
       </Label>
       <Select value={value || ""} onValueChange={(newValue) => onChange(newValue || "")}>
         <SelectTrigger id={name} className={error ? "border-destructive" : ""}>
-          <SelectValue placeholder={placeholder} />
+          <SelectValue placeholder={placeholder}>
+            {(selectedValue) => {
+              const selectedKey = String(selectedValue ?? "");
+              const selectedOption = options.find((option) => option.key === selectedKey);
+              return selectedOption?.label ?? placeholder;
+            }}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (
@@ -176,16 +164,20 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
       })) || [],
   });
 
-  const age = useMemo(() => calculateAge(formData.birthDate), [formData.birthDate]);
-
   const getFieldError = (path: string): string | undefined => fieldErrors[path]?.join(", ");
 
   const getCatalogOptions = (catalogKey: string): SelectOption[] => {
     const items = (catalogs[catalogKey] ?? []) as CatalogItem[];
-    return items.map((item) => ({
-      key: String(item.id),
-      label: item.name,
-    }));
+    return items.map((item) => {
+      let label = item.name;
+      if (catalogKey === "company" && item.acronym) {
+        label = item.acronym; // The user requested to show the acronym for companies
+      }
+      return {
+        key: String(item.id),
+        label,
+      };
+    });
   };
 
   const handleChange = <K extends keyof PatientFormData>(field: K, value: PatientFormData[K]) => {
@@ -375,16 +367,6 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
               {getFieldError("birthDate") && <FieldError error={getFieldError("birthDate")} />}
             </div>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="age">Edad</Label>
-              <Input
-                id="age"
-                value={age !== null ? `${age} años` : "Se calcula automáticamente"}
-                readOnly
-                className="bg-muted"
-              />
-            </div>
-
             <CatalogSelectField
               name="sex"
               label="Sexo"
@@ -396,16 +378,21 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
               onChange={(value) => handleChange("sex", value as PatientFormData["sex"])}
             />
 
-            <CatalogSelectField
-              name="maritalStatusId"
-              label="Estado civil"
-              value={formData.maritalStatusId}
-              options={getCatalogOptions("maritalStatus")}
-              placeholder="Seleccione estado civil"
-              isRequired
-              error={getFieldError("maritalStatusId")}
-              onChange={(value) => handleChange("maritalStatusId", value)}
-            />
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="maritalStatusId">
+                Estado civil <span className="text-destructive">*</span>
+              </Label>
+              <ComboboxSelect
+                id="maritalStatusId"
+                value={formData.maritalStatusId}
+                options={getCatalogOptions("maritalStatus")}
+                placeholder="Seleccione estado civil"
+                searchPlaceholder="Busca un estado civil"
+                invalid={!!getFieldError("maritalStatusId")}
+                onValueChange={(selectedValue: string) => handleChange("maritalStatusId", selectedValue)}
+              />
+              {getFieldError("maritalStatusId") && <FieldError error={getFieldError("maritalStatusId")} />}
+            </div>
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="phone">Teléfono</Label>
@@ -450,38 +437,53 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
               onChange={(value) => handleChange("companyId", value)}
             />
 
-            <CatalogSelectField
-              name="workplaceId"
-              label="Lugar de trabajo"
-              value={formData.workplaceId}
-              options={getCatalogOptions("workplace")}
-              placeholder="Seleccione lugar"
-              isRequired
-              error={getFieldError("workplaceId")}
-              onChange={(value) => handleChange("workplaceId", value)}
-            />
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="workplaceId">
+                Lugar de trabajo <span className="text-destructive">*</span>
+              </Label>
+              <SearchableSelect
+                id="workplaceId"
+                value={formData.workplaceId}
+                options={getCatalogOptions("workplace")}
+                placeholder="Seleccione lugar"
+                searchPlaceholder="Busca un lugar de trabajo"
+                invalid={!!getFieldError("workplaceId")}
+                onValueChange={(selectedValue: string) => handleChange("workplaceId", selectedValue)}
+              />
+              {getFieldError("workplaceId") && <FieldError error={getFieldError("workplaceId")} />}
+            </div>
 
-            <CatalogSelectField
-              name="workAreaId"
-              label="Área de trabajo"
-              value={formData.workAreaId}
-              options={getCatalogOptions("workArea")}
-              placeholder="Seleccione área"
-              isRequired
-              error={getFieldError("workAreaId")}
-              onChange={(value) => handleChange("workAreaId", value)}
-            />
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="workAreaId">
+                Área de trabajo <span className="text-destructive">*</span>
+              </Label>
+              <SearchableSelect
+                id="workAreaId"
+                value={formData.workAreaId}
+                options={getCatalogOptions("workArea")}
+                placeholder="Seleccione área"
+                searchPlaceholder="Busca un área de trabajo"
+                invalid={!!getFieldError("workAreaId")}
+                onValueChange={(selectedValue: string) => handleChange("workAreaId", selectedValue)}
+              />
+              {getFieldError("workAreaId") && <FieldError error={getFieldError("workAreaId")} />}
+            </div>
 
-            <CatalogSelectField
-              name="jobPositionId"
-              label="Puesto laboral"
-              value={formData.jobPositionId}
-              options={getCatalogOptions("jobPosition")}
-              placeholder="Seleccione puesto"
-              isRequired
-              error={getFieldError("jobPositionId")}
-              onChange={(value) => handleChange("jobPositionId", value)}
-            />
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="jobPositionId">
+                Puesto laboral <span className="text-destructive">*</span>
+              </Label>
+              <SearchableSelect
+                id="jobPositionId"
+                value={formData.jobPositionId}
+                options={getCatalogOptions("jobPosition")}
+                placeholder="Seleccione puesto"
+                searchPlaceholder="Busca un puesto laboral"
+                invalid={!!getFieldError("jobPositionId")}
+                onValueChange={(selectedValue: string) => handleChange("jobPositionId", selectedValue)}
+              />
+              {getFieldError("jobPositionId") && <FieldError error={getFieldError("jobPositionId")} />}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -557,19 +559,25 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
                         )}
                       </div>
 
-                      <CatalogSelectField
-                        name={`emergencyContacts.${index}.relationshipTypeId`}
-                        label="Parentesco"
-                        value={contact.relationshipTypeId}
-                        options={getCatalogOptions("relationshipType")}
-                        placeholder="Seleccione parentesco"
-                        error={getFieldError(
-                          `emergencyContacts.${index}.relationshipTypeId`
+                      <div className="flex flex-col gap-2">
+                        <Label htmlFor={`contact-relationship-${index}`}>Parentesco</Label>
+                        <ComboboxSelect
+                          id={`contact-relationship-${index}`}
+                          value={contact.relationshipTypeId}
+                          options={getCatalogOptions("relationshipType")}
+                          placeholder="Seleccione parentesco"
+                          searchPlaceholder="Busca un parentesco"
+                          invalid={!!getFieldError(`emergencyContacts.${index}.relationshipTypeId`)}
+                          onValueChange={(value) =>
+                            handleEmergencyChange(index, "relationshipTypeId", value)
+                          }
+                        />
+                        {getFieldError(`emergencyContacts.${index}.relationshipTypeId`) && (
+                          <FieldError
+                            error={getFieldError(`emergencyContacts.${index}.relationshipTypeId`)}
+                          />
                         )}
-                        onChange={(value) =>
-                          handleEmergencyChange(index, "relationshipTypeId", value)
-                        }
-                      />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
