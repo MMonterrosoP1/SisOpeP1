@@ -1,6 +1,15 @@
 "use client";
 
-import { Modal, Button } from "@heroui/react";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { PatientListItem } from "../types";
 import { useState } from "react";
 import { togglePatientActive } from "../actions";
@@ -36,38 +45,35 @@ export function TogglePatientModal({ isOpen, onOpenChange, patient }: TogglePati
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-      <Modal.Backdrop>
-        <Modal.Container>
-          <Modal.Dialog>
-              <Modal.Header className="flex flex-col gap-1">
-                <Modal.Heading>{patient.active ? "Desactivar Paciente" : "Activar Paciente"}</Modal.Heading>
-              </Modal.Header>
-              <Modal.Body>
-                <p>
-                  ¿Estás seguro de que deseas {patient.active ? "desactivar" : "activar"} al paciente{" "}
-                  <strong>{patient.givenNames} {patient.familyNames}</strong>?
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            {patient.active ? "Desactivar Paciente" : "Activar Paciente"}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            <div className="flex flex-col gap-2">
+              <p>
+                ¿Estás seguro de que deseas {patient.active ? "desactivar" : "activar"} al
+                paciente <strong>{patient.givenNames} {patient.familyNames}</strong>?
+              </p>
+              {patient.active && (
+                <p className="text-sm text-muted-foreground">
+                  Al desactivarlo, el paciente no aparecerá en los listados activos.
                 </p>
-                {patient.active && (
-                  <p className="text-sm text-default-500">
-                    Al desactivarlo, el paciente no aparecerá en los listados activos.
-                  </p>
-                )}
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="ghost" onPress={() => onOpenChange(false)}>
-                  Cancelar
-                </Button>
-                <Button
-                  className={patient.active ? "bg-danger text-white" : "bg-success text-white"}
-                  onPress={handleToggle}
-                >
-                  {patient.active ? "Desactivar" : "Activar"}
-                </Button>
-              </Modal.Footer>
-            </Modal.Dialog>
-          </Modal.Container>
-        </Modal.Backdrop>
-    </Modal>
+              )}
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <div className="flex gap-2 justify-end">
+          <AlertDialogCancel>
+            Cancelar
+          </AlertDialogCancel>
+          <AlertDialogAction onClick={handleToggle} disabled={isLoading} className={patient.active ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground" : ""}>
+            {patient.active ? "Desactivar" : "Activar"}
+          </AlertDialogAction>
+        </div>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

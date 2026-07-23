@@ -1,7 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Button, Card, FieldError, Input, Label, ListBox, Select, TextField } from "@heroui/react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PatientWithRelations } from "../types";
 import { createPatient, updatePatient } from "../actions";
 import { toast } from "sonner";
@@ -95,6 +105,11 @@ function toOptionalNumber(value: string): number | undefined {
   return Number.isNaN(parsed) ? undefined : parsed;
 }
 
+function FieldError({ error }: { error?: string }) {
+  if (!error) return null;
+  return <p className="text-sm text-destructive mt-1">{error}</p>;
+}
+
 function CatalogSelectField({
   name,
   label,
@@ -106,32 +121,25 @@ function CatalogSelectField({
   onChange,
 }: CatalogSelectFieldProps) {
   return (
-    <Select
-      name={name}
-      selectedKey={value || null}
-      onSelectionChange={(key) => onChange(key ? String(key) : "")}
-      placeholder={placeholder}
-      isRequired={isRequired}
-      isInvalid={Boolean(error)}
-      fullWidth
-      variant="secondary"
-    >
-      <Label>{label}</Label>
-      <Select.Trigger>
-        <Select.Value />
-        <Select.Indicator />
-      </Select.Trigger>
-      <FieldError>{error}</FieldError>
-      <Select.Popover>
-        <ListBox>
+    <div className="flex flex-col gap-2">
+      <Label htmlFor={name}>
+        {label}
+        {isRequired && <span className="text-destructive ml-1">*</span>}
+      </Label>
+      <Select value={value || ""} onValueChange={(newValue) => onChange(newValue || "")}>
+        <SelectTrigger id={name} className={error ? "border-destructive" : ""}>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
           {options.map((option) => (
-            <ListBox.Item key={option.key} id={option.key} textValue={option.label}>
+            <SelectItem key={option.key} value={option.key}>
               {option.label}
-            </ListBox.Item>
+            </SelectItem>
           ))}
-        </ListBox>
-      </Select.Popover>
-    </Select>
+        </SelectContent>
+      </Select>
+      {error && <FieldError error={error} />}
+    </div>
   );
 }
 
@@ -287,251 +295,295 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6">
-      <Card className="p-6 border border-default-200 shadow-sm flex flex-col gap-5">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold">Datos personales</h2>
-          <p className="text-sm text-default-500">Información básica de identificación del paciente.</p>
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Datos personales</CardTitle>
+          <CardDescription>Información básica de identificación del paciente.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="givenNames">
+                Nombres <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="givenNames"
+                value={formData.givenNames}
+                onChange={(e) => handleChange("givenNames", e.target.value)}
+                placeholder="Ej. Juan Carlos"
+                className={getFieldError("givenNames") ? "border-destructive" : ""}
+                required
+              />
+              {getFieldError("givenNames") && <FieldError error={getFieldError("givenNames")} />}
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TextField name="givenNames" isRequired isInvalid={Boolean(getFieldError("givenNames"))}>
-            <Label>Nombres</Label>
-            <Input
-              value={formData.givenNames}
-              onChange={(e) => handleChange("givenNames", e.target.value)}
-              placeholder="Ej. Juan Carlos"
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="familyNames">
+                Apellidos <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="familyNames"
+                value={formData.familyNames}
+                onChange={(e) => handleChange("familyNames", e.target.value)}
+                placeholder="Ej. Pérez López"
+                className={getFieldError("familyNames") ? "border-destructive" : ""}
+                required
+              />
+              {getFieldError("familyNames") && <FieldError error={getFieldError("familyNames")} />}
+            </div>
+
+            <CatalogSelectField
+              name="documentType"
+              label="Tipo de documento"
+              value={formData.documentType}
+              options={documentTypeOptions}
+              placeholder="Seleccione tipo de documento"
+              isRequired
+              error={getFieldError("documentType")}
+              onChange={(value) => handleChange("documentType", value as PatientFormData["documentType"])}
             />
-            <FieldError>{getFieldError("givenNames")}</FieldError>
-          </TextField>
 
-          <TextField name="familyNames" isRequired isInvalid={Boolean(getFieldError("familyNames"))}>
-            <Label>Apellidos</Label>
-            <Input
-              value={formData.familyNames}
-              onChange={(e) => handleChange("familyNames", e.target.value)}
-              placeholder="Ej. Pérez López"
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="identityDocument">
+                Documento de identidad <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="identityDocument"
+                value={formData.identityDocument}
+                onChange={(e) => handleChange("identityDocument", e.target.value)}
+                placeholder="Ej. 1234567890123"
+                className={getFieldError("identityDocument") ? "border-destructive" : ""}
+                required
+              />
+              {getFieldError("identityDocument") && (
+                <FieldError error={getFieldError("identityDocument")} />
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="birthDate">
+                Fecha de nacimiento <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="birthDate"
+                type="date"
+                value={formData.birthDate}
+                onChange={(e) => handleChange("birthDate", e.target.value)}
+                className={getFieldError("birthDate") ? "border-destructive" : ""}
+                required
+              />
+              {getFieldError("birthDate") && <FieldError error={getFieldError("birthDate")} />}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="age">Edad</Label>
+              <Input
+                id="age"
+                value={age !== null ? `${age} años` : "Se calcula automáticamente"}
+                readOnly
+                className="bg-muted"
+              />
+            </div>
+
+            <CatalogSelectField
+              name="sex"
+              label="Sexo"
+              value={formData.sex}
+              options={sexOptions}
+              placeholder="Seleccione sexo"
+              isRequired
+              error={getFieldError("sex")}
+              onChange={(value) => handleChange("sex", value as PatientFormData["sex"])}
             />
-            <FieldError>{getFieldError("familyNames")}</FieldError>
-          </TextField>
 
-          <CatalogSelectField
-            name="documentType"
-            label="Tipo de documento"
-            value={formData.documentType}
-            options={documentTypeOptions}
-            placeholder="Seleccione tipo de documento"
-            isRequired
-            error={getFieldError("documentType")}
-            onChange={(value) => handleChange("documentType", value as PatientFormData["documentType"])}
-          />
-
-          <TextField
-            name="identityDocument"
-            isRequired
-            isInvalid={Boolean(getFieldError("identityDocument"))}
-          >
-            <Label>Documento de identidad</Label>
-            <Input
-              value={formData.identityDocument}
-              onChange={(e) => handleChange("identityDocument", e.target.value)}
-              placeholder="Ej. 1234567890123"
+            <CatalogSelectField
+              name="maritalStatusId"
+              label="Estado civil"
+              value={formData.maritalStatusId}
+              options={getCatalogOptions("maritalStatus")}
+              placeholder="Seleccione estado civil"
+              isRequired
+              error={getFieldError("maritalStatusId")}
+              onChange={(value) => handleChange("maritalStatusId", value)}
             />
-            <FieldError>{getFieldError("identityDocument")}</FieldError>
-          </TextField>
 
-          <TextField name="birthDate" isRequired isInvalid={Boolean(getFieldError("birthDate"))}>
-            <Label>Fecha de nacimiento</Label>
-            <Input
-              type="date"
-              value={formData.birthDate}
-              onChange={(e) => handleChange("birthDate", e.target.value)}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="phone">Teléfono</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => handleChange("phone", e.target.value)}
+                placeholder="Ej. 5555-5555"
+                className={getFieldError("phone") ? "border-destructive" : ""}
+              />
+              {getFieldError("phone") && <FieldError error={getFieldError("phone")} />}
+            </div>
+
+            <CatalogSelectField
+              name="bloodTypeId"
+              label="Tipo de sangre"
+              value={formData.bloodTypeId}
+              options={getCatalogOptions("bloodType")}
+              placeholder="Seleccione tipo de sangre"
+              error={getFieldError("bloodTypeId")}
+              onChange={(value) => handleChange("bloodTypeId", value)}
             />
-            <FieldError>{getFieldError("birthDate")}</FieldError>
-          </TextField>
-
-          <TextField name="age">
-            <Label>Edad</Label>
-            <Input
-              value={age !== null ? `${age} años` : "Se calcula automáticamente"}
-              readOnly
-            />
-          </TextField>
-
-          <CatalogSelectField
-            name="sex"
-            label="Sexo"
-            value={formData.sex}
-            options={sexOptions}
-            placeholder="Seleccione sexo"
-            isRequired
-            error={getFieldError("sex")}
-            onChange={(value) => handleChange("sex", value as PatientFormData["sex"])}
-          />
-
-          <CatalogSelectField
-            name="maritalStatusId"
-            label="Estado civil"
-            value={formData.maritalStatusId}
-            options={getCatalogOptions("maritalStatus")}
-            placeholder="Seleccione estado civil"
-            isRequired
-            error={getFieldError("maritalStatusId")}
-            onChange={(value) => handleChange("maritalStatusId", value)}
-          />
-
-          <TextField name="phone" isInvalid={Boolean(getFieldError("phone"))}>
-            <Label>Teléfono</Label>
-            <Input
-              value={formData.phone}
-              onChange={(e) => handleChange("phone", e.target.value)}
-              placeholder="Ej. 5555-5555"
-            />
-            <FieldError>{getFieldError("phone")}</FieldError>
-          </TextField>
-
-          <CatalogSelectField
-            name="bloodTypeId"
-            label="Tipo de sangre"
-            value={formData.bloodTypeId}
-            options={getCatalogOptions("bloodType")}
-            placeholder="Seleccione tipo de sangre"
-            error={getFieldError("bloodTypeId")}
-            onChange={(value) => handleChange("bloodTypeId", value)}
-          />
-        </div>
-      </Card>
-
-      <Card className="p-6 border border-default-200 shadow-sm flex flex-col gap-5">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold">Datos laborales</h2>
-          <p className="text-sm text-default-500">Empresa, sede y puesto actual del paciente.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <CatalogSelectField
-            name="companyId"
-            label="Empresa en que trabaja"
-            value={formData.companyId}
-            options={getCatalogOptions("company")}
-            placeholder="Seleccione empresa"
-            isRequired
-            error={getFieldError("companyId")}
-            onChange={(value) => handleChange("companyId", value)}
-          />
-
-          <CatalogSelectField
-            name="workplaceId"
-            label="Lugar de trabajo"
-            value={formData.workplaceId}
-            options={getCatalogOptions("workplace")}
-            placeholder="Seleccione lugar"
-            isRequired
-            error={getFieldError("workplaceId")}
-            onChange={(value) => handleChange("workplaceId", value)}
-          />
-
-          <CatalogSelectField
-            name="workAreaId"
-            label="Área de trabajo"
-            value={formData.workAreaId}
-            options={getCatalogOptions("workArea")}
-            placeholder="Seleccione área"
-            isRequired
-            error={getFieldError("workAreaId")}
-            onChange={(value) => handleChange("workAreaId", value)}
-          />
-
-          <CatalogSelectField
-            name="jobPositionId"
-            label="Puesto laboral"
-            value={formData.jobPositionId}
-            options={getCatalogOptions("jobPosition")}
-            placeholder="Seleccione puesto"
-            isRequired
-            error={getFieldError("jobPositionId")}
-            onChange={(value) => handleChange("jobPositionId", value)}
-          />
-        </div>
-      </Card>
-
-      <Card className="p-6 border border-default-200 shadow-sm flex flex-col gap-5">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-lg font-semibold">Contactos de emergencia</h2>
-            <p className="text-sm text-default-500">Agrega uno o más contactos con parentesco.</p>
           </div>
-          <Button type="button" variant="outline" onPress={addEmergencyContact}>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Datos laborales</CardTitle>
+          <CardDescription>Empresa, sede y puesto actual del paciente.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CatalogSelectField
+              name="companyId"
+              label="Empresa en que trabaja"
+              value={formData.companyId}
+              options={getCatalogOptions("company")}
+              placeholder="Seleccione empresa"
+              isRequired
+              error={getFieldError("companyId")}
+              onChange={(value) => handleChange("companyId", value)}
+            />
+
+            <CatalogSelectField
+              name="workplaceId"
+              label="Lugar de trabajo"
+              value={formData.workplaceId}
+              options={getCatalogOptions("workplace")}
+              placeholder="Seleccione lugar"
+              isRequired
+              error={getFieldError("workplaceId")}
+              onChange={(value) => handleChange("workplaceId", value)}
+            />
+
+            <CatalogSelectField
+              name="workAreaId"
+              label="Área de trabajo"
+              value={formData.workAreaId}
+              options={getCatalogOptions("workArea")}
+              placeholder="Seleccione área"
+              isRequired
+              error={getFieldError("workAreaId")}
+              onChange={(value) => handleChange("workAreaId", value)}
+            />
+
+            <CatalogSelectField
+              name="jobPositionId"
+              label="Puesto laboral"
+              value={formData.jobPositionId}
+              options={getCatalogOptions("jobPosition")}
+              placeholder="Seleccione puesto"
+              isRequired
+              error={getFieldError("jobPositionId")}
+              onChange={(value) => handleChange("jobPositionId", value)}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle>Contactos de emergencia</CardTitle>
+            <CardDescription>Agrega uno o más contactos con parentesco.</CardDescription>
+          </div>
+          <Button type="button" variant="outline" onClick={addEmergencyContact}>
             Agregar contacto
           </Button>
-        </div>
+        </CardHeader>
+        <CardContent>
+          {formData.emergencyContacts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No hay contactos agregados.</p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {formData.emergencyContacts.map((contact, index) => (
+                <Card key={`contact-${index}`} className="border">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <p className="text-sm font-semibold">Contacto #{index + 1}</p>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeEmergencyContact(index)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      Quitar
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="flex flex-col gap-2">
+                        <Label htmlFor={`contact-fullname-${index}`}>Nombre del contacto</Label>
+                        <Input
+                          id={`contact-fullname-${index}`}
+                          value={contact.fullName}
+                          onChange={(e) =>
+                            handleEmergencyChange(index, "fullName", e.target.value)
+                          }
+                          placeholder="Ej. Ana Pérez"
+                          className={
+                            getFieldError(`emergencyContacts.${index}.fullName`)
+                              ? "border-destructive"
+                              : ""
+                          }
+                        />
+                        {getFieldError(`emergencyContacts.${index}.fullName`) && (
+                          <FieldError
+                            error={getFieldError(`emergencyContacts.${index}.fullName`)}
+                          />
+                        )}
+                      </div>
 
-        {formData.emergencyContacts.length === 0 ? (
-          <p className="text-sm text-default-500">No hay contactos agregados.</p>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {formData.emergencyContacts.map((contact, index) => (
-              <Card key={`contact-${index}`} className="p-4 border border-default-200 bg-default-50 shadow-none">
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <p className="text-sm font-semibold">Contacto #{index + 1}</p>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    color="danger"
-                    onPress={() => removeEmergencyContact(index)}
-                  >
-                    Quitar
-                  </Button>
-                </div>
+                      <div className="flex flex-col gap-2">
+                        <Label htmlFor={`contact-phone-${index}`}>Teléfono</Label>
+                        <Input
+                          id={`contact-phone-${index}`}
+                          value={contact.phone}
+                          onChange={(e) => handleEmergencyChange(index, "phone", e.target.value)}
+                          placeholder="Ej. 4444-4444"
+                          className={
+                            getFieldError(`emergencyContacts.${index}.phone`)
+                              ? "border-destructive"
+                              : ""
+                          }
+                        />
+                        {getFieldError(`emergencyContacts.${index}.phone`) && (
+                          <FieldError error={getFieldError(`emergencyContacts.${index}.phone`)} />
+                        )}
+                      </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <TextField
-                    name={`emergencyContacts.${index}.fullName`}
-                    isInvalid={Boolean(getFieldError(`emergencyContacts.${index}.fullName`))}
-                  >
-                    <Label>Nombre del contacto</Label>
-                    <Input
-                      value={contact.fullName}
-                      onChange={(e) => handleEmergencyChange(index, "fullName", e.target.value)}
-                      placeholder="Ej. Ana Pérez"
-                    />
-                    <FieldError>{getFieldError(`emergencyContacts.${index}.fullName`)}</FieldError>
-                  </TextField>
-
-                  <TextField
-                    name={`emergencyContacts.${index}.phone`}
-                    isInvalid={Boolean(getFieldError(`emergencyContacts.${index}.phone`))}
-                  >
-                    <Label>Teléfono</Label>
-                    <Input
-                      value={contact.phone}
-                      onChange={(e) => handleEmergencyChange(index, "phone", e.target.value)}
-                      placeholder="Ej. 4444-4444"
-                    />
-                    <FieldError>{getFieldError(`emergencyContacts.${index}.phone`)}</FieldError>
-                  </TextField>
-
-                  <CatalogSelectField
-                    name={`emergencyContacts.${index}.relationshipTypeId`}
-                    label="Parentesco"
-                    value={contact.relationshipTypeId}
-                    options={getCatalogOptions("relationshipType")}
-                    placeholder="Seleccione parentesco"
-                    error={getFieldError(`emergencyContacts.${index}.relationshipTypeId`)}
-                    onChange={(value) => handleEmergencyChange(index, "relationshipTypeId", value)}
-                  />
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
+                      <CatalogSelectField
+                        name={`emergencyContacts.${index}.relationshipTypeId`}
+                        label="Parentesco"
+                        value={contact.relationshipTypeId}
+                        options={getCatalogOptions("relationshipType")}
+                        placeholder="Seleccione parentesco"
+                        error={getFieldError(
+                          `emergencyContacts.${index}.relationshipTypeId`
+                        )}
+                        onChange={(value) =>
+                          handleEmergencyChange(index, "relationshipTypeId", value)
+                        }
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
       </Card>
 
-      <div className="flex justify-end gap-2 mt-4">
-        <Button type="button" variant="outline" onPress={() => router.back()}>
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={() => router.back()}>
           Cancelar
         </Button>
-        <Button type="submit" variant="primary" isDisabled={isLoading}>
+        <Button type="submit" disabled={isLoading}>
           {isLoading ? "Guardando..." : initialData ? "Guardar Cambios" : "Crear Paciente"}
         </Button>
       </div>

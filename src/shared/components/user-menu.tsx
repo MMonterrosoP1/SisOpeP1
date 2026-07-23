@@ -1,6 +1,13 @@
 "use client";
 
-import { Dropdown, Label, Description, Avatar } from "@heroui/react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { LogOut, Palette } from "lucide-react";
 import { ThemeSwitcher } from "./theme-switcher";
 import { useRouter } from "next/navigation";
@@ -25,90 +32,96 @@ export function UserMenu({ user, isCollapsed }: UserMenuProps) {
       await authClient.signOut();
       router.push("/sign-in");
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Error al cerrar sesión");
     }
   };
 
-  const menuContent = (
-    <Dropdown.Menu aria-label="Profile Actions">
-      <Dropdown.Item key="profile" id="profile" className="h-14 gap-2 border-b border-default-100 pb-2 mb-2" textValue="Profile">
-        <Label className="font-semibold">Conectado como</Label>
-        <Description className="font-semibold">{user.email}</Description>
-      </Dropdown.Item>
-      
-      <Dropdown.Item 
-        key="appearance" 
-        id="appearance"
-        textValue="Appearance" 
-        className="flex items-center py-2"
-      >
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-2">
-            <Palette size={16} />
-            <Label>Apariencia</Label>
-          </div>
-          <ThemeSwitcher />
-        </div>
-      </Dropdown.Item>
-
-      <Dropdown.Item 
-        key="sign_out" 
-        id="sign_out"
-        textValue="Sign out" 
-        className="text-danger mt-2" 
-        onPress={handleSignOut}
-        onAction={handleSignOut}
-      >
-        <div className="flex items-center gap-2">
-          <LogOut size={16} />
-          <Label>Cerrar Sesión</Label>
-        </div>
-      </Dropdown.Item>
-    </Dropdown.Menu>
-  );
-
   if (isCollapsed) {
     return (
-      <Dropdown>
-        <Dropdown.Trigger>
-          <div className="flex items-center justify-center w-full px-3 py-3 outline-none hover:bg-default-100 transition-colors cursor-pointer">
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <button className="flex items-center justify-center w-full px-3 py-3 outline-none hover:bg-muted transition-colors cursor-pointer rounded-md">
             <div className="relative shrink-0 flex">
-              <Avatar className="bg-accent text-accent-foreground size-8">
-                <Avatar.Fallback className="text-xs font-semibold uppercase">{user.name.substring(0, 2)}</Avatar.Fallback>
+              <Avatar className="h-8 w-8 bg-accent text-accent-foreground">
+                <AvatarFallback className="text-xs font-semibold uppercase bg-accent text-accent-foreground">
+                  {user.name.substring(0, 2)}
+                </AvatarFallback>
               </Avatar>
-              <span className="absolute -right-0.5 -bottom-0.5 size-3 rounded-full bg-success ring-2 ring-background shadow-[0_0_10px_#17c964]" />
+              <span className="absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full bg-green-500 ring-2 ring-background shadow-[0_0_10px_#10b981]" />
             </div>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <div className="p-2">
+            <p className="text-xs font-medium text-muted-foreground">Conectado como</p>
+            <p className="text-sm font-semibold truncate">{user.email}</p>
           </div>
-        </Dropdown.Trigger>
-        <Dropdown.Popover placement="right">
-          {menuContent}
-        </Dropdown.Popover>
-      </Dropdown>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="flex items-center justify-between cursor-pointer">
+            <div className="flex items-center gap-2">
+              <Palette size={16} />
+              <span>Apariencia</span>
+            </div>
+            <ThemeSwitcher />
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleSignOut}
+            className="text-destructive focus:text-destructive cursor-pointer"
+          >
+            <LogOut size={16} />
+            <span>Cerrar Sesión</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 
   return (
-    <Dropdown>
-      <Dropdown.Trigger>
-        <div className="flex items-center gap-3 px-3 pt-4 cursor-pointer hover:bg-default-100 transition-colors rounded-b-md pb-2 outline-none w-full">
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <button className="flex items-center gap-3 px-3 pt-4 cursor-pointer hover:bg-muted transition-colors rounded-b-md pb-2 outline-none w-full">
           <div className="relative shrink-0 flex">
-            <Avatar className="bg-accent text-accent-foreground size-8">
-              <Avatar.Fallback className="text-xs font-semibold uppercase">{user.name.substring(0, 2)}</Avatar.Fallback>
+            <Avatar className="h-8 w-8 bg-accent text-accent-foreground">
+              <AvatarFallback className="text-xs font-semibold uppercase bg-accent text-accent-foreground">
+                {user.name.substring(0, 2)}
+              </AvatarFallback>
             </Avatar>
-            <span className="absolute -right-0.5 -bottom-0.5 size-3 rounded-full bg-success ring-2 ring-background shadow-[0_0_10px_#17c964]" />
+            <span className="absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full bg-green-500 ring-2 ring-background shadow-[0_0_10px_#10b981]" />
           </div>
           <div className="flex flex-col flex-1 truncate text-left">
-            <span className="text-sm font-medium text-foreground truncate">{user.name}</span>
-            <span className="text-xs text-default-500 truncate capitalize">
-              {user.role.toLowerCase() === 'admin' ? 'Admin' : user.role.toLowerCase()}
+            <span className="text-sm font-medium text-foreground truncate">
+              {user.name}
+            </span>
+            <span className="text-xs text-muted-foreground truncate capitalize">
+              {user.role.toLowerCase() === "admin" ? "Admin" : user.role.toLowerCase()}
             </span>
           </div>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <div className="p-2">
+          <p className="text-xs font-medium text-muted-foreground">Conectado como</p>
+          <p className="text-sm font-semibold truncate">{user.email}</p>
         </div>
-      </Dropdown.Trigger>
-      <Dropdown.Popover placement="bottom start">
-        {menuContent}
-      </Dropdown.Popover>
-    </Dropdown>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="flex items-center justify-between cursor-pointer">
+          <div className="flex items-center gap-2">
+            <Palette size={16} />
+            <span>Apariencia</span>
+          </div>
+          <ThemeSwitcher />
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={handleSignOut}
+          className="text-destructive focus:text-destructive cursor-pointer"
+        >
+          <LogOut size={16} />
+          <span>Cerrar Sesión</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
