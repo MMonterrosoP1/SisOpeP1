@@ -1,5 +1,5 @@
 import { Prisma } from "@/generated/prisma/client";
-import { patientFilterSchema } from "./schemas";
+import { createPatientSchema, patientFilterSchema, updatePatientSchema } from "./schemas";
 import { z } from "zod";
 
 export type PatientWithRelations = Prisma.PatientGetPayload<{
@@ -19,6 +19,10 @@ export type PatientWithRelations = Prisma.PatientGetPayload<{
 }>;
 
 export type PatientFilters = z.infer<typeof patientFilterSchema>;
+
+export type PatientCreateInput = z.infer<typeof createPatientSchema>;
+
+export type PatientUpdateInput = z.infer<typeof updatePatientSchema>;
 
 export type PatientListItem = {
   id: number;

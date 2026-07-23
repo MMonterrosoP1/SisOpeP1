@@ -10,7 +10,7 @@ export const emergencyContactSchema = z.object({
   isPrimary: z.boolean().default(false),
 });
 
-export const createPatientSchema = z.object({
+export const basePatientSchema = z.object({
   givenNames: z.string().trim().min(1, "Given names are required").max(255),
   familyNames: z.string().trim().min(1, "Family names are required").max(255),
   documentType: DocumentTypeSchema,
@@ -21,14 +21,16 @@ export const createPatientSchema = z.object({
   sex: SexSchema,
   phone: z.string().trim().max(20).optional(),
   email: z.string().trim().email().optional().or(z.literal("")),
-  maritalStatusId: idParamSchema.optional(),
-  companyId: idParamSchema.optional(),
-  workplaceId: idParamSchema.optional(),
-  workAreaId: idParamSchema.optional(),
-  jobPositionId: idParamSchema.optional(),
+  maritalStatusId: idParamSchema,
+  companyId: idParamSchema,
+  workplaceId: idParamSchema,
+  workAreaId: idParamSchema,
+  jobPositionId: idParamSchema,
   bloodTypeId: idParamSchema.optional(),
   emergencyContacts: z.array(emergencyContactSchema).optional(),
-}).superRefine((data, ctx) => {
+});
+
+export const createPatientSchema = basePatientSchema.superRefine((data, ctx) => {
   if (data.documentType === "DPI" && !/^\d{13}$/.test(data.identityDocument)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -38,8 +40,16 @@ export const createPatientSchema = z.object({
   }
 });
 
-export const updatePatientSchema = createPatientSchema.partial().extend({
+export const updatePatientSchema = basePatientSchema.partial().extend({
   active: z.boolean().optional(),
+}).superRefine((data, ctx) => {
+  if (data.documentType === "DPI" && data.identityDocument && !/^\d{13}$/.test(data.identityDocument)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "DPI must be exactly 13 digits",
+      path: ["identityDocument"],
+    });
+  }
 });
 
 export const patientFilterSchema = z.object({

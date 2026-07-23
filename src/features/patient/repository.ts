@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { PatientFilters, PatientListItem, PatientWithRelations } from "./types";
+import { PatientCreateInput, PatientFilters, PatientListItem, PatientUpdateInput, PatientWithRelations } from "./types";
 import { Prisma } from "@/generated/prisma/client";
+import { ConflictError } from "@/shared/errors/app-error";
 
 export const patientRepository = {
   async findAll(filters: PatientFilters, pagination: { skip: number; take: number }) {
@@ -76,24 +77,34 @@ export const patientRepository = {
     });
   },
 
-  async create(data: any) {
+  async create(data: PatientCreateInput) {
     const { emergencyContacts, ...patientData } = data;
-    
-    return prisma.patient.create({
-      data: {
-        ...patientData,
-        emergencyContacts: emergencyContacts?.length > 0 ? {
-          create: emergencyContacts,
-        } : undefined,
-      },
-      include: {
-        company: true,
-        emergencyContacts: true,
-      },
-    });
+
+    try {
+      return prisma.patient.create({
+        data: {
+          ...patientData,
+          emergencyContacts: Array.isArray(emergencyContacts) && emergencyContacts.length > 0 ? {
+            create: emergencyContacts,
+          } : undefined,
+        },
+        include: {
+          company: true,
+          emergencyContacts: true,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError
+        && error.code === "P2002"
+      ) {
+        throw new ConflictError(`A patient with document ${data.identityDocument} already exists`);
+      }
+      throw error;
+    }
   },
 
-  async update(id: number, data: any) {
+  async update(id: number, data: PatientUpdateInput) {
     const { emergencyContacts, ...patientData } = data;
     
     return prisma.$transaction(async (tx) => {
@@ -109,7 +120,7 @@ export const patientRepository = {
         data: {
           ...patientData,
           emergencyContacts: emergencyContacts ? {
-            create: emergencyContacts.map((c: any) => ({
+            create: emergencyContacts.map((c) => ({
               fullName: c.fullName,
               phone: c.phone,
               relationshipTypeId: c.relationshipTypeId,
@@ -126,7 +137,10 @@ export const patientRepository = {
   },
 
   async toggleActive(id: number) {
-    const patient = await prisma.patient.findUnique({ where: { id } });
+    const patient = await prisma.patient.findUnique({
+      where: { id },
+      select: { active: true },
+    });
     if (!patient) return null;
     
     return prisma.patient.update({
