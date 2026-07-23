@@ -52,11 +52,12 @@ async function main() {
   for (const emp of empresas) {
     // CSV headers: Acrónimo, Nombre
     const name = emp["Nombre"] || emp["Acrónimo"];
+    const acronym = emp["Acrónimo"] || null;
     if (name) {
       await prisma.company.upsert({
         where: { name },
-        update: {},
-        create: { name },
+        update: { acronym },
+        create: { name, acronym },
       });
     }
   }

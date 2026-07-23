@@ -149,6 +149,7 @@ model Verification {
 model Company {
   id        Int      @id @default(autoincrement())
   name      String   @unique
+  acronym   String?
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 
