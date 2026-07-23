@@ -1,9 +1,10 @@
 import { patientRepository } from "./repository";
 import { auditService } from "@/shared/audit/audit.service";
 import { ConflictError, NotFoundError } from "@/shared/errors/app-error";
+import { PatientCreateInput, PatientUpdateInput } from "./types";
 
 export const patientService = {
-  async create(data: any, userId: string) {
+  async create(data: PatientCreateInput, userId: string) {
     const existing = await patientRepository.findByDocument(data.identityDocument);
     if (existing) {
       throw new ConflictError(`A patient with document ${data.identityDocument} already exists`);
@@ -22,7 +23,7 @@ export const patientService = {
     return created;
   },
 
-  async update(id: number, data: any, userId: string) {
+  async update(id: number, data: PatientUpdateInput, userId: string) {
     const existingPatient = await patientRepository.findById(id);
     if (!existingPatient) {
       throw new NotFoundError("Patient not found", "patient", id);
