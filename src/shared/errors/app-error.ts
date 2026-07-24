@@ -4,7 +4,8 @@ export class AppError extends Error {
   constructor(
     public message: string,
     public code: string,
-    public statusCode: number
+    public statusCode: number,
+    public fieldErrors?: Record<string, string[]>
   ) {
     super(message);
     this.name = "AppError";
@@ -12,8 +13,8 @@ export class AppError extends Error {
 }
 
 export class ValidationError extends AppError {
-  constructor(message: string, public fieldErrors?: Record<string, string[]>) {
-    super(message, "VALIDATION_ERROR", 400);
+  constructor(message: string, fieldErrors?: Record<string, string[]>) {
+    super(message, "VALIDATION_ERROR", 400, fieldErrors);
     this.name = "ValidationError";
   }
 }
@@ -26,14 +27,14 @@ export class NotFoundError extends AppError {
 }
 
 export class ConflictError extends AppError {
-  constructor(message: string) {
-    super(message, "CONFLICT", 409);
+  constructor(message: string, fieldErrors?: Record<string, string[]>) {
+    super(message, "CONFLICT", 409, fieldErrors);
     this.name = "ConflictError";
   }
 }
 
 export class ForbiddenError extends AppError {
-  constructor(message: string = "Access denied") {
+  constructor(message: string = "Acceso denegado") {
     super(message, "FORBIDDEN", 403);
     this.name = "ForbiddenError";
   }
@@ -42,7 +43,7 @@ export class ForbiddenError extends AppError {
 export function handleActionError(error: unknown): ActionResponse<any> {
   console.error("[Action Error]", error);
 
-  if (error instanceof ValidationError) {
+  if (error instanceof AppError) {
     return {
       success: false,
       error: error.message,
@@ -50,15 +51,8 @@ export function handleActionError(error: unknown): ActionResponse<any> {
     };
   }
 
-  if (error instanceof AppError) {
-    return {
-      success: false,
-      error: error.message,
-    };
-  }
-
   return {
     success: false,
-    error: "An unexpected error occurred. Please try again later.",
+    error: "Ocurrió un error inesperado. Por favor, inténtelo de nuevo más tarde.",
   };
 }

@@ -11,7 +11,9 @@ export const catalogService = {
     if (data.name) {
       const existing = await repo.findByName(data.name);
       if (existing) {
-        throw new ConflictError(`Item with name ${data.name} already exists in ${type}`);
+        throw new ConflictError(`El elemento con nombre ${data.name} ya existe en el catálogo`, {
+          name: ["Ya existe un elemento con este nombre"],
+        });
       }
     }
 
@@ -34,13 +36,15 @@ export const catalogService = {
 
     const existingItem = await repo.findById(id);
     if (!existingItem) {
-      throw new NotFoundError(`Item with id ${id} not found in ${type}`);
+      throw new NotFoundError(`No se encontró el elemento con ID ${id} en ${type}`);
     }
 
     if (data.name && data.name !== existingItem.name) {
       const existingName = await repo.findByName(data.name);
       if (existingName) {
-        throw new ConflictError(`Item with name ${data.name} already exists in ${type}`);
+        throw new ConflictError(`El elemento con nombre ${data.name} ya existe en el catálogo`, {
+          name: ["Ya existe un elemento con este nombre"],
+        });
       }
     }
 
@@ -64,11 +68,11 @@ export const catalogService = {
 
     const existingItem = await repo.findById(id);
     if (!existingItem) {
-      throw new NotFoundError(`Item with id ${id} not found in ${type}`);
+      throw new NotFoundError(`No se encontró el elemento con ID ${id} en ${type}`);
     }
 
-    if (existingItem.active === undefined) {
-      throw new ConflictError(`Catalog type ${type} does not support soft delete`);
+    if (!('active' in existingItem)) {
+      throw new ConflictError(`El tipo de catálogo ${type} no admite borrado lógico (soft delete)`);
     }
 
     const updated = await repo.update(id, { active: !existingItem.active });
