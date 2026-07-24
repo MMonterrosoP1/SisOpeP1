@@ -5,6 +5,15 @@ import { NextResponse, type NextRequest } from "next/server";
 type Session = typeof auth.$Infer.Session;
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  
+  const isAuthRoute = pathname.startsWith("/sign-in") || pathname.startsWith("/api/auth");
+  const isStaticRoute = pathname.startsWith("/_next") || pathname === "/favicon.ico" || pathname.startsWith("/public") || pathname.endsWith(".png") || pathname.endsWith(".jpg") || pathname.endsWith(".svg");
+
+  if (isStaticRoute) {
+    return NextResponse.next();
+  }
+
   const { data: session } = await betterFetch<Session>(
     "/api/auth/get-session",
     {
@@ -15,14 +24,7 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  const { pathname } = request.nextUrl;
-  
-  const isAuthRoute = pathname.startsWith("/sign-in") || pathname.startsWith("/api/auth");
-  const isStaticRoute = pathname.startsWith("/_next") || pathname === "/favicon.ico" || pathname.startsWith("/public") || pathname.endsWith(".png");
 
-  if (isStaticRoute) {
-    return NextResponse.next();
-  }
 
   if (!session) {
     if (!isAuthRoute) {
@@ -47,5 +49,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };
