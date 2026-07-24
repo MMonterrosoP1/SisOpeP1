@@ -1,10 +1,10 @@
 import { getPatients } from "@/features/patient/queries";
 import { getCatalogs } from "@/features/catalog/queries";
 import { PatientTable } from "@/features/patient/components/patient-table";
+import { PatientFilters } from "@/features/patient/components/patient-filters";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { Search, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async function PatientsPage({
@@ -17,11 +17,15 @@ export default async function PatientsPage({
   const search = typeof resolvedParams.search === "string" ? resolvedParams.search : undefined;
   const companyId = resolvedParams.company ? Number(resolvedParams.company) : undefined;
   const workplaceId = resolvedParams.workplace ? Number(resolvedParams.workplace) : undefined;
+  const workAreaId = resolvedParams.workArea ? Number(resolvedParams.workArea) : undefined;
+  const jobPositionId = resolvedParams.jobPosition ? Number(resolvedParams.jobPosition) : undefined;
 
-  const [patientsRes, companies, workplaces] = await Promise.all([
-    getPatients({ search, companyId, workplaceId }, { page, pageSize: 20 }),
+  const [patientsRes, companies, workplaces, workAreas, jobPositions] = await Promise.all([
+    getPatients({ search, companyId, workplaceId, workAreaId, jobPositionId }, { page, pageSize: 20 }),
     getCatalogs("company"),
     getCatalogs("workplace"),
+    getCatalogs("workArea"),
+    getCatalogs("jobPosition"),
   ]);
 
   return (
@@ -39,47 +43,12 @@ export default async function PatientsPage({
         </Link>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 bg-muted/50 p-4 rounded-lg border">
-        <form className="flex flex-1 gap-4 flex-col sm:flex-row" action="/patients" method="GET">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              name="search"
-              defaultValue={search}
-              placeholder="Buscar por nombre o documento..."
-              className="pl-10"
-              type="search"
-            />
-          </div>
-          <select
-            name="company"
-            defaultValue={companyId || ""}
-            className="h-10 px-3 rounded-md border border-input bg-background"
-          >
-            <option value="">Todas las Empresas</option>
-            {companies.map((c: any) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          <select
-            name="workplace"
-            defaultValue={workplaceId || ""}
-            className="h-10 px-3 rounded-md border border-input bg-background"
-          >
-            <option value="">Todas las Sedes</option>
-            {workplaces.map((w: any) => (
-              <option key={w.id} value={w.id}>
-                {w.name}
-              </option>
-            ))}
-          </select>
-          <Button type="submit" variant="outline">
-            Filtrar
-          </Button>
-        </form>
-      </div>
+      <PatientFilters
+        companies={companies.map((c: any) => ({ key: String(c.id), label: c.name }))}
+        workplaces={workplaces.map((w: any) => ({ key: String(w.id), label: w.name }))}
+        workAreas={workAreas.map((a: any) => ({ key: String(a.id), label: a.name }))}
+        jobPositions={jobPositions.map((p: any) => ({ key: String(p.id), label: p.name }))}
+      />
 
       <div className="bg-background rounded-lg border shadow-sm overflow-hidden">
         <PatientTable data={patientsRes.data} totalCount={patientsRes.meta.totalCount} />
