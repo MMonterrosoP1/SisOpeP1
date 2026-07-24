@@ -7,12 +7,12 @@ export const medicalCertificateService = {
   async generateCertificate(encounterId: number, userId: string) {
     const encounter = await encounterRepository.findById(encounterId);
     if (!encounter) {
-      throw new NotFoundError("Encounter not found", "encounter", encounterId);
+      throw new NotFoundError("Consulta no encontrada", "encounter", encounterId);
     }
 
     const existingCert = await medicalCertificateRepository.findByEncounter(encounterId);
     if (existingCert) {
-      throw new ConflictError("A medical certificate already exists for this encounter");
+      throw new ConflictError("Ya existe un certificado médico para esta consulta");
     }
 
     const certificate = await medicalCertificateRepository.create(
