@@ -13,6 +13,8 @@ export const patientRepository = {
     
     if (filters.companyId) where.companyId = filters.companyId;
     if (filters.workplaceId) where.workplaceId = filters.workplaceId;
+    if (filters.workAreaId) where.workAreaId = filters.workAreaId;
+    if (filters.jobPositionId) where.jobPositionId = filters.jobPositionId;
     
     if (filters.search) {
       where.OR = [
@@ -31,6 +33,8 @@ export const patientRepository = {
         include: {
           company: { select: { name: true, acronym: true } },
           workplace: { select: { name: true } },
+          workArea: { select: { name: true } },
+          jobPosition: { select: { name: true } },
         },
       }),
       prisma.patient.count({ where }),
@@ -45,9 +49,12 @@ export const patientRepository = {
       birthDate: p.birthDate,
       sex: p.sex,
       active: p.active,
+      phone: p.phone,
       companyName: p.company?.name,
       companyAcronym: p.company?.acronym,
       workplaceName: p.workplace?.name,
+      workAreaName: p.workArea?.name,
+      jobPositionName: p.jobPosition?.name,
     }));
 
     return { items, totalCount };
@@ -99,7 +106,9 @@ export const patientRepository = {
         error instanceof Prisma.PrismaClientKnownRequestError
         && error.code === "P2002"
       ) {
-        throw new ConflictError(`A patient with document ${data.identityDocument} already exists`);
+        throw new ConflictError(`El paciente con documento ${data.identityDocument} ya existe`, {
+          identityDocument: ["Ya existe un paciente registrado con este documento"],
+        });
       }
       throw error;
     }
