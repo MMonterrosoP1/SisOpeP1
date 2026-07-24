@@ -9,9 +9,10 @@ import { notFound } from "next/navigation";
 export default async function EditPatientPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const patientId = Number(params.id);
+  const resolvedParams = await params;
+  const patientId = Number(resolvedParams.id);
   if (isNaN(patientId)) notFound();
 
   const [patient, company, workplace, workArea, jobPosition, maritalStatus, bloodType, relationshipType] = await Promise.all([

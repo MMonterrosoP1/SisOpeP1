@@ -9,9 +9,10 @@ import { notFound } from "next/navigation";
 export default async function PatientDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const patientId = Number(params.id);
+  const resolvedParams = await params;
+  const patientId = Number(resolvedParams.id);
   if (isNaN(patientId)) notFound();
 
   const patient = await getPatientById(patientId);
