@@ -33,7 +33,10 @@ export type PatientListItem = {
   birthDate: Date;
   sex: string;
   active: boolean;
+  phone?: string | null;
   companyName?: string;
   companyAcronym?: string | null;
   workplaceName?: string;
+  workAreaName?: string;
+  jobPositionName?: string;
 };

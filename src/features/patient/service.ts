@@ -7,7 +7,9 @@ export const patientService = {
   async create(data: PatientCreateInput, userId: string) {
     const existing = await patientRepository.findByDocument(data.identityDocument);
     if (existing) {
-      throw new ConflictError(`A patient with document ${data.identityDocument} already exists`);
+      throw new ConflictError(`El paciente con documento ${data.identityDocument} ya existe`, {
+        identityDocument: ["Ya existe un paciente registrado con este documento"],
+      });
     }
 
     const created = await patientRepository.create(data);
@@ -26,13 +28,15 @@ export const patientService = {
   async update(id: number, data: PatientUpdateInput, userId: string) {
     const existingPatient = await patientRepository.findById(id);
     if (!existingPatient) {
-      throw new NotFoundError("Patient not found", "patient", id);
+      throw new NotFoundError("Paciente no encontrado", "patient", id);
     }
 
     if (data.identityDocument && data.identityDocument !== existingPatient.identityDocument) {
       const existing = await patientRepository.findByDocument(data.identityDocument);
       if (existing) {
-        throw new ConflictError(`A patient with document ${data.identityDocument} already exists`);
+        throw new ConflictError(`El paciente con documento ${data.identityDocument} ya existe`, {
+          identityDocument: ["Ya existe un paciente registrado con este documento"],
+        });
       }
     }
 
@@ -53,7 +57,7 @@ export const patientService = {
   async toggleActive(id: number, userId: string) {
     const existingPatient = await patientRepository.findById(id);
     if (!existingPatient) {
-      throw new NotFoundError("Patient not found", "patient", id);
+      throw new NotFoundError("Paciente no encontrado", "patient", id);
     }
 
     const updated = await patientRepository.toggleActive(id);
