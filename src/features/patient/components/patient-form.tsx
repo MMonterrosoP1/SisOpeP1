@@ -12,8 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SearchableSelect } from "../../../components/ui/searchable-select";
-import { ComboboxSelect } from "../../../components/ui/combobox-select";
+
 import { PatientWithRelations } from "../types";
 import { createPatient, updatePatient } from "../actions";
 import { toast } from "sonner";
@@ -258,7 +257,6 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
       if (res.success) {
         toast.success(`Paciente ${initialData ? "actualizado" : "creado"} correctamente`);
         router.push("/patients");
-        router.refresh();
       } else {
         if (res.fieldErrors) {
           setFieldErrors(res.fieldErrors);
@@ -379,19 +377,16 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
             />
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="maritalStatusId">
-                Estado civil <span className="text-destructive">*</span>
-              </Label>
-              <ComboboxSelect
-                id="maritalStatusId"
+              <CatalogSelectField
+                name="maritalStatusId"
+                label="Estado civil"
                 value={formData.maritalStatusId}
                 options={getCatalogOptions("maritalStatus")}
                 placeholder="Seleccione estado civil"
-                searchPlaceholder="Busca un estado civil"
-                invalid={!!getFieldError("maritalStatusId")}
-                onValueChange={(selectedValue: string) => handleChange("maritalStatusId", selectedValue)}
+                isRequired
+                error={getFieldError("maritalStatusId")}
+                onChange={(value) => handleChange("maritalStatusId", value)}
               />
-              {getFieldError("maritalStatusId") && <FieldError error={getFieldError("maritalStatusId")} />}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -438,51 +433,42 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
             />
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="workplaceId">
-                Lugar de trabajo <span className="text-destructive">*</span>
-              </Label>
-              <SearchableSelect
-                id="workplaceId"
+              <CatalogSelectField
+                name="workplaceId"
+                label="Lugar de trabajo"
                 value={formData.workplaceId}
                 options={getCatalogOptions("workplace")}
                 placeholder="Seleccione lugar"
-                searchPlaceholder="Busca un lugar de trabajo"
-                invalid={!!getFieldError("workplaceId")}
-                onValueChange={(selectedValue: string) => handleChange("workplaceId", selectedValue)}
+                isRequired
+                error={getFieldError("workplaceId")}
+                onChange={(value) => handleChange("workplaceId", value)}
               />
-              {getFieldError("workplaceId") && <FieldError error={getFieldError("workplaceId")} />}
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="workAreaId">
-                Área de trabajo <span className="text-destructive">*</span>
-              </Label>
-              <SearchableSelect
-                id="workAreaId"
+              <CatalogSelectField
+                name="workAreaId"
+                label="Área de trabajo"
                 value={formData.workAreaId}
                 options={getCatalogOptions("workArea")}
                 placeholder="Seleccione área"
-                searchPlaceholder="Busca un área de trabajo"
-                invalid={!!getFieldError("workAreaId")}
-                onValueChange={(selectedValue: string) => handleChange("workAreaId", selectedValue)}
+                isRequired
+                error={getFieldError("workAreaId")}
+                onChange={(value) => handleChange("workAreaId", value)}
               />
-              {getFieldError("workAreaId") && <FieldError error={getFieldError("workAreaId")} />}
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="jobPositionId">
-                Puesto laboral <span className="text-destructive">*</span>
-              </Label>
-              <SearchableSelect
-                id="jobPositionId"
+              <CatalogSelectField
+                name="jobPositionId"
+                label="Puesto laboral"
                 value={formData.jobPositionId}
                 options={getCatalogOptions("jobPosition")}
                 placeholder="Seleccione puesto"
-                searchPlaceholder="Busca un puesto laboral"
-                invalid={!!getFieldError("jobPositionId")}
-                onValueChange={(selectedValue: string) => handleChange("jobPositionId", selectedValue)}
+                isRequired
+                error={getFieldError("jobPositionId")}
+                onChange={(value) => handleChange("jobPositionId", value)}
               />
-              {getFieldError("jobPositionId") && <FieldError error={getFieldError("jobPositionId")} />}
             </div>
           </div>
         </CardContent>
@@ -560,23 +546,17 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
                       </div>
 
                       <div className="flex flex-col gap-2">
-                        <Label htmlFor={`contact-relationship-${index}`}>Parentesco</Label>
-                        <ComboboxSelect
-                          id={`contact-relationship-${index}`}
+                        <CatalogSelectField
+                          name={`contact-relationship-${index}`}
+                          label="Parentesco"
                           value={contact.relationshipTypeId}
                           options={getCatalogOptions("relationshipType")}
                           placeholder="Seleccione parentesco"
-                          searchPlaceholder="Busca un parentesco"
-                          invalid={!!getFieldError(`emergencyContacts.${index}.relationshipTypeId`)}
-                          onValueChange={(value) =>
+                          error={getFieldError(`emergencyContacts.${index}.relationshipTypeId`)}
+                          onChange={(value) =>
                             handleEmergencyChange(index, "relationshipTypeId", value)
                           }
                         />
-                        {getFieldError(`emergencyContacts.${index}.relationshipTypeId`) && (
-                          <FieldError
-                            error={getFieldError(`emergencyContacts.${index}.relationshipTypeId`)}
-                          />
-                        )}
                       </div>
                     </div>
                   </CardContent>

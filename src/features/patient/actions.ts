@@ -6,6 +6,7 @@ import { patientService } from "./service";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { handleActionError } from "@/shared/errors/app-error";
 import { ActionResponse } from "@/shared/schemas/action-response";
+import { revalidatePath } from "next/cache";
 
 export async function createPatient(data: unknown): Promise<ActionResponse<any>> {
   try {
@@ -15,6 +16,7 @@ export async function createPatient(data: unknown): Promise<ActionResponse<any>>
     if (!parseResult.success) return parseResult;
 
     const created = await patientService.create(parseResult.data, session.user.id);
+    revalidatePath("/patients");
     return { success: true, data: created };
   } catch (error) {
     return handleActionError(error);
@@ -29,6 +31,8 @@ export async function updatePatient(id: number, data: unknown): Promise<ActionRe
     if (!parseResult.success) return parseResult;
 
     const updated = await patientService.update(id, parseResult.data, session.user.id);
+    revalidatePath("/patients");
+    revalidatePath(`/patients/${id}`);
     return { success: true, data: updated };
   } catch (error) {
     return handleActionError(error);
@@ -40,6 +44,7 @@ export async function togglePatientActive(id: number): Promise<ActionResponse<an
     const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 
     const updated = await patientService.toggleActive(id, session.user.id);
+    revalidatePath("/patients");
     return { success: true, data: updated };
   } catch (error) {
     return handleActionError(error);
