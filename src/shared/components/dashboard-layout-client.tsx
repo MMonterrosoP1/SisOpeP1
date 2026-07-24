@@ -28,11 +28,11 @@ export function DashboardLayoutClient({ user, children }: DashboardLayoutClientP
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         {/* Mobile Header */}
-        <header className="lg:hidden flex items-center justify-between h-16 px-4 border-b border-border bg-background">
+        <header className="lg:hidden sticky top-0 z-40 flex items-center justify-between h-16 px-4 border-b border-border bg-background/80 backdrop-blur-md">
           <img
             src="/premed-dark.png"
             alt="FM-PREMED Logo"
-            className="h-10 w-auto object-contain"
+            className="h-9 w-auto object-contain"
           />
           <Button
             variant="ghost"
