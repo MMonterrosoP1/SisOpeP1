@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { ArrowLeft, Edit2 } from "lucide-react";
+import { ArrowLeft, Edit2, Plus } from "lucide-react";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import { EncounterList } from "@/features/encounter/components/encounter-list";
 
 export default async function PatientDetailPage({
   params,
@@ -38,12 +40,20 @@ export default async function PatientDetailPage({
             <p className="text-muted-foreground text-sm">Expediente Médico y Datos Generales</p>
           </div>
         </div>
-        <Link href={`/patients/${patient.id}/edit`}>
-          <Button>
-            <Edit2 className="w-4 h-4 mr-2" />
-            Editar Paciente
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href={`/patients/${patient.id}/edit`}>
+            <Button variant="outline">
+              <Edit2 className="w-4 h-4 mr-2" />
+              Editar Paciente
+            </Button>
+          </Link>
+          <Link href={`/patients/${patient.id}/encounters/new`}>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Nueva Consulta
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -143,6 +153,18 @@ export default async function PatientDetailPage({
                 No hay contactos de emergencia registrados.
               </p>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Encounters History */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Historial de Consultas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Suspense fallback={<div className="p-4 text-center text-sm text-muted-foreground">Cargando consultas...</div>}>
+              <EncounterList patientId={patient.id} />
+            </Suspense>
           </CardContent>
         </Card>
       </div>

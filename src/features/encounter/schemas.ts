@@ -34,7 +34,7 @@ export const allergySchema = z.object({
 export const habitSchema = z.object({
   name: z.string().min(1).max(255),
   duration: z.string().max(255).optional().nullable(),
-  quantity: z.string().max(255).optional().nullable(),
+  quantity: z.number().optional().nullable(),
   frequency: z.string().optional().nullable(),
   observations: z.string().max(2000).optional().nullable(),
 });

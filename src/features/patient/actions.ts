@@ -3,6 +3,7 @@
 import { safeParseAction } from "@/shared/utils/zod-helpers";
 import { createPatientSchema, updatePatientSchema } from "./schemas";
 import { patientService } from "./service";
+import { searchPatients } from "./queries";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { handleActionError } from "@/shared/errors/app-error";
 import { ActionResponse } from "@/shared/schemas/action-response";
@@ -46,6 +47,16 @@ export async function togglePatientActive(id: number): Promise<ActionResponse<an
     const updated = await patientService.toggleActive(id, session.user.id);
     revalidatePath("/patients");
     return { success: true, data: updated };
+  } catch (error) {
+    return handleActionError(error);
+  }
+}
+
+export async function searchPatientsAction(query: string): Promise<ActionResponse<any>> {
+  try {
+    await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
+    const results = await searchPatients(query);
+    return { success: true, data: results };
   } catch (error) {
     return handleActionError(error);
   }
