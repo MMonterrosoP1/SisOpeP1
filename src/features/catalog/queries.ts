@@ -15,8 +15,14 @@ export const getCatalogById = cache(async (type: CatalogType, id: number) => {
   return repo.findById(id);
 });
 
-export const searchIcd10 = cache(async (query: string, limit: number = 50) => {
-  if (!query || query.length < 2) return [];
+export const searchIcd10 = cache(async (query: string, limit: number = 300) => {
+  if (!query || query.trim() === '') {
+    return prisma.icd10Code.findMany({
+      where: { active: true },
+      take: limit,
+      orderBy: { code: 'asc' },
+    });
+  }
   
   return prisma.icd10Code.findMany({
     where: {
