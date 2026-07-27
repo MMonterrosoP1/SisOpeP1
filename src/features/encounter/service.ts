@@ -36,6 +36,12 @@ export const encounterService = {
       data.anthropometry = anthropometryToSave;
     }
 
+    const previousTypeEncounters = await encounterRepository.findAll(
+      { patientId: data.patientId, encounterTypeId: data.encounterTypeId },
+      { skip: 0, take: 1 }
+    );
+    data.isFirstVisit = previousTypeEncounters.totalCount === 0;
+
     data.practitionerId = userId;
 
     const created = await encounterRepository.create(data);

@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Filter, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -25,7 +24,13 @@ interface PatientFiltersProps {
 export function PatientFilters({ companies, workplaces, workAreas, jobPositions }: PatientFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const searchParamValue = searchParams.get("search") ?? "";
+  const [searchValue, setSearchValue] = useState(searchParamValue);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  useEffect(() => {
+    setSearchValue(searchParamValue);
+  }, [searchParamValue]);
 
   const createQueryString = useCallback(
     (params: Record<string, string | null>) => {
@@ -67,12 +72,13 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
-            defaultValue={searchParams.get("search") ?? ""}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Buscar paciente..."
             className="pl-10 h-10 rounded-2xl bg-input/50 border-transparent w-full"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                handleFilterChange("search", e.currentTarget.value);
+                handleFilterChange("search", searchValue);
               }
             }}
           />

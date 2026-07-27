@@ -1,7 +1,8 @@
 import { BmiCategory } from "@/shared/schemas/enums";
 
-export function calculateBmi(weightKg: number, heightCm: number): number {
-  if (weightKg <= 0 || heightCm <= 0) return 0;
+export function calculateBmi(weightLb: number, heightCm: number): number {
+  if (weightLb <= 0 || heightCm <= 0) return 0;
+  const weightKg = weightLb * 0.453592;
   const heightMeters = heightCm / 100;
   return Number((weightKg / (heightMeters * heightMeters)).toFixed(2));
 }
