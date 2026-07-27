@@ -41,7 +41,19 @@ export const referralLevelRepo = createCatalogRepo(prisma.referralLevel);
 export const medicalAptitudeRepo = createCatalogRepo(prisma.medicalAptitude, false);
 export const relationshipTypeRepo = createCatalogRepo(prisma.relationshipType, false);
 export const allergyCategoryRepo = createCatalogRepo(prisma.allergyCategory);
-export const allergenCatalogRepo = createCatalogRepo(prisma.allergenCatalog);
+export const allergenCatalogRepo = {
+  ...createCatalogRepo(prisma.allergenCatalog),
+  findAll: async (filter?: { active?: boolean; search?: string }) => {
+    const where: any = {};
+    if (filter?.active !== undefined) where.active = filter.active;
+    if (filter?.search) where.name = { contains: filter.search };
+    return prisma.allergenCatalog.findMany({ 
+      where, 
+      orderBy: { name: "asc" },
+      include: { allergyCategory: true }
+    });
+  }
+};
 export const diseaseTypeRepo = createCatalogRepo(prisma.diseaseTypeCatalog);
 export const maritalStatusRepo = createCatalogRepo(prisma.maritalStatusCatalog);
 export const bloodTypeRepo = createCatalogRepo(prisma.bloodTypeCatalog);
