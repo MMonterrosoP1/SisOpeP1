@@ -301,6 +301,16 @@ model AllergenCatalog {
   @@map("allergen_catalog")
 }
 
+model HabitCatalog {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  active Boolean @default(true)
+
+  habits Habit[]
+
+  @@map("habit_catalog")
+}
+
 model DiseaseTypeCatalog {
   id     Int     @id @default(autoincrement())
   name   String  @unique
@@ -582,15 +592,16 @@ model Allergy {
 /// Hábitos
 
 model Habit {
-  id           Int             @id @default(autoincrement())
-  encounterId  Int
-  name         String // Fumar, Drogas, Bebidas Alcohólicas, etc.
-  duration     String? // hace cuánto tiempo
-  quantity     Float?
-  frequency    HabitFrequency?
-  observations String?         @db.Text
+  id             Int             @id @default(autoincrement())
+  encounterId    Int
+  habitCatalogId Int
+  duration       String? // hace cuánto tiempo
+  quantity       Float?
+  frequency      HabitFrequency?
+  observations   String?         @db.Text
 
-  encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  encounter    Encounter    @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  habitCatalog HabitCatalog @relation(fields: [habitCatalogId], references: [id])
 
   @@map("habit")
 }
