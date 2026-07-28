@@ -4,65 +4,65 @@ import { idParamSchema } from "@/shared/utils/zod-helpers";
 import { VITAL_SIGN_RANGES } from "./domain/vital-sign-ranges";
 
 export const vitalSignSchema = z.object({
-  systolicBP: z.number().min(VITAL_SIGN_RANGES.systolicBP.min).max(VITAL_SIGN_RANGES.systolicBP.max).optional().nullable(),
-  diastolicBP: z.number().min(VITAL_SIGN_RANGES.diastolicBP.min).max(VITAL_SIGN_RANGES.diastolicBP.max).optional().nullable(),
-  heartRate: z.number().min(VITAL_SIGN_RANGES.heartRate.min).max(VITAL_SIGN_RANGES.heartRate.max).optional().nullable(),
-  respiratoryRate: z.number().min(VITAL_SIGN_RANGES.respiratoryRate.min).max(VITAL_SIGN_RANGES.respiratoryRate.max).optional().nullable(),
-  oxygenSaturation: z.number().min(VITAL_SIGN_RANGES.oxygenSaturation.min).max(VITAL_SIGN_RANGES.oxygenSaturation.max).optional().nullable(),
-  glucose: z.number().min(VITAL_SIGN_RANGES.glucose.min).max(VITAL_SIGN_RANGES.glucose.max).optional().nullable(),
-  temperature: z.number().min(VITAL_SIGN_RANGES.temperature.min).max(VITAL_SIGN_RANGES.temperature.max).optional().nullable(),
+  systolicBP: z.number().min(VITAL_SIGN_RANGES.systolicBP.min, `Debe ser al menos ${VITAL_SIGN_RANGES.systolicBP.min}`).max(VITAL_SIGN_RANGES.systolicBP.max, `Debe ser máximo ${VITAL_SIGN_RANGES.systolicBP.max}`).optional().nullable(),
+  diastolicBP: z.number().min(VITAL_SIGN_RANGES.diastolicBP.min, `Debe ser al menos ${VITAL_SIGN_RANGES.diastolicBP.min}`).max(VITAL_SIGN_RANGES.diastolicBP.max, `Debe ser máximo ${VITAL_SIGN_RANGES.diastolicBP.max}`).optional().nullable(),
+  heartRate: z.number().min(VITAL_SIGN_RANGES.heartRate.min, `Debe ser al menos ${VITAL_SIGN_RANGES.heartRate.min}`).max(VITAL_SIGN_RANGES.heartRate.max, `Debe ser máximo ${VITAL_SIGN_RANGES.heartRate.max}`).optional().nullable(),
+  respiratoryRate: z.number().min(VITAL_SIGN_RANGES.respiratoryRate.min, `Debe ser al menos ${VITAL_SIGN_RANGES.respiratoryRate.min}`).max(VITAL_SIGN_RANGES.respiratoryRate.max, `Debe ser máximo ${VITAL_SIGN_RANGES.respiratoryRate.max}`).optional().nullable(),
+  oxygenSaturation: z.number().min(VITAL_SIGN_RANGES.oxygenSaturation.min, `Debe ser al menos ${VITAL_SIGN_RANGES.oxygenSaturation.min}`).max(VITAL_SIGN_RANGES.oxygenSaturation.max, `Debe ser máximo ${VITAL_SIGN_RANGES.oxygenSaturation.max}`).optional().nullable(),
+  glucose: z.number().min(VITAL_SIGN_RANGES.glucose.min, `Debe ser al menos ${VITAL_SIGN_RANGES.glucose.min}`).max(VITAL_SIGN_RANGES.glucose.max, `Debe ser máximo ${VITAL_SIGN_RANGES.glucose.max}`).optional().nullable(),
+  temperature: z.number().min(VITAL_SIGN_RANGES.temperature.min, `Debe ser al menos ${VITAL_SIGN_RANGES.temperature.min}`).max(VITAL_SIGN_RANGES.temperature.max, `Debe ser máximo ${VITAL_SIGN_RANGES.temperature.max}`).optional().nullable(),
 });
 
 export const anthropometrySchema = z.object({
-  weight: z.number().min(0.5).max(500).optional().nullable(),
-  height: z.number().min(20).max(300).optional().nullable(),
-  abdominalCircumference: z.number().min(10).max(300).optional().nullable(),
+  weight: z.number().min(0.5, "Debe ser al menos 0.5").max(500, "Debe ser máximo 500").optional().nullable(),
+  height: z.number().min(20, "Debe ser al menos 20").max(300, "Debe ser máximo 300").optional().nullable(),
+  abdominalCircumference: z.number().min(10, "Debe ser al menos 10").max(300, "Debe ser máximo 300").optional().nullable(),
 });
 
 export const diagnosisSchema = z.object({
   icd10CodeId: idParamSchema,
   diseaseTypeId: idParamSchema.optional().nullable(),
-  observations: z.string().max(2000).optional().nullable(),
+  observations: z.string().max(2000, "Máximo 2000 caracteres").optional().nullable(),
   isPrimary: z.boolean().default(false),
 });
 
 export const allergySchema = z.object({
   allergenCatalogId: idParamSchema,
-  detail: z.string().max(2000).optional().nullable(),
+  detail: z.string().max(2000, "Máximo 2000 caracteres").optional().nullable(),
 });
 
 export const habitSchema = z.object({
-  name: z.string().min(1).max(255),
-  duration: z.string().max(255).optional().nullable(),
-  quantity: z.number().optional().nullable(),
+  habitCatalogId: idParamSchema,
+  duration: z.string().max(255, "Máximo 255 caracteres").optional().nullable(),
+  quantity: z.number({ message: "Debe ser un número" }).optional().nullable(),
   frequency: z.string().optional().nullable(),
-  observations: z.string().max(2000).optional().nullable(),
+  observations: z.string().max(2000, "Máximo 2000 caracteres").optional().nullable(),
 });
 
 export const exerciseSchema = z.object({
   doesExercise: z.boolean(),
-  sportType: z.string().max(255).optional().nullable(),
-  timesPerWeek: z.number().int().min(0).max(28).optional().nullable(),
+  sportType: z.string().max(255, "Máximo 255 caracteres").optional().nullable(),
+  timesPerWeek: z.number({ message: "Debe ser un número" }).int("Debe ser un número entero").min(0, "Debe ser al menos 0").max(28, "Máximo 28").optional().nullable(),
 });
 
 export const historyEntrySchema = z.object({
   icd10CodeId: idParamSchema.optional().nullable(),
-  observations: z.string().max(2000).optional().nullable(),
+  observations: z.string().max(2000, "Máximo 2000 caracteres").optional().nullable(),
 });
 
 export const surgicalHistorySchema = z.object({
   surgicalProcedureId: idParamSchema,
-  observations: z.string().max(2000).optional().nullable(),
+  observations: z.string().max(2000, "Máximo 2000 caracteres").optional().nullable(),
 });
 
 export const occupationalExposureSchema = z.object({
   occupationalExposureId: idParamSchema,
-  observations: z.string().max(2000).optional().nullable(),
+  observations: z.string().max(2000, "Máximo 2000 caracteres").optional().nullable(),
 });
 
 export const workDisabilitySchema = z.object({
   workDisabilityId: idParamSchema,
-  observations: z.string().max(2000).optional().nullable(),
+  observations: z.string().max(2000, "Máximo 2000 caracteres").optional().nullable(),
 });
 
 export const createEncounterSchema = z.object({
@@ -70,22 +70,22 @@ export const createEncounterSchema = z.object({
   practitionerId: z.string().cuid().optional(),
   encounterTypeId: idParamSchema,
   isFirstVisit: z.boolean().default(false),
-  symptomatology: z.string().max(5000).optional().nullable(),
-  illnessHistory: z.string().max(5000).optional().nullable(),
-  gynecologicalHistory: z.string().max(5000).optional().nullable(),
+  symptomatology: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
+  illnessHistory: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
+  gynecologicalHistory: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
   pregnancyStatus: PregnancyStatusSchema.default("NOT_APPLICABLE"),
-  sleepHours: z.number().min(0).max(24).optional().nullable(),
-  medicationsAdministered: z.string().max(5000).optional().nullable(),
-  suspensionHours: z.number().int().min(0).optional().nullable(),
+  sleepHours: z.number({ message: "Debe ser un número" }).min(0, "No puede ser menor a 0").max(24, "Máximo 24").optional().nullable(),
+  medicationsAdministered: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
+  suspensionHours: z.number({ message: "Debe ser un número" }).int("Debe ser un entero").min(0, "No puede ser menor a 0").optional().nullable(),
   referralLevelId: idParamSchema.optional().nullable(),
   medicalAptitudeId: idParamSchema.optional().nullable(),
-  internalObservation: z.string().max(5000).optional().nullable(),
-  employerObservation: z.string().max(5000).optional().nullable(),
+  internalObservation: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
+  employerObservation: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
   followUpDate: z.coerce.date().optional().nullable(),
 
   vitalSign: vitalSignSchema.optional().nullable(),
   anthropometry: anthropometrySchema.optional().nullable(),
-  diagnoses: z.array(diagnosisSchema).min(1, "At least one diagnosis is required"),
+  diagnoses: z.array(diagnosisSchema).min(1, "Debe agregar al menos un diagnóstico"),
   
   allergies: z.array(allergySchema).optional(),
   habits: z.array(habitSchema).optional(),
@@ -101,16 +101,42 @@ export const createEncounterSchema = z.object({
   if (!hasPrimaryDiagnosis) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: "At least one diagnosis must be marked as primary",
+      message: "Al menos un diagnóstico debe estar marcado como principal",
       path: ["diagnoses"],
     });
   }
 
-  if (data.exercises && data.exercises.some(e => e.doesExercise && (!e.sportType || !e.timesPerWeek))) {
+  if (data.exercises && data.exercises.some(e => e.doesExercise && (!e.sportType || e.timesPerWeek === undefined || e.timesPerWeek === null))) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: "If exercise is done, sport type and times per week are required",
+      message: "Si realiza ejercicio, debe especificar el tipo de deporte y las veces por semana",
       path: ["exercises"],
     });
+  }
+
+  // Validar duplicados en occupationalExposures
+  if (data.occupationalExposures) {
+    const ids = data.occupationalExposures.map(e => e.occupationalExposureId);
+    const hasDuplicates = new Set(ids).size !== ids.length;
+    if (hasDuplicates) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "No puede agregar exposiciones laborales duplicadas",
+        path: ["occupationalExposures"],
+      });
+    }
+  }
+
+  // Validar duplicados en workDisabilities
+  if (data.workDisabilities) {
+    const ids = data.workDisabilities.map(w => w.workDisabilityId);
+    const hasDuplicates = new Set(ids).size !== ids.length;
+    if (hasDuplicates) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "No puede agregar incapacidades laborales duplicadas",
+        path: ["workDisabilities"],
+      });
+    }
   }
 });
