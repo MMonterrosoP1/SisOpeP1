@@ -81,6 +81,7 @@ export function AllergenSearchModal({
             variant="outline"
             role="combobox"
             aria-expanded={open}
+            aria-invalid={invalid}
             className={cn(
               "w-full justify-between font-normal",
               invalid && "border-destructive ring-1 ring-destructive",
