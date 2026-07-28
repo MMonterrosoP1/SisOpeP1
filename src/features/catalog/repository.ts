@@ -57,6 +57,7 @@ export const allergenCatalogRepo = {
 export const diseaseTypeRepo = createCatalogRepo(prisma.diseaseTypeCatalog);
 export const maritalStatusRepo = createCatalogRepo(prisma.maritalStatusCatalog);
 export const bloodTypeRepo = createCatalogRepo(prisma.bloodTypeCatalog);
+export const habitCatalogRepo = createCatalogRepo(prisma.habitCatalog);
 
 export const getCatalogRepo = (type: string) => {
   const map: Record<string, ReturnType<typeof createCatalogRepo>> = {
@@ -76,6 +77,7 @@ export const getCatalogRepo = (type: string) => {
     diseaseType: diseaseTypeRepo,
     maritalStatus: maritalStatusRepo,
     bloodType: bloodTypeRepo,
+    habitCatalog: habitCatalogRepo,
   };
   return map[type];
 };

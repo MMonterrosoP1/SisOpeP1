@@ -306,6 +306,20 @@ async function main() {
     }
   }
 
+  // 9. Hábitos
+  console.log("Cargando Hábitos...");
+  const habitos = readCSV("habitos.csv");
+  for (const h of habitos) {
+    const name = h["Nombre"];
+    if (name) {
+      await prisma.habitCatalog.upsert({
+        where: { name },
+        update: {},
+        create: { name }
+      });
+    }
+  }
+
   // 17. Seed Admin User
   console.log("Creando usuario administrador...");
   
