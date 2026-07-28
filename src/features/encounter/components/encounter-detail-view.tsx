@@ -219,11 +219,11 @@ export function EncounterDetailView({ encounter, patient }: { encounter: any; pa
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Aptitud Médica</h4>
-                  {encounter.medicalAptitude ? <Badge variant="secondary">{encounter.medicalAptitude.name}</Badge> : <EmptyState />}
+                  {encounter.medicalAptitude ? <p className="text-sm font-medium">{encounter.medicalAptitude.name}</p> : <EmptyState />}
                 </div>
                 <div>
                   <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Nivel de Referencia</h4>
-                  {encounter.referralLevel ? <Badge variant="outline">{encounter.referralLevel.name}</Badge> : <EmptyState />}
+                  {encounter.referralLevel ? <p className="text-sm font-medium">{encounter.referralLevel.name}</p> : <EmptyState />}
                 </div>
                 <div>
                   <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Fecha de Seguimiento</h4>
@@ -268,7 +268,7 @@ export function EncounterDetailView({ encounter, patient }: { encounter: any; pa
               <CardContent className="flex flex-col gap-3">
                 <div>
                   <span className="text-xs text-muted-foreground block mb-1">Estado de Embarazo</span>
-                  <Badge variant="outline">{encounter.pregnancyStatus ? pregnancyStatusEs[encounter.pregnancyStatus] : pregnancyStatusEs.NOT_APPLICABLE}</Badge>
+                  <span className="text-sm font-medium">{encounter.pregnancyStatus ? pregnancyStatusEs[encounter.pregnancyStatus] : pregnancyStatusEs.NOT_APPLICABLE}</span>
                 </div>
                 <div>
                   <span className="text-xs text-muted-foreground block mb-1">Historia Ginecológica</span>
