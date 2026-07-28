@@ -9,6 +9,7 @@ export const catalogService = {
     if (!repo) throw new NotFoundError(`Catalog type ${type} not found`);
 
     if (data.name) {
+      data.name = data.name.toUpperCase();
       const existing = await repo.findByName(data.name);
       if (existing) {
         throw new ConflictError(`El elemento con nombre ${data.name} ya existe en el catálogo`, {
@@ -39,7 +40,8 @@ export const catalogService = {
       throw new NotFoundError(`No se encontró el elemento con ID ${id} en ${type}`);
     }
 
-    if (data.name && data.name !== existingItem.name) {
+    if (data.name && data.name.toUpperCase() !== existingItem.name.toUpperCase()) {
+      data.name = data.name.toUpperCase();
       const existingName = await repo.findByName(data.name);
       if (existingName) {
         throw new ConflictError(`El elemento con nombre ${data.name} ya existe en el catálogo`, {
