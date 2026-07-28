@@ -17,6 +17,9 @@ import { PatientWithRelations } from "../types";
 import { createPatient, updatePatient } from "../actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { ComboboxSelect } from "@/components/ui/combobox-select";
+import { Plus } from "lucide-react";
+import { CatalogQuickAddDialog } from "@/features/catalog/components/catalog-quick-add-dialog";
 
 type CatalogItem = {
   id: number;
@@ -130,6 +133,81 @@ function CatalogSelectField({
   );
 }
 
+function CatalogComboboxField({
+  name,
+  label,
+  value,
+  options,
+  placeholder,
+  isRequired,
+  error,
+  onChange,
+}: CatalogSelectFieldProps) {
+  return (
+    <div className="flex flex-col gap-2">
+      <Label htmlFor={name}>
+        {label}
+        {isRequired && <span className="text-destructive ml-1">*</span>}
+      </Label>
+      <ComboboxSelect
+        id={name}
+        value={value || ""}
+        options={options}
+        placeholder={placeholder}
+        searchPlaceholder={`Buscar ${label.toLowerCase()}...`}
+        invalid={!!error}
+        onValueChange={(newValue) => onChange(newValue || "")}
+      />
+      {error && <FieldError error={error} />}
+    </div>
+  );
+}
+
+function CatalogComboboxFieldWithAdd({
+  name,
+  label,
+  value,
+  options,
+  placeholder,
+  isRequired,
+  error,
+  onChange,
+  onAddClick,
+}: CatalogSelectFieldProps & { onAddClick: () => void }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <Label htmlFor={name}>
+        {label}
+        {isRequired && <span className="text-destructive ml-1">*</span>}
+      </Label>
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <ComboboxSelect
+            id={name}
+            value={value || ""}
+            options={options}
+            placeholder={placeholder}
+            searchPlaceholder={`Buscar ${label.toLowerCase()}...`}
+            invalid={!!error}
+            onValueChange={(newValue) => onChange(newValue || "")}
+          />
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={onAddClick}
+          className="shrink-0"
+          title={`Agregar nuevo ${label.toLowerCase()}`}
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
+      {error && <FieldError error={error} />}
+    </div>
+  );
+}
+
 interface PatientFormProps {
   initialData?: PatientWithRelations;
   catalogs: Record<string, CatalogItem[]>;
@@ -139,6 +217,19 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [localCatalogs, setLocalCatalogs] = useState<Record<string, CatalogItem[]>>(catalogs);
+  
+  const [quickAddDialog, setQuickAddDialog] = useState<{
+    open: boolean;
+    type: "workplace" | "workArea" | "jobPosition";
+    title: string;
+    field: keyof PatientFormData;
+  }>({
+    open: false,
+    type: "workplace",
+    title: "",
+    field: "workplaceId",
+  });
 
   const [formData, setFormData] = useState<PatientFormData>({
     givenNames: initialData?.givenNames || "",
@@ -166,7 +257,7 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
   const getFieldError = (path: string): string | undefined => fieldErrors[path]?.join(", ");
 
   const getCatalogOptions = (catalogKey: string): SelectOption[] => {
-    const items = (catalogs[catalogKey] ?? []) as CatalogItem[];
+    const items = (localCatalogs[catalogKey] ?? []) as CatalogItem[];
     return items.map((item) => {
       let label = item.name;
       if (catalogKey === "company" && item.acronym) {
@@ -377,7 +468,7 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
             />
 
             <div className="flex flex-col gap-2">
-              <CatalogSelectField
+              <CatalogComboboxField
                 name="maritalStatusId"
                 label="Estado civil"
                 value={formData.maritalStatusId}
@@ -401,7 +492,7 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
               {getFieldError("phone") && <FieldError error={getFieldError("phone")} />}
             </div>
 
-            <CatalogSelectField
+            <CatalogComboboxField
               name="bloodTypeId"
               label="Tipo de sangre"
               value={formData.bloodTypeId}
@@ -421,7 +512,7 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <CatalogSelectField
+            <CatalogComboboxField
               name="companyId"
               label="Empresa en que trabaja"
               value={formData.companyId}
@@ -433,7 +524,7 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
             />
 
             <div className="flex flex-col gap-2">
-              <CatalogSelectField
+              <CatalogComboboxFieldWithAdd
                 name="workplaceId"
                 label="Lugar de trabajo"
                 value={formData.workplaceId}
@@ -442,11 +533,17 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
                 isRequired
                 error={getFieldError("workplaceId")}
                 onChange={(value) => handleChange("workplaceId", value)}
+                onAddClick={() => setQuickAddDialog({
+                  open: true,
+                  type: "workplace",
+                  title: "Lugar de trabajo",
+                  field: "workplaceId"
+                })}
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <CatalogSelectField
+              <CatalogComboboxFieldWithAdd
                 name="workAreaId"
                 label="Área de trabajo"
                 value={formData.workAreaId}
@@ -455,11 +552,17 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
                 isRequired
                 error={getFieldError("workAreaId")}
                 onChange={(value) => handleChange("workAreaId", value)}
+                onAddClick={() => setQuickAddDialog({
+                  open: true,
+                  type: "workArea",
+                  title: "Área de trabajo",
+                  field: "workAreaId"
+                })}
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <CatalogSelectField
+              <CatalogComboboxFieldWithAdd
                 name="jobPositionId"
                 label="Puesto laboral"
                 value={formData.jobPositionId}
@@ -468,6 +571,12 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
                 isRequired
                 error={getFieldError("jobPositionId")}
                 onChange={(value) => handleChange("jobPositionId", value)}
+                onAddClick={() => setQuickAddDialog({
+                  open: true,
+                  type: "jobPosition",
+                  title: "Puesto laboral",
+                  field: "jobPositionId"
+                })}
               />
             </div>
           </div>
@@ -546,7 +655,7 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
                       </div>
 
                       <div className="flex flex-col gap-2">
-                        <CatalogSelectField
+                        <CatalogComboboxField
                           name={`contact-relationship-${index}`}
                           label="Parentesco"
                           value={contact.relationshipTypeId}
@@ -575,6 +684,22 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
           {isLoading ? "Guardando..." : initialData ? "Guardar Cambios" : "Crear Paciente"}
         </Button>
       </div>
+
+      <CatalogQuickAddDialog
+        type={quickAddDialog.type}
+        title={quickAddDialog.title}
+        open={quickAddDialog.open}
+        onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}
+        onSuccess={(item) => {
+          // Actualizar el catálogo local
+          setLocalCatalogs((prev) => ({
+            ...prev,
+            [quickAddDialog.type]: [...(prev[quickAddDialog.type] || []), item],
+          }));
+          // Seleccionar el nuevo elemento
+          handleChange(quickAddDialog.field, String(item.id));
+        }}
+      />
     </form>
   );
 }
