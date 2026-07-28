@@ -28,6 +28,7 @@ export default async function NewEncounterPage({
     referralLevel,
     medicalAptitude,
     habitCatalog,
+    allergyCategory,
   ] = await Promise.all([
     getCatalogs("encounterType"),
     getCatalogs("allergenCatalog"),
@@ -38,6 +39,7 @@ export default async function NewEncounterPage({
     getCatalogs("referralLevel"),
     getCatalogs("medicalAptitude"),
     getCatalogs("habitCatalog"),
+    getCatalogs("allergyCategory"),
   ]);
 
   const catalogs = {
@@ -50,6 +52,7 @@ export default async function NewEncounterPage({
     referralLevel,
     medicalAptitude,
     habitCatalog,
+    allergyCategory,
   };
 
   return (

@@ -17,6 +17,9 @@ import { Icd10SearchModal } from "./icd10-search-modal";
 import { AllergenSearchModal, AllergenOption } from "./allergen-search-modal";
 import { ComboboxSelect } from "@/components/ui/combobox-select";
 import { calculateBmi, classifyBmi } from "../domain/bmi-calculator";
+import { CatalogQuickAddDialog } from "@/features/catalog/components/catalog-quick-add-dialog";
+import { AllergenQuickAddDialog } from "@/features/catalog/components/allergen-quick-add-dialog";
+import { CatalogType } from "@/features/catalog/types";
 
 const bmiCategoryEs: Record<string, string> = {
   UNDERWEIGHT: "Bajo peso",
@@ -71,6 +74,48 @@ function CatalogSelectField({
           ))}
         </SelectContent>
       </Select>
+      <FieldError error={error} />
+    </div>
+  );
+}
+
+function CatalogSelectFieldWithAdd({
+  name, label, value, options, placeholder, isRequired, error, onChange, onAddClick
+}: CatalogSelectFieldProps & { onAddClick: () => void }) {
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      <Label htmlFor={name}>
+        {label} {isRequired && <span className="text-destructive ml-1">*</span>}
+      </Label>
+      <div className="flex items-center gap-2">
+        <Select value={value || ""} onValueChange={(v) => onChange(v || "")}>
+          <SelectTrigger id={name} className={error ? "border-destructive ring-1 ring-destructive" : ""} aria-invalid={!!error}>
+            <SelectValue placeholder={placeholder}>
+              {() => {
+                const selectedOption = options.find((o) => o.key === String(value));
+                return selectedOption?.label ?? placeholder;
+              }}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option.key} value={option.key}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="shrink-0"
+          onClick={onAddClick}
+          title={`Agregar nuevo ${label.toLowerCase()}`}
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
       <FieldError error={error} />
     </div>
   );
@@ -143,6 +188,26 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  
+  const [localCatalogs, setLocalCatalogs] = useState<Record<string, CatalogItem[]>>(catalogs);
+  const [quickAddDialog, setQuickAddDialog] = useState<{
+    open: boolean;
+    type: CatalogType;
+    title: string;
+    field: string;
+    arrayName?: string;
+    arrayIndex?: number;
+  }>({
+    open: false,
+    type: "encounterType" as CatalogType,
+    title: "",
+    field: "",
+  });
+  
+  const [allergenDialog, setAllergenDialog] = useState<{
+    open: boolean;
+    arrayIndex: number;
+  }>({ open: false, arrayIndex: 0 });
 
   const [formData, setFormData] = useState<any>({
     patientId,
@@ -178,7 +243,7 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
 
   const getFieldError = (path: string): string | undefined => fieldErrors[path]?.join(", ");
   const getCatalogOptions = (catalogKey: string): SelectOption[] => {
-    return (catalogs[catalogKey] ?? []).map((item) => ({ key: String(item.id), label: item.name }));
+    return (localCatalogs[catalogKey] ?? []).map((item) => ({ key: String(item.id), label: item.name }));
   };
 
   const handleFieldChange = (field: string, value: any) => {
@@ -385,7 +450,7 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
           <CardDescription>Información principal de la consulta.</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <CatalogSelectField
+          <CatalogSelectFieldWithAdd
             name="encounterTypeId"
             label="Tipo de Consulta"
             value={formData.encounterTypeId}
@@ -394,6 +459,12 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
             isRequired
             error={getFieldError("encounterTypeId")}
             onChange={(val) => handleFieldChange("encounterTypeId", val)}
+            onAddClick={() => setQuickAddDialog({
+              open: true,
+              type: "encounterType",
+              title: "Tipo de Consulta",
+              field: "encounterTypeId"
+            })}
           />
 
           <div className="col-span-2 flex flex-col gap-2">
@@ -517,13 +588,21 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
                   />
                   <FieldError error={getFieldError(`diagnoses.${index}.icd10CodeId`)} />
                 </div>
-                <CatalogSelectField
+                <CatalogSelectFieldWithAdd
                   name={`dx-type-${index}`}
                   label="Tipo de Enfermedad"
                   value={String(d.diseaseTypeId || "")}
                   options={getCatalogOptions("diseaseType")}
                   placeholder="Seleccione..."
                   onChange={(val) => handleArrayChange("diagnoses", index, "diseaseTypeId", val)}
+                  onAddClick={() => setQuickAddDialog({
+                    open: true,
+                    type: "diseaseType",
+                    title: "Tipo de Enfermedad",
+                    field: "diseaseTypeId",
+                    arrayName: "diagnoses",
+                    arrayIndex: index
+                  })}
                 />
                 <div className="col-span-2 flex flex-col gap-2">
                   <Label>Observaciones</Label>
@@ -570,12 +649,26 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full md:w-[95%]">
                 <div className="flex flex-col gap-2 w-full">
                   <Label>Alérgeno <span className="text-destructive">*</span></Label>
-                  <AllergenSearchModal
-                    id={`allergy-${index}`}
-                    value={a.allergenCatalogId ? Number(a.allergenCatalogId) : null}
-                    options={(catalogs["allergenCatalog"] || []) as AllergenOption[]}
-                    onValueChange={(val) => handleArrayChange("allergies", index, "allergenCatalogId", val)}
-                  />
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <AllergenSearchModal
+                        id={`allergy-${index}`}
+                        value={a.allergenCatalogId ? Number(a.allergenCatalogId) : null}
+                        options={(localCatalogs["allergenCatalog"] || []) as AllergenOption[]}
+                        onValueChange={(val) => handleArrayChange("allergies", index, "allergenCatalogId", val)}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0"
+                      onClick={() => setAllergenDialog({ open: true, arrayIndex: index })}
+                      title="Agregar nueva alergia"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label>Detalle</Label>
@@ -654,14 +747,22 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
                 <Trash2 className="h-4 w-4" />
               </Button>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:w-[95%]">
-                <CatalogSelectField
+                <CatalogSelectFieldWithAdd
                   name={`habits.${index}.habitCatalogId`}
                   label="Hábito"
-                  value={h.habitCatalogId}
+                  value={String(h.habitCatalogId || "")}
                   options={getCatalogOptions("habitCatalog")}
                   placeholder="Seleccione el hábito"
                   error={getFieldError(`habits.${index}.habitCatalogId`)}
                   onChange={(val) => handleArrayChange("habits", index, "habitCatalogId", val)}
+                  onAddClick={() => setQuickAddDialog({
+                    open: true,
+                    type: "habitCatalog",
+                    title: "Hábito",
+                    field: "habitCatalogId",
+                    arrayName: "habits",
+                    arrayIndex: index
+                  })}
                 />
                 <div className="flex flex-col gap-2">
                   <Label>Cantidad</Label>
@@ -760,7 +861,22 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
             {formData.surgicalHistory.map((s: any, index: number) => (
               <div key={index} className="flex gap-4 items-end">
                 <div className="flex-1">
-                  <CatalogSelectField name={`surg-${index}`} label="Procedimiento" value={String(s.surgicalProcedureId || "")} options={getCatalogOptions("surgicalProcedure")} placeholder="Seleccione..." onChange={(val) => handleArrayChange("surgicalHistory", index, "surgicalProcedureId", val)} />
+                  <CatalogSelectFieldWithAdd 
+                    name={`surg-${index}`} 
+                    label="Procedimiento" 
+                    value={String(s.surgicalProcedureId || "")} 
+                    options={getCatalogOptions("surgicalProcedure")} 
+                    placeholder="Seleccione..." 
+                    onChange={(val) => handleArrayChange("surgicalHistory", index, "surgicalProcedureId", val)} 
+                    onAddClick={() => setQuickAddDialog({
+                      open: true,
+                      type: "surgicalProcedure",
+                      title: "Procedimiento Quirúrgico",
+                      field: "surgicalProcedureId",
+                      arrayName: "surgicalHistory",
+                      arrayIndex: index
+                    })}
+                  />
                 </div>
                 <div className="flex-1 flex flex-col gap-2">
                   <Label>Observaciones</Label>
@@ -839,7 +955,22 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
             {formData.occupationalExposures.map((e: any, index: number) => (
               <div key={index} className="flex gap-4 items-end">
                 <div className="flex-1">
-                  <CatalogSelectField name={`occ-${index}`} label="Exposición" value={String(e.occupationalExposureId || "")} options={getCatalogOptions("occupationalExposure")} placeholder="Seleccione..." onChange={(val) => handleArrayChange("occupationalExposures", index, "occupationalExposureId", val)} />
+                  <CatalogSelectFieldWithAdd 
+                    name={`occ-${index}`} 
+                    label="Exposición" 
+                    value={String(e.occupationalExposureId || "")} 
+                    options={getCatalogOptions("occupationalExposure")} 
+                    placeholder="Seleccione..." 
+                    onChange={(val) => handleArrayChange("occupationalExposures", index, "occupationalExposureId", val)} 
+                    onAddClick={() => setQuickAddDialog({
+                      open: true,
+                      type: "occupationalExposure",
+                      title: "Exposición Laboral",
+                      field: "occupationalExposureId",
+                      arrayName: "occupationalExposures",
+                      arrayIndex: index
+                    })}
+                  />
                 </div>
                 <div className="flex-1 flex flex-col gap-2">
                   <Label>Observaciones</Label>
@@ -869,7 +1000,22 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
             {formData.workDisabilities.map((w: any, index: number) => (
               <div key={index} className="flex gap-4 items-end">
                 <div className="flex-1">
-                  <CatalogSelectField name={`dis-${index}`} label="Discapacidad" value={String(w.workDisabilityId || "")} options={getCatalogOptions("workDisability")} placeholder="Seleccione..." onChange={(val) => handleArrayChange("workDisabilities", index, "workDisabilityId", val)} />
+                  <CatalogSelectFieldWithAdd 
+                    name={`dis-${index}`} 
+                    label="Discapacidad" 
+                    value={String(w.workDisabilityId || "")} 
+                    options={getCatalogOptions("workDisability")} 
+                    placeholder="Seleccione..." 
+                    onChange={(val) => handleArrayChange("workDisabilities", index, "workDisabilityId", val)} 
+                    onAddClick={() => setQuickAddDialog({
+                      open: true,
+                      type: "workDisability",
+                      title: "Discapacidad Laboral",
+                      field: "workDisabilityId",
+                      arrayName: "workDisabilities",
+                      arrayIndex: index
+                    })}
+                  />
                 </div>
                 <div className="flex-1 flex flex-col gap-2">
                   <Label>Observaciones</Label>
@@ -903,8 +1049,34 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
         ].some((f) => !!getFieldError(f))}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <CatalogSelectField name="referralLevelId" label="Nivel de Referencia" value={String(formData.referralLevelId || "")} options={getCatalogOptions("referralLevel")} placeholder="Seleccione..." onChange={(val) => handleFieldChange("referralLevelId", val)} />
-          <CatalogSelectField name="medicalAptitudeId" label="Aptitud Médica" value={String(formData.medicalAptitudeId || "")} options={getCatalogOptions("medicalAptitude")} placeholder="Seleccione..." onChange={(val) => handleFieldChange("medicalAptitudeId", val)} />
+          <CatalogSelectFieldWithAdd 
+            name="referralLevelId" 
+            label="Nivel de Referencia" 
+            value={String(formData.referralLevelId || "")} 
+            options={getCatalogOptions("referralLevel")} 
+            placeholder="Seleccione..." 
+            onChange={(val) => handleFieldChange("referralLevelId", val)} 
+            onAddClick={() => setQuickAddDialog({
+              open: true,
+              type: "referralLevel",
+              title: "Nivel de Referencia",
+              field: "referralLevelId"
+            })}
+          />
+          <CatalogSelectFieldWithAdd 
+            name="medicalAptitudeId" 
+            label="Aptitud Médica" 
+            value={String(formData.medicalAptitudeId || "")} 
+            options={getCatalogOptions("medicalAptitude")} 
+            placeholder="Seleccione..." 
+            onChange={(val) => handleFieldChange("medicalAptitudeId", val)} 
+            onAddClick={() => setQuickAddDialog({
+              open: true,
+              type: "medicalAptitude",
+              title: "Aptitud Médica",
+              field: "medicalAptitudeId"
+            })}
+          />
 
           <div className="flex flex-col gap-2">
             <Label>Medicamentos Administrados</Label>
@@ -977,6 +1149,37 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
         <Button type="button" variant="outline" onClick={() => router.back()}>Cancelar</Button>
         <Button type="submit" disabled={isLoading}>{isLoading ? "Guardando..." : "Guardar Consulta"}</Button>
       </div>
+
+      <CatalogQuickAddDialog
+        type={quickAddDialog.type as any}
+        title={quickAddDialog.title}
+        open={quickAddDialog.open}
+        onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}
+        onSuccess={(item) => {
+          setLocalCatalogs((prev) => ({
+            ...prev,
+            [quickAddDialog.type]: [...(prev[quickAddDialog.type] || []), item],
+          }));
+          if (quickAddDialog.arrayName && quickAddDialog.arrayIndex !== undefined) {
+            handleArrayChange(quickAddDialog.arrayName, quickAddDialog.arrayIndex, quickAddDialog.field, String(item.id));
+          } else {
+            handleFieldChange(quickAddDialog.field, String(item.id));
+          }
+        }}
+      />
+
+      <AllergenQuickAddDialog
+        open={allergenDialog.open}
+        allergyCategories={localCatalogs["allergyCategory"] || []}
+        onOpenChange={(open) => setAllergenDialog((prev) => ({ ...prev, open }))}
+        onSuccess={(item) => {
+          setLocalCatalogs((prev) => ({
+            ...prev,
+            allergenCatalog: [...(prev["allergenCatalog"] || []), item],
+          }));
+          handleArrayChange("allergies", allergenDialog.arrayIndex, "allergenCatalogId", String(item.id));
+        }}
+      />
     </form>
   );
 }
