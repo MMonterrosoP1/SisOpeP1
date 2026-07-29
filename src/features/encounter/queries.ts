@@ -44,3 +44,7 @@ export const getEncounterById = cache(async (id: number) => {
 export const getEncountersByPatient = cache(async (patientId: number, paginationData: unknown) => {
   return getEncounters({ patientId }, paginationData);
 });
+
+export const getLatestEncounterByPatient = cache(async (patientId: number) => {
+  return encounterRepository.findLatestByPatient(patientId);
+});

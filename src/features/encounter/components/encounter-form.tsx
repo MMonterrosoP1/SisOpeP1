@@ -3,7 +3,17 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Trash2, Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +30,20 @@ import { calculateBmi, classifyBmi } from "../domain/bmi-calculator";
 import { CatalogQuickAddDialog } from "@/features/catalog/components/catalog-quick-add-dialog";
 import { AllergenQuickAddDialog } from "@/features/catalog/components/allergen-quick-add-dialog";
 import { CatalogType } from "@/features/catalog/types";
+import { NewEncounterModal } from "@/features/encounter/components/new-encounter-modal";
+import { PatientListItem } from "@/features/patient/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { RefreshCw, RotateCcw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const bmiCategoryEs: Record<string, string> = {
   UNDERWEIGHT: "Bajo peso",
@@ -182,9 +206,20 @@ interface EncounterFormProps {
   patientId: number;
   patientSex: "MALE" | "FEMALE";
   catalogs: Record<string, CatalogItem[]>;
+  patientSummary?: {
+    fullName: string;
+    age: number;
+    identityDocument: string;
+    phone?: string | null;
+    jobPosition?: string;
+    workplace?: string;
+  };
+  previousDefaults?: Record<string, any>;
+  isFollowUp?: boolean;
+  previousEncounterDate?: string;
 }
 
-export function EncounterForm({ patientId, patientSex, catalogs }: EncounterFormProps) {
+export function EncounterForm({ patientId, patientSex, catalogs, patientSummary, previousDefaults, isFollowUp, previousEncounterDate }: EncounterFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -209,7 +244,22 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
     arrayIndex: number;
   }>({ open: false, arrayIndex: 0 });
 
-  const [formData, setFormData] = useState<any>({
+  const [patientSearchOpen, setPatientSearchOpen] = useState(false);
+  const [pendingPatient, setPendingPatient] = useState<PatientListItem | null>(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+
+  const handlePatientSelect = (patient: PatientListItem) => {
+    setPendingPatient(patient);
+    setConfirmDialogOpen(true);
+  };
+
+  const confirmPatientChange = () => {
+    if (pendingPatient) {
+      router.push(`/patients/${pendingPatient.id}/encounters/new`);
+    }
+  };
+
+  const defaultFormData = {
     patientId,
     encounterTypeId: "",
     isFirstVisit: false,
@@ -239,7 +289,14 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
     familyHistory: [],
     occupationalExposures: [],
     workDisabilities: []
-  });
+  };
+
+  const [formData, setFormData] = useState<any>(previousDefaults ? { ...defaultFormData, ...previousDefaults } : defaultFormData);
+
+  const handleClearData = () => {
+    setFormData(defaultFormData);
+    toast.success("Formulario limpiado. Puede ingresar datos nuevos.");
+  };
 
   const getFieldError = (path: string): string | undefined => fieldErrors[path]?.join(", ");
   const getCatalogOptions = (catalogKey: string): SelectOption[] => {
@@ -445,11 +502,63 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
       }}
     >
       <Card>
-        <CardHeader>
-          <CardTitle>Datos Generales</CardTitle>
-          <CardDescription>Información principal de la consulta.</CardDescription>
+        <CardHeader className="flex flex-row justify-between items-start space-y-0">
+          <div>
+            <CardTitle>Datos Generales</CardTitle>
+            <CardDescription>Información principal de la consulta.</CardDescription>
+          </div>
+          {patientSummary && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setPatientSearchOpen(true)}
+              className="hidden sm:flex"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Cambiar Paciente
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {patientSummary && (
+            <div className="col-span-1 md:col-span-2 mb-2 p-4 bg-muted/30 border rounded-lg flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-semibold text-lg leading-none">{patientSummary.fullName}</h3>
+                  {isFollowUp && (
+                    <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200">
+                      Reconsulta
+                    </Badge>
+                  )}
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setPatientSearchOpen(true)}
+                    className="sm:hidden h-6 w-6"
+                    title="Cambiar Paciente"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {patientSummary.identityDocument} • {patientSummary.age} años {patientSummary.phone ? `• Tel: ${patientSummary.phone}` : ''}
+                </p>
+                {isFollowUp && previousEncounterDate && (
+                  <p className="text-xs text-muted-foreground mt-1 text-blue-600">
+                    Datos precargados de la consulta del {new Intl.DateTimeFormat('es-ES', { 
+                      day: '2-digit', month: 'long', year: 'numeric' 
+                    }).format(new Date(previousEncounterDate))}
+                  </p>
+                )}
+              </div>
+              <div className="text-left md:text-right text-sm text-muted-foreground">
+                {patientSummary.jobPosition && <p>Puesto: <span className="font-medium text-foreground">{patientSummary.jobPosition}</span></p>}
+                {patientSummary.workplace && <p>Lugar: <span className="font-medium text-foreground">{patientSummary.workplace}</span></p>}
+              </div>
+            </div>
+          )}
           <CatalogSelectFieldWithAdd
             name="encounterTypeId"
             label="Tipo de Consulta"
@@ -1112,13 +1221,33 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
           </div>
           <div className="flex flex-col gap-2">
             <Label>Fecha de Seguimiento</Label>
-            <Input
-              type="date"
-              className={getFieldError("followUpDate") ? "border-destructive ring-1 ring-destructive" : ""}
-              aria-invalid={!!getFieldError("followUpDate")}
-              value={formData.followUpDate}
-              onChange={(e) => handleFieldChange("followUpDate", e.target.value)}
-            />
+            <Popover>
+              <PopoverTrigger 
+                render={
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !formData.followUpDate && "text-muted-foreground",
+                      getFieldError("followUpDate") && "border-destructive ring-1 ring-destructive"
+                    )}
+                  />
+                }
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {formData.followUpDate ? format(new Date(formData.followUpDate + "T12:00:00"), "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={formData.followUpDate ? new Date(formData.followUpDate + "T12:00:00") : undefined}
+                  onSelect={(date) => {
+                    handleFieldChange("followUpDate", date ? format(date, "yyyy-MM-dd") : "");
+                  }}
+                  captionLayout="dropdown"
+                />
+              </PopoverContent>
+            </Popover>
             <FieldError error={getFieldError("followUpDate")} />
           </div>
 
@@ -1145,9 +1274,19 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
         </div>
       </CollapsibleSection>
 
-      <div className="flex justify-end gap-2 sticky bottom-4 bg-background/80 backdrop-blur p-4 rounded-xl border">
-        <Button type="button" variant="outline" onClick={() => router.back()}>Cancelar</Button>
-        <Button type="submit" disabled={isLoading}>{isLoading ? "Guardando..." : "Guardar Consulta"}</Button>
+      <div className="flex justify-between items-center gap-2 sticky bottom-4 bg-background/80 backdrop-blur p-4 rounded-xl border">
+        <div>
+          {isFollowUp && (
+            <Button type="button" variant="ghost" onClick={handleClearData} className="text-muted-foreground hover:text-foreground">
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Limpiar Datos Precargados
+            </Button>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" onClick={() => router.back()}>Cancelar</Button>
+          <Button type="submit" disabled={isLoading}>{isLoading ? "Guardando..." : "Guardar Consulta"}</Button>
+        </div>
       </div>
 
       <CatalogQuickAddDialog
@@ -1180,6 +1319,29 @@ export function EncounterForm({ patientId, patientSex, catalogs }: EncounterForm
           handleArrayChange("allergies", allergenDialog.arrayIndex, "allergenCatalogId", String(item.id));
         }}
       />
+
+      <NewEncounterModal
+        open={patientSearchOpen}
+        onOpenChange={setPatientSearchOpen}
+        onSelect={handlePatientSelect}
+      />
+
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Cambiar de paciente?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Estás a punto de cambiar de paciente. Cualquier dato que hayas ingresado en este formulario se perderá y no podrá recuperarse. ¿Deseas continuar y registrar la consulta para el nuevo paciente?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmPatientChange} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Sí, cambiar paciente
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </form>
   );
 }

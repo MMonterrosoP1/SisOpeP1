@@ -55,6 +55,32 @@ export const encounterRepository = {
     });
   },
 
+  async findLatestByPatient(patientId: number) {
+    return prisma.encounter.findFirst({
+      where: { patientId },
+      orderBy: { createdAt: "desc" },
+      include: {
+        patient: true,
+        practitioner: { select: { id: true, name: true, email: true } },
+        encounterType: true,
+        referralLevel: true,
+        medicalAptitude: true,
+        vitalSign: true,
+        anthropometry: true,
+        diagnoses: { include: { icd10Code: true, diseaseType: true } },
+        allergies: { include: { allergenCatalog: true } },
+        habits: { include: { habitCatalog: true } },  
+        exercises: true,
+        medicalHistoryEntries: { include: { icd10Code: true } },
+        surgicalHistoryEntries: { include: { surgicalProcedure: true } },
+        traumaHistoryEntries: { include: { icd10Code: true } },
+        familyHistoryEntries: { include: { icd10Code: true } },
+        occupationalExposureEntries: { include: { occupationalExposure: true } },
+        workDisabilityEntries: { include: { workDisability: true } },
+      },
+    });
+  },
+
   async create(data: any) {
     const {
       vitalSign,
