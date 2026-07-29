@@ -18,8 +18,17 @@ import { createPatient, updatePatient } from "../actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { ComboboxSelect } from "@/components/ui/combobox-select";
-import { Plus } from "lucide-react";
+import { Plus, Calendar as CalendarIcon } from "lucide-react";
 import { CatalogQuickAddDialog } from "@/features/catalog/components/catalog-quick-add-dialog";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 type CatalogItem = {
   id: number;
@@ -445,14 +454,33 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
               <Label htmlFor="birthDate">
                 Fecha de nacimiento <span className="text-destructive">*</span>
               </Label>
-              <Input
-                id="birthDate"
-                type="date"
-                value={formData.birthDate}
-                onChange={(e) => handleChange("birthDate", e.target.value)}
-                className={getFieldError("birthDate") ? "border-destructive" : ""}
-                required
-              />
+              <Popover>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.birthDate && "text-muted-foreground",
+                        getFieldError("birthDate") && "border-destructive ring-1 ring-destructive"
+                      )}
+                    />
+                  }
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData.birthDate ? format(new Date(formData.birthDate + "T12:00:00"), "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={formData.birthDate ? new Date(formData.birthDate + "T12:00:00") : undefined}
+                    onSelect={(date) => {
+                      handleChange("birthDate", date ? format(date, "yyyy-MM-dd") : "");
+                    }}
+                    captionLayout="dropdown"
+                  />
+                </PopoverContent>
+              </Popover>
               {getFieldError("birthDate") && <FieldError error={getFieldError("birthDate")} />}
             </div>
 
