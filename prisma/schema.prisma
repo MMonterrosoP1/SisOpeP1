@@ -84,12 +84,14 @@ model User {
 
   // Relaciones del negocio
   encounters          Encounter[]
-  medicalCertificates MedicalCertificate[]
+  documents           Document[]
   auditLogs           AuditLog[]
 
   banned     Boolean?  @default(false)
   banReason  String?   @db.Text
   banExpires DateTime?
+
+  metadata   Json?
 
   @@map("user")
 }
@@ -145,6 +147,17 @@ model Verification {
 // ═══════════════════════════════════════════════════════════════════════
 // CATÁLOGOS
 // ═══════════════════════════════════════════════════════════════════════
+
+model DocumentTypeCatalog {
+  id      Int        @id @default(autoincrement())
+  code    String     @unique // "MEDICAL_CERTIFICATE", "ILLNESS_CERTIFICATE"
+  name    String
+  active  Boolean    @default(true)
+
+  documents Document[]
+
+  @@map("document_type_catalog")
+}
 
 model Company {
   id        Int      @id @default(autoincrement())
@@ -374,7 +387,7 @@ model Patient {
 
   emergencyContacts   EmergencyContact[]
   encounters          Encounter[]
-  medicalCertificates MedicalCertificate[]
+  documents           Document[]
 
   @@index([companyId])
   @@index([identityDocument])
@@ -441,7 +454,7 @@ model Encounter {
   habits                      Habit[]
   exercises                   Exercise[]
   diagnoses                   Diagnosis[]
-  medicalCertificate          MedicalCertificate?
+  documents                   Document[]
 
   @@index([patientId])
   @@index([date])
@@ -641,20 +654,24 @@ model Diagnosis {
 // CONSTANCIA MÉDICA — FHIR: DocumentReference
 // ═══════════════════════════════════════════════════════════════════════
 
-model MedicalCertificate {
-  id             Int      @id @default(autoincrement())
-  encounterId    Int      @unique
-  patientId      Int
-  issuedByUserId String
-  issuedAt       DateTime @default(now())
-  pdfUrl         String?  @db.Text
+model Document {
+  id               Int      @id @default(autoincrement())
+  encounterId      Int
+  patientId        Int
+  documentTypeId   Int
+  issuedByUserId   String
+  issuedAt         DateTime @default(now())
+  pdfUrl           String?  @db.Text
 
-  encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  patient   Patient   @relation(fields: [patientId], references: [id])
-  issuedBy  User      @relation(fields: [issuedByUserId], references: [id])
+  documentType DocumentTypeCatalog @relation(fields: [documentTypeId], references: [id])
+  encounter    Encounter           @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  patient      Patient             @relation(fields: [patientId], references: [id])
+  issuedBy     User                @relation(fields: [issuedByUserId], references: [id])
 
+  @@unique([encounterId, documentTypeId])
   @@index([patientId])
-  @@map("medical_certificate")
+  @@index([documentTypeId])
+  @@map("document")
 }
 
 // ═══════════════════════════════════════════════════════════════════════
