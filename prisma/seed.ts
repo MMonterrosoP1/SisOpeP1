@@ -10,7 +10,7 @@ import { prisma } from "../src/lib/prisma";
 function readCSV(filename: string, delimiter: string = ','): any[] {
   const filePath = path.join(__dirname, "../input_Catalog", filename);
   const buffer = fs.readFileSync(filePath);
-  
+
   // Detect if it's UTF-8 or Latin1 by looking for invalid UTF-8 bytes (simple heuristic for this case)
   // or just decode as latin1/windows-1252 to be safe for spanish accents if not purely ascii
   let content = "";
@@ -23,9 +23,9 @@ function readCSV(filename: string, delimiter: string = ','): any[] {
     try {
       const utf8Str = buffer.toString('utf8');
       if (utf8Str.includes('\uFFFD')) {
-         content = iconv.decode(buffer, "win1252");
+        content = iconv.decode(buffer, "win1252");
       } else {
-         content = utf8Str;
+        content = utf8Str;
       }
     } catch {
       content = iconv.decode(buffer, "win1252");
@@ -151,9 +151,9 @@ async function main() {
         where: { name, sex }
       });
       if (!existing) {
-         await prisma.maritalStatusCatalog.create({
-           data: { name, sex }
-         });
+        await prisma.maritalStatusCatalog.create({
+          data: { name, sex }
+        });
       }
     }
   }
@@ -161,7 +161,7 @@ async function main() {
   // 8. CIE-10
   console.log("Cargando Catálogo CIE-10 (esto tomará unos minutos)...");
   const cie10 = readCSV("catalogo_cie10.csv");
-  
+
   // Use createMany for performance
   const chunks = [];
   const chunkSize = 2000;
@@ -199,7 +199,7 @@ async function main() {
     if (name) {
       const existing = await prisma.encounterType.findFirst({ where: { name } });
       if (!existing) {
-         await prisma.encounterType.create({ data: { name } });
+        await prisma.encounterType.create({ data: { name } });
       }
     }
   }
@@ -211,7 +211,7 @@ async function main() {
     if (name) {
       const existing = await prisma.medicalAptitude.findFirst({ where: { name } });
       if (!existing) {
-         await prisma.medicalAptitude.create({ data: { name } });
+        await prisma.medicalAptitude.create({ data: { name } });
       }
     }
   }
@@ -223,7 +223,7 @@ async function main() {
     if (name) {
       const existing = await prisma.surgicalProcedureCatalog.findFirst({ where: { name } });
       if (!existing) {
-         await prisma.surgicalProcedureCatalog.create({ data: { name } });
+        await prisma.surgicalProcedureCatalog.create({ data: { name } });
       }
     }
   }
@@ -285,7 +285,7 @@ async function main() {
   for (const a of alergias) {
     const catName = a["Categoría"] || a["Categora"]; // handle malformed UTF-8 fallback if any
     const name = a["Nombre"];
-    
+
     if (catName && name) {
       // find or create category
       const category = await prisma.allergyCategory.upsert({
@@ -320,16 +320,30 @@ async function main() {
     }
   }
 
+  // 10. DocumentTypeCatalog (Catálogo Base)
+  console.log("Cargando Tipos de Documentos...");
+  const documentTypes = [
+    { code: 'MEDICAL_CERTIFICATE', name: 'Constancia Médica' },
+    { code: 'ILLNESS_CERTIFICATE', name: 'Constancia de Enfermedad' }
+  ];
+  for (const doc of documentTypes) {
+    await prisma.documentTypeCatalog.upsert({
+      where: { code: doc.code },
+      update: { name: doc.name },
+      create: { code: doc.code, name: doc.name }
+    });
+  }
+
   // 17. Seed Admin User
   console.log("Creando usuario administrador...");
-  
+
   const existingAdmin = await prisma.user.findUnique({
     where: { email: "admin@clinica.com" }
   });
 
   if (!existingAdmin) {
     const { auth } = require("../src/lib/auth");
-    
+
     await auth.api.signUpEmail({
       body: {
         email: "admin@clinica.com",
@@ -340,7 +354,14 @@ async function main() {
 
     await prisma.user.update({
       where: { email: "admin@clinica.com" },
-      data: { role: "ADMIN" }
+      data: {
+        role: "ADMIN",
+        name: "administrador",
+        metadata: {
+          certificatePreamble: "La infrascrita Médica y Cirujana egresada de la Facultad de Ciencias Médicas de la Universidad de San Carlos de Guatemala, colegiada activa número veintiún mil ochocientos treinta y tres.",
+          sex: "FEMALE"
+        }
+      }
     });
 
     console.log("✅ Usuario administrador creado: admin@clinica.com / AdminPassword123!");
@@ -348,7 +369,14 @@ async function main() {
     // Si ya existe, nos aseguramos que tenga rol de ADMIN
     await prisma.user.update({
       where: { email: "admin@clinica.com" },
-      data: { role: "ADMIN" }
+      data: {
+        role: "ADMIN",
+        name: "administrador",
+        metadata: {
+          certificatePreamble: "La infrascrita Médica y Cirujana egresada de la Facultad de Ciencias Médicas de la Universidad de San Carlos de Guatemala, colegiada activa número veintiún mil ochocientos treinta y tres.",
+          sex: "FEMALE"
+        }
+      }
     });
     console.log("✅ El usuario administrador ya existe y tiene rol ADMIN.");
   }
