@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FileText } from "lucide-react";
 import { EncountersHeader } from "@/features/encounter/components/encounters-header";
+import { DocumentActionButton } from "@/features/document/components/document-action-button";
 
 export default async function GlobalEncountersPage({
   searchParams,
@@ -41,6 +42,7 @@ export default async function GlobalEncountersPage({
             <TableBody>
               {encounters.map((encounter: any) => {
                 const primaryDx = encounter.diagnoses?.[0];
+                const medCert = encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE');
                 return (
                   <TableRow key={encounter.id}>
                     <TableCell className="font-medium whitespace-nowrap">
@@ -74,12 +76,20 @@ export default async function GlobalEncountersPage({
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Link href={`/patients/${encounter.patientId}/encounters/${encounter.id}`}>
-                        <Button variant="ghost" size="sm">
-                          <FileText className="w-4 h-4 mr-2" />
-                          Detalle
-                        </Button>
-                      </Link>
+                      <div className="flex justify-end gap-2">
+                        <DocumentActionButton 
+                          encounterId={encounter.id} 
+                          documentTypeCode="MEDICAL_CERTIFICATE"
+                          label="Constancia Médica"
+                          initialPdfUrl={medCert?.pdfUrl}
+                        />
+                        <Link href={`/patients/${encounter.patientId}/encounters/${encounter.id}`}>
+                          <Button variant="ghost" size="sm">
+                            <FileText className="w-4 h-4 mr-2" />
+                            Detalle
+                          </Button>
+                        </Link>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

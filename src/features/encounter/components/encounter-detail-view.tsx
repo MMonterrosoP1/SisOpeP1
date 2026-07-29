@@ -8,6 +8,7 @@ import { es } from "date-fns/locale";
 import { ArrowLeft, Stethoscope, AlertTriangle, FileText, Activity, User, Briefcase, History } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { DocumentActionButton } from "@/features/document/components/document-action-button";
 
 const pregnancyStatusEs: Record<string, string> = {
   NOT_APPLICABLE: "No Aplica",
@@ -72,6 +73,16 @@ export function EncounterDetailView({ encounter, patient }: { encounter: any; pa
               Atendido por: <span className="font-medium text-foreground">{encounter.practitioner?.name}</span>
             </span>
           </div>
+        </div>
+        
+        <div className="flex shrink-0">
+          <DocumentActionButton 
+            encounterId={encounter.id} 
+            documentTypeCode="MEDICAL_CERTIFICATE"
+            label="Constancia Médica"
+            initialPdfUrl={encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE')?.pdfUrl}
+            size="default"
+          />
         </div>
       </div>
 

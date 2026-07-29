@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FileText } from "lucide-react";
+import { DocumentActionButton } from "@/features/document/components/document-action-button";
 
 export async function EncounterList({ patientId }: { patientId: number }) {
   // Fetch the last 10 encounters
@@ -31,6 +32,7 @@ export async function EncounterList({ patientId }: { patientId: number }) {
         {encounters.map((encounter) => {
           // findPrimaryDiagnosis
           const primaryDx = encounter.diagnoses?.[0]; // Our repository filter only includes isPrimary: true
+          const medCert = encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE');
           
           return (
             <TableRow key={encounter.id}>
@@ -57,12 +59,20 @@ export async function EncounterList({ patientId }: { patientId: number }) {
                 )}
               </TableCell>
               <TableCell className="text-right">
-                <Link href={`/patients/${patientId}/encounters/${encounter.id}`}>
-                  <Button variant="ghost" size="sm">
-                    <FileText className="w-4 h-4 mr-2" />
-                    Detalle
-                  </Button>
-                </Link>
+                <div className="flex justify-end gap-2">
+                  <DocumentActionButton 
+                    encounterId={encounter.id} 
+                    documentTypeCode="MEDICAL_CERTIFICATE"
+                    label="Constancia Médica"
+                    initialPdfUrl={medCert?.pdfUrl}
+                  />
+                  <Link href={`/patients/${patientId}/encounters/${encounter.id}`}>
+                    <Button variant="ghost" size="sm">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Detalle
+                    </Button>
+                  </Link>
+                </div>
               </TableCell>
             </TableRow>
           );
