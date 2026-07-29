@@ -22,6 +22,7 @@ export const encounterRepository = {
             where: { isPrimary: true },
             include: { icd10Code: true },
           },
+          documents: { include: { documentType: true } },
         },
       }),
       prisma.encounter.count({ where }),
@@ -51,6 +52,7 @@ export const encounterRepository = {
         familyHistoryEntries: { include: { icd10Code: true } },
         occupationalExposureEntries: { include: { occupationalExposure: true } },
         workDisabilityEntries: { include: { workDisability: true } },
+        documents: { include: { documentType: true } },
       },
     });
   },
@@ -77,6 +79,7 @@ export const encounterRepository = {
         familyHistoryEntries: { include: { icd10Code: true } },
         occupationalExposureEntries: { include: { occupationalExposure: true } },
         workDisabilityEntries: { include: { workDisability: true } },
+        documents: { include: { documentType: true } },
       },
     });
   },
