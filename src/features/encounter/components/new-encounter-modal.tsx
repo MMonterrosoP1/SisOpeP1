@@ -16,9 +16,10 @@ import { searchPatientsAction } from "@/features/patient/actions";
 interface NewEncounterModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSelect?: (patient: any) => void;
 }
 
-export function NewEncounterModal({ open, onOpenChange }: NewEncounterModalProps) {
+export function NewEncounterModal({ open, onOpenChange, onSelect }: NewEncounterModalProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
@@ -55,9 +56,13 @@ export function NewEncounterModal({ open, onOpenChange }: NewEncounterModalProps
     return () => clearTimeout(timer);
   }, [query]);
 
-  const handleSelect = (patientId: number) => {
+  const handleSelect = (patient: any) => {
     onOpenChange(false);
-    router.push(`/patients/${patientId}/encounters/new`);
+    if (onSelect) {
+      onSelect(patient);
+    } else {
+      router.push(`/patients/${patient.id}/encounters/new`);
+    }
   };
 
   return (
@@ -92,7 +97,7 @@ export function NewEncounterModal({ open, onOpenChange }: NewEncounterModalProps
           {results.map((patient) => (
             <button
               key={patient.id}
-              onClick={() => handleSelect(patient.id)}
+              onClick={() => handleSelect(patient)}
               className="w-full flex flex-col items-start gap-1 p-3 rounded-lg border hover:bg-muted transition-colors text-left"
             >
               <div className="font-medium text-sm">

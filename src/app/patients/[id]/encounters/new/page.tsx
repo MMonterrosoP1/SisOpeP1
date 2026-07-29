@@ -1,5 +1,7 @@
 import { getPatientById } from "@/features/patient/queries";
 import { getCatalogs } from "@/features/catalog/queries";
+import { getLatestEncounterByPatient } from "@/features/encounter/queries";
+import { mapEncounterToFormDefaults } from "@/features/encounter/domain/encounter-snapshot";
 import { EncounterForm } from "@/features/encounter/components/encounter-form";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -29,6 +31,7 @@ export default async function NewEncounterPage({
     medicalAptitude,
     habitCatalog,
     allergyCategory,
+    latestEncounter,
   ] = await Promise.all([
     getCatalogs("encounterType"),
     getCatalogs("allergenCatalog"),
@@ -40,6 +43,7 @@ export default async function NewEncounterPage({
     getCatalogs("medicalAptitude"),
     getCatalogs("habitCatalog"),
     getCatalogs("allergyCategory"),
+    getLatestEncounterByPatient(patientId),
   ]);
 
   const catalogs = {
@@ -55,6 +59,10 @@ export default async function NewEncounterPage({
     allergyCategory,
   };
 
+  const previousDefaults = latestEncounter ? mapEncounterToFormDefaults(latestEncounter, patientId) : undefined;
+  const isFollowUp = !!latestEncounter;
+  const previousEncounterDate = latestEncounter?.createdAt?.toISOString();
+
   return (
     <div className="flex flex-col gap-6 p-6 max-w-5xl mx-auto w-full">
       <div className="flex items-center gap-4">
@@ -64,12 +72,36 @@ export default async function NewEncounterPage({
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Nueva Consulta: {patient.givenNames} {patient.familyNames}</h1>
+          <h1 className="text-2xl font-bold">{isFollowUp ? "Reconsulta:" : "Nueva Consulta:"} {patient.givenNames} {patient.familyNames}</h1>
           <p className="text-muted-foreground text-sm">Registre los datos de la evaluación médica del paciente.</p>
         </div>
       </div>
 
-      <EncounterForm patientId={patientId} patientSex={patient.sex} catalogs={catalogs} />
+      <EncounterForm 
+        patientId={patientId} 
+        patientSex={patient.sex as any} 
+        catalogs={catalogs}
+        previousDefaults={previousDefaults}
+        isFollowUp={isFollowUp}
+        previousEncounterDate={previousEncounterDate}
+        patientSummary={{
+          fullName: `${patient.givenNames} ${patient.familyNames}`,
+          age: (() => {
+            const today = new Date();
+            const birth = new Date(patient.birthDate);
+            let age = today.getFullYear() - birth.getFullYear();
+            const m = today.getMonth() - birth.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+              age--;
+            }
+            return age >= 0 ? age : 0;
+          })(),
+          identityDocument: patient.identityDocument,
+          phone: patient.phone,
+          jobPosition: patient.jobPosition?.name,
+          workplace: patient.workplace?.name,
+        }}
+      />
     </div>
   );
 }
