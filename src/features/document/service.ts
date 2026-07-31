@@ -19,6 +19,10 @@ export const documentService = {
     if (documentTypeCode === "MEDICAL_CERTIFICATE" && !encounter.medicalAptitudeId) {
       throw new ValidationError("La consulta debe tener una aptitud médica definida para generar una constancia médica");
     }
+    
+    if (documentTypeCode === "ILLNESS_CERTIFICATE" && (!encounter.diagnoses || encounter.diagnoses.length === 0)) {
+      throw new ValidationError("La consulta debe tener al menos un diagnóstico para generar una constancia de enfermedad");
+    }
 
     // 2. Verificar que no exista ya un documento de este tipo
     const existingDoc = encounter.documents.find(d => d.documentType.code === documentTypeCode);

@@ -33,6 +33,12 @@ export const documentRepository = {
         },
         practitioner: true,
         medicalAptitude: true,
+        suspensionHour: true,
+        diagnoses: {
+          include: {
+            icd10Code: true
+          }
+        },
         documents: {
           include: {
             documentType: true
