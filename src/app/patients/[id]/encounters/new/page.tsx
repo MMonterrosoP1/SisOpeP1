@@ -31,6 +31,7 @@ export default async function NewEncounterPage({
     medicalAptitude,
     habitCatalog,
     allergyCategory,
+    suspensionHour,
     latestEncounter,
   ] = await Promise.all([
     getCatalogs("encounterType"),
@@ -43,6 +44,7 @@ export default async function NewEncounterPage({
     getCatalogs("medicalAptitude"),
     getCatalogs("habitCatalog"),
     getCatalogs("allergyCategory"),
+    getCatalogs("suspensionHour"),
     getLatestEncounterByPatient(patientId),
   ]);
 
@@ -57,6 +59,7 @@ export default async function NewEncounterPage({
     medicalAptitude,
     habitCatalog,
     allergyCategory,
+    suspensionHour,
   };
 
   const previousDefaults = latestEncounter ? mapEncounterToFormDefaults(latestEncounter, patientId) : undefined;

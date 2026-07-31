@@ -16,6 +16,7 @@ export const CATALOG_TYPES = [
   "maritalStatus",
   "bloodType",
   "habitCatalog",
+  "suspensionHour",
 ] as const;
 
 export type CatalogType = typeof CATALOG_TYPES[number];
