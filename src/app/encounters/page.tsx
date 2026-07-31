@@ -43,6 +43,7 @@ export default async function GlobalEncountersPage({
               {encounters.map((encounter: any) => {
                 const primaryDx = encounter.diagnoses?.[0];
                 const medCert = encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE');
+                const illnessCert = encounter.documents?.find((d: any) => d.documentType.code === 'ILLNESS_CERTIFICATE');
                 return (
                   <TableRow key={encounter.id}>
                     <TableCell className="font-medium whitespace-nowrap">
@@ -82,6 +83,12 @@ export default async function GlobalEncountersPage({
                           documentTypeCode="MEDICAL_CERTIFICATE"
                           label="Constancia Médica"
                           initialPdfUrl={medCert?.pdfUrl}
+                        />
+                        <DocumentActionButton 
+                          encounterId={encounter.id} 
+                          documentTypeCode="ILLNESS_CERTIFICATE"
+                          label="Constancia de Enfermedad"
+                          initialPdfUrl={illnessCert?.pdfUrl}
                         />
                         <Link href={`/patients/${encounter.patientId}/encounters/${encounter.id}`}>
                           <Button variant="ghost" size="sm">

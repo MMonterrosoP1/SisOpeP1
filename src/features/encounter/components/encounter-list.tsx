@@ -33,6 +33,7 @@ export async function EncounterList({ patientId }: { patientId: number }) {
           // findPrimaryDiagnosis
           const primaryDx = encounter.diagnoses?.[0]; // Our repository filter only includes isPrimary: true
           const medCert = encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE');
+          const illnessCert = encounter.documents?.find((d: any) => d.documentType.code === 'ILLNESS_CERTIFICATE');
           
           return (
             <TableRow key={encounter.id}>
@@ -65,6 +66,12 @@ export async function EncounterList({ patientId }: { patientId: number }) {
                     documentTypeCode="MEDICAL_CERTIFICATE"
                     label="Constancia Médica"
                     initialPdfUrl={medCert?.pdfUrl}
+                  />
+                  <DocumentActionButton 
+                    encounterId={encounter.id} 
+                    documentTypeCode="ILLNESS_CERTIFICATE"
+                    label="Constancia de Enfermedad"
+                    initialPdfUrl={illnessCert?.pdfUrl}
                   />
                   <Link href={`/patients/${patientId}/encounters/${encounter.id}`}>
                     <Button variant="ghost" size="sm">
