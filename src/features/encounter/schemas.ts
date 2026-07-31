@@ -76,7 +76,7 @@ export const createEncounterSchema = z.object({
   pregnancyStatus: PregnancyStatusSchema.default("NOT_APPLICABLE"),
   sleepHours: z.number({ message: "Debe ser un número" }).min(0, "No puede ser menor a 0").max(24, "Máximo 24").optional().nullable(),
   medicationsAdministered: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
-  suspensionHours: z.number({ message: "Debe ser un número" }).int("Debe ser un entero").min(0, "No puede ser menor a 0").optional().nullable(),
+  suspensionHourId: idParamSchema.optional().nullable(),
   referralLevelId: idParamSchema.optional().nullable(),
   medicalAptitudeId: idParamSchema.optional().nullable(),
   internalObservation: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),

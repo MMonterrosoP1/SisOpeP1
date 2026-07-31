@@ -269,7 +269,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
     pregnancyStatus: "NOT_APPLICABLE",
     sleepHours: "",
     medicationsAdministered: "",
-    suspensionHours: "",
+    suspensionHourId: "",
     referralLevelId: "",
     medicalAptitudeId: "",
     internalObservation: "",
@@ -385,7 +385,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
         pregnancyStatus: formData.pregnancyStatus,
         sleepHours: toOptionalNumber(formData.sleepHours),
         medicationsAdministered: formData.medicationsAdministered || undefined,
-        suspensionHours: toOptionalNumber(formData.suspensionHours),
+        suspensionHourId: toOptionalNumber(formData.suspensionHourId),
         referralLevelId: toOptionalNumber(formData.referralLevelId),
         medicalAptitudeId: toOptionalNumber(formData.medicalAptitudeId),
         internalObservation: formData.internalObservation || undefined,
@@ -1153,7 +1153,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
         defaultExpanded
         hasError={[
           "referralLevelId", "medicalAptitudeId", "medicationsAdministered",
-          "suspensionHours", "sleepHours", "followUpDate",
+          "suspensionHourId", "sleepHours", "followUpDate",
           "internalObservation", "employerObservation"
         ].some((f) => !!getFieldError(f))}
       >
@@ -1197,17 +1197,20 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
             />
             <FieldError error={getFieldError("medicationsAdministered")} />
           </div>
-          <div className="flex flex-col gap-2">
-            <Label>Horas de Suspensión (Descanso)</Label>
-            <Input
-              type="number"
-              className={getFieldError("suspensionHours") ? "border-destructive ring-1 ring-destructive" : ""}
-              aria-invalid={!!getFieldError("suspensionHours")}
-              value={formData.suspensionHours}
-              onChange={(e) => handleFieldChange("suspensionHours", e.target.value)}
-            />
-            <FieldError error={getFieldError("suspensionHours")} />
-          </div>
+          <CatalogSelectFieldWithAdd 
+            name="suspensionHourId" 
+            label="Horas de Suspensión (Descanso)" 
+            value={String(formData.suspensionHourId || "")} 
+            options={getCatalogOptions("suspensionHour")} 
+            placeholder="Seleccione..." 
+            onChange={(val) => handleFieldChange("suspensionHourId", val)} 
+            onAddClick={() => setQuickAddDialog({
+              open: true,
+              type: "suspensionHour",
+              title: "Horas de Suspensión (Descanso)",
+              field: "suspensionHourId"
+            })}
+          />
           <div className="flex flex-col gap-2">
             <Label>Horas de Sueño</Label>
             <Input

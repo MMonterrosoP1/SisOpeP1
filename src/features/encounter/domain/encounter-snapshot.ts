@@ -11,7 +11,7 @@ export function mapEncounterToFormDefaults(encounter: any, patientId: number): a
     pregnancyStatus: encounter.pregnancyStatus || "NOT_APPLICABLE",
     sleepHours: encounter.sleepHours?.toString() || "",
     medicationsAdministered: encounter.medicationsAdministered || "",
-    suspensionHours: encounter.suspensionHours?.toString() || "",
+    suspensionHourId: encounter.suspensionHourId ? String(encounter.suspensionHourId) : "",
     referralLevelId: encounter.referralLevelId ? String(encounter.referralLevelId) : "",
     medicalAptitudeId: encounter.medicalAptitudeId ? String(encounter.medicalAptitudeId) : "",
     internalObservation: encounter.internalObservation || "",

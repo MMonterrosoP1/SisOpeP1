@@ -355,6 +355,16 @@ model BloodTypeCatalog {
   @@map("blood_type_catalog")
 }
 
+model SuspensionHourCatalog {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  active Boolean @default(true)
+
+  encounters Encounter[]
+
+  @@map("suspension_hour_catalog")
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 // ENTIDADES PRINCIPALES
 // ═══════════════════════════════════════════════════════════════════════
@@ -426,7 +436,7 @@ model Encounter {
   pregnancyStatus         PregnancyStatus @default(NOT_APPLICABLE)
   sleepHours              Float?
   medicationsAdministered String?         @db.Text
-  suspensionHours         Int?
+  suspensionHourId        Int?
   referralLevelId         Int?
   medicalAptitudeId       Int?
   internalObservation     String?         @db.Text
@@ -440,6 +450,7 @@ model Encounter {
   encounterType   EncounterType    @relation(fields: [encounterTypeId], references: [id])
   referralLevel   ReferralLevel?   @relation(fields: [referralLevelId], references: [id])
   medicalAptitude MedicalAptitude? @relation(fields: [medicalAptitudeId], references: [id])
+  suspensionHour  SuspensionHourCatalog? @relation(fields: [suspensionHourId], references: [id])
 
   // Datos clínicos
   vitalSign                   VitalSign?
