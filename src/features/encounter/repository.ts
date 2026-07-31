@@ -23,6 +23,7 @@ export const encounterRepository = {
             include: { icd10Code: true },
           },
           documents: { include: { documentType: true } },
+          medicalAptitude: { select: { name: true } },
         },
       }),
       prisma.encounter.count({ where }),
