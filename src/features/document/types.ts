@@ -15,3 +15,9 @@ export interface CertificateData {
   practitionerName?: string;
   practitionerSex?: string;
 }
+
+export interface IllnessCertificateData extends CertificateData {
+  symptomatology: string;
+  diagnoses: { name: string; observations: string }[];
+  suspensionHour: string | null;
+}

@@ -1,5 +1,6 @@
 import { MedicalCertificatePDF } from "./medical-certificate-pdf";
-import { CertificateData } from "../types";
+import { IllnessCertificatePDF } from "./illness-certificate-pdf";
+import { DocumentTemplateType, CertificateData, IllnessCertificateData } from "../types";
 import { format, differenceInYears } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -42,11 +43,29 @@ export function mapEncounterToCertificateData(encounter: any): CertificateData {
   };
 }
 
-import { DocumentTemplateType } from "../types";
+export function mapEncounterToIllnessCertificateData(encounter: any): IllnessCertificateData {
+  const baseData = mapEncounterToCertificateData(encounter);
+  
+  const diagnoses = encounter.diagnoses?.map((diag: any) => ({
+    name: diag.icd10Code ? `${diag.icd10Code.code} - ${diag.icd10Code.description}` : "Sin diagnóstico",
+    observations: diag.observations || "",
+  })) || [];
+
+  return {
+    ...baseData,
+    symptomatology: encounter.symptomatology || "",
+    diagnoses,
+    suspensionHour: encounter.suspensionHour?.name || null,
+  };
+}
 
 export const templateRegistry: Partial<Record<DocumentTemplateType, { component: any; mapData: any }>> = {
   MEDICAL_CERTIFICATE: {
     component: MedicalCertificatePDF,
     mapData: mapEncounterToCertificateData,
   },
+  ILLNESS_CERTIFICATE: {
+    component: IllnessCertificatePDF,
+    mapData: mapEncounterToIllnessCertificateData,
+  }
 };
