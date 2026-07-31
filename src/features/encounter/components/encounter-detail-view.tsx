@@ -75,12 +75,19 @@ export function EncounterDetailView({ encounter, patient }: { encounter: any; pa
           </div>
         </div>
         
-        <div className="flex shrink-0">
+        <div className="flex shrink-0 gap-2">
           <DocumentActionButton 
             encounterId={encounter.id} 
             documentTypeCode="MEDICAL_CERTIFICATE"
             label="Constancia Médica"
             initialPdfUrl={encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE')?.pdfUrl}
+            size="default"
+          />
+          <DocumentActionButton 
+            encounterId={encounter.id} 
+            documentTypeCode="ILLNESS_CERTIFICATE"
+            label="Constancia de Enfermedad"
+            initialPdfUrl={encounter.documents?.find((d: any) => d.documentType.code === 'ILLNESS_CERTIFICATE')?.pdfUrl}
             size="default"
           />
         </div>
@@ -246,7 +253,7 @@ export function EncounterDetailView({ encounter, patient }: { encounter: any; pa
                 </div>
                 <div>
                   <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Horas de Suspensión (Descanso)</h4>
-                  {encounter.suspensionHours ? <p className="text-sm">{encounter.suspensionHours} horas</p> : <EmptyState />}
+                  {encounter.suspensionHour ? <p className="text-sm">{encounter.suspensionHour.name}</p> : <EmptyState />}
                 </div>
                 <div>
                   <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Horas de Sueño</h4>
