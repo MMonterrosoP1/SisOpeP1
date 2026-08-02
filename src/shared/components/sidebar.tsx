@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
@@ -138,17 +139,23 @@ export function Sidebar({ user, isMobileOpen, onMobileClose }: SidebarProps) {
         {/* Logo Area */}
         <div className="px-3 pb-3 flex items-center justify-center">
           {isCollapsed ? (
-            <img
+            <Image
               key="logo-collapsed"
               src="/premed-dark-logo.png"
               alt="Logo"
+              width={40}
+              height={40}
+              priority
               className="w-10 h-10 object-contain"
             />
           ) : (
-            <img
+            <Image
               key="logo-expanded"
               src="/premed-dark.png"
               alt="FM-PREMED Logo"
+              width={160}
+              height={52}
+              priority
               className="h-13 w-auto object-contain mt-4"
             />
           )}
@@ -184,9 +191,12 @@ export function Sidebar({ user, isMobileOpen, onMobileClose }: SidebarProps) {
           <div className="flex flex-col h-full py-4">
             {/* Logo Area */}
             <div className="px-3 pb-6 pt-4 flex items-center justify-center">
-              <img
+              <Image
                 src="/premed-dark.png"
                 alt="FM-PREMED Logo"
+                width={140}
+                height={40}
+                priority
                 className="h-10 w-auto object-contain"
               />
             </div>
