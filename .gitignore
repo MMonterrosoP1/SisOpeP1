@@ -45,3 +45,7 @@ next-env.d.ts
 
 #miscelaneous
 /input_Catalog
+get_inventory.js
+inventory.json
+skill_output*.txt
+skill-output*.txt
