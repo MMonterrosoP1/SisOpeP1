@@ -34,3 +34,34 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Fase 1 - Testing Base Pacientes
+
+Esta fase cubre pruebas unitarias de validación para pacientes y utilidades Zod, sin dependencias de base de datos o red.
+
+### Alcance
+
+- Incluido: pruebas unitarias de schemas y helpers de parse/error.
+- Excluido: repository, UI y E2E.
+
+### Comandos
+
+```bash
+pnpm test
+pnpm test:watch
+pnpm test:coverage
+```
+
+### Resultado actual
+
+- Suite: 10/10 pruebas en verde.
+- Cobertura objetivo (archivos de validación Fase 1):
+	- Statements: 96%
+	- Branches: 92.3%
+	- Lines: 96%
+
+### Criterio de salida de Fase 1
+
+- La suite corre de forma determinística y rápida.
+- Los errores negativos reportan el campo correcto en `fieldErrors` (por ejemplo, `identityDocument`, `birthDate`).
+- Cobertura fuerte sobre reglas críticas de validación de pacientes y helpers de Zod.
