@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { searchPatientsAction } from "@/features/patient/actions";
+
 
 interface NewEncounterModalProps {
   open: boolean;
@@ -42,7 +42,8 @@ export function NewEncounterModal({ open, onOpenChange, onSelect }: NewEncounter
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await searchPatientsAction(query);
+        const req = await fetch(`/api/search/patients?q=${encodeURIComponent(query)}`);
+        const res = await req.json();
         if (res.success) {
           setResults(res.data);
         }

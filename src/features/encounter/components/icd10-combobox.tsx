@@ -4,7 +4,7 @@ import { Combobox as ComboboxPrimitive } from "@base-ui/react/combobox";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
-import { searchIcd10Action } from "@/features/catalog/actions";
+
 
 export type Icd10Option = {
   id: number;
@@ -53,7 +53,8 @@ export function Icd10Combobox({
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await searchIcd10Action(query);
+        const req = await fetch(`/api/search/icd10?q=${encodeURIComponent(query)}`);
+        const res = await req.json();
         if (res.success) {
           const results = res.data as Icd10Option[];
           if (selectedOption && !results.some(r => r.id === selectedOption.id)) {

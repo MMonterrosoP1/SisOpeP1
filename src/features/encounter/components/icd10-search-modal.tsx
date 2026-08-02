@@ -5,7 +5,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { Loader2, Search, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { searchIcd10Action } from "@/features/catalog/actions";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -58,7 +58,8 @@ export function Icd10SearchModal({
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await searchIcd10Action(query);
+        const req = await fetch(`/api/search/icd10?q=${encodeURIComponent(query)}`);
+        const res = await req.json();
         if (res.success) {
           setResults(res.data as Icd10Option[]);
         }
