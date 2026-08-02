@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, Loader2, AlertCircle, FileText, CheckCircle2 } from "lucide-react";
 
-import { getRecentEncountersAction } from "@/features/encounter/actions";
 import { generateDocumentAction } from "@/features/document/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -89,7 +88,7 @@ export function NewCertificateModal() {
   useEffect(() => {
     if (selectedPatient) {
       startLoadingEncounters(async () => {
-        const res = await getRecentEncountersAction(selectedPatient.id);
+        const res = await fetch(`/api/encounters/recent?patientId=${selectedPatient.id}`).then(r => r.json());
         if (res.success) {
           setEncounters(res.data);
         }
@@ -236,7 +235,7 @@ export function NewCertificateModal() {
                     <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
                       Cancelar
                     </Button>
-                    <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white" render={<a href={`/api/encounters/${existingDocument.encounterId}/documents/${existingDocument.documentType.code}`} target="_blank" rel="noreferrer" />}>
+                    <Button nativeButton={false} size="sm" className="bg-amber-600 hover:bg-amber-700 text-white" render={<a href={`/api/encounters/${existingDocument.encounterId}/documents/${existingDocument.documentType.code}`} target="_blank" rel="noreferrer" />}>
                       <FileText className="w-4 h-4 mr-2" />
                       Ver Constancia
                     </Button>
