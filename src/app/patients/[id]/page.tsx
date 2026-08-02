@@ -1,4 +1,5 @@
 import { getPatientById } from "@/features/patient/queries";
+import { getEncountersByPatient } from "@/features/encounter/queries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,8 @@ export default async function PatientDetailPage({
   const patientId = Number(resolvedParams.id);
   if (isNaN(patientId)) notFound();
 
+  // Iniciar la carga de consultas concurrentemente con la del paciente
+  const encountersPromise = getEncountersByPatient(patientId, { page: 1, pageSize: 10 });
   const patient = await getPatientById(patientId);
 
   if (!patient) notFound();
@@ -163,7 +166,7 @@ export default async function PatientDetailPage({
           </CardHeader>
           <CardContent>
             <Suspense fallback={<div className="p-4 text-center text-sm text-muted-foreground">Cargando consultas...</div>}>
-              <EncounterList patientId={patient.id} />
+              <EncounterList patientId={patient.id} encountersPromise={encountersPromise} />
             </Suspense>
           </CardContent>
         </Card>

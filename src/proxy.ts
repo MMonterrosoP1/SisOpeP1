@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 type Session = typeof auth.$Infer.Session;
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   const isAuthRoute = pathname.startsWith("/sign-in") || pathname.startsWith("/api/auth");
