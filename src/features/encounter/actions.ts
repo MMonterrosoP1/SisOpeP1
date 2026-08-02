@@ -21,14 +21,3 @@ export async function createEncounter(data: unknown): Promise<ActionResponse<unk
   }
 }
 
-import { getEncountersByPatient } from "./queries";
-
-export async function getRecentEncountersAction(patientId: number): Promise<ActionResponse<unknown>> {
-  try {
-    await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
-    const result = await getEncountersByPatient(patientId, { page: 1, pageSize: 15 });
-    return { success: true, data: result.data };
-  } catch (error) {
-    return handleActionError(error);
-  }
-}

@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ComboboxSelect } from "@/components/ui/combobox-select";
-import { createCatalogItem, findSimilarCatalogItemsAction } from "../actions";
+import { createCatalogItem } from "../actions";
 import { CatalogQuickAddDialog } from "./catalog-quick-add-dialog";
 import { toast } from "sonner";
 
@@ -71,21 +71,25 @@ export function AllergenQuickAddDialog({
       return;
     }
 
+    let isCancelled = false;
     const timer = setTimeout(async () => {
       setSimilarLoading(true);
       try {
-        const res = await findSimilarCatalogItemsAction("allergenCatalog", name);
-        if (res.success && res.data) {
+        const res = await fetch(`/api/search/catalog?type=allergenCatalog&q=${encodeURIComponent(name)}`).then(r => r.json());
+        if (!isCancelled && res.success && res.data) {
           setSimilarItems(res.data);
         }
       } catch (error) {
-        console.error("Error finding similar items:", error);
+        if (!isCancelled) console.error("Error finding similar items:", error);
       } finally {
-        setSimilarLoading(false);
+        if (!isCancelled) setSimilarLoading(false);
       }
-    }, 400);
+    }, 800);
 
-    return () => clearTimeout(timer);
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
   }, [name]);
 
   const handleSave = async () => {
@@ -99,17 +103,11 @@ export function AllergenQuickAddDialog({
       });
       
       if (res.success) {
-        toast.success(`Alergia creada correctamente`);
-        // Add the nested object so the UI can display it
-        const selectedCategory = localCategories.find(c => c.id === Number(categoryId));
-        const newItem = {
-          ...res.data,
-          allergyCategory: selectedCategory ? { name: selectedCategory.name } : undefined
-        };
-        onSuccess(newItem);
+        toast.success(`Alergeno creado correctamente`);
+        onSuccess(res.data as AllergenItem);
         onOpenChange(false);
       } else {
-        toast.error(res.error || `Error al crear la alergia`);
+        toast.error(res.error || `Error al crear alergeno`);
       }
     } catch (error) {
       toast.error("Ocurrió un error inesperado");
@@ -221,10 +219,10 @@ export function AllergenQuickAddDialog({
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSave} disabled={loading || !name.trim() || !categoryId}>
+            <Button type="button" onClick={handleSave} disabled={loading || !name.trim() || !categoryId}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Guardar
             </Button>
