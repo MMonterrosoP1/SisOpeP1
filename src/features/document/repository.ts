@@ -89,4 +89,49 @@ export const documentRepository = {
       data: { pdfUrl },
     });
   },
+
+  async findAll(
+    filters: { search?: string; type?: string; },
+    pagination: { skip: number; take: number }
+  ) {
+    const whereClause: any = {};
+
+    if (filters.type) {
+      whereClause.documentType = { code: filters.type };
+    }
+
+    if (filters.search) {
+      whereClause.patient = {
+        person: {
+          OR: [
+            { identityDocument: { contains: filters.search } },
+            { givenNames: { contains: filters.search } },
+            { familyNames: { contains: filters.search } },
+          ],
+        },
+      };
+    }
+
+    const [items, totalCount] = await Promise.all([
+      prisma.document.findMany({
+        where: whereClause,
+        include: {
+          patient: {
+            include: {
+              person: true,
+            },
+          },
+          documentType: true,
+          encounter: true,
+          issuedBy: true,
+        },
+        orderBy: { issuedAt: "desc" },
+        skip: pagination.skip,
+        take: pagination.take,
+      }),
+      prisma.document.count({ where: whereClause }),
+    ]);
+
+    return { items, totalCount };
+  },
 };
