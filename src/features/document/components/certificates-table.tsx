@@ -26,14 +26,18 @@ export function CertificatesTable({ data, meta }: CertificatesTableProps) {
   // Minimal debounced search
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      const params = new URLSearchParams(searchParams);
+      const params = new URLSearchParams(searchParams.toString());
       if (searchTerm) {
         params.set("search", searchTerm);
         params.set("page", "1");
       } else {
         params.delete("search");
       }
-      router.push(`${pathname}?${params.toString()}`);
+      
+      const newQuery = params.toString();
+      if (newQuery !== searchParams.toString()) {
+        router.push(`${pathname}?${newQuery}`);
+      }
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
