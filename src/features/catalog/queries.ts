@@ -1,26 +1,38 @@
-import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 import { getCatalogRepo } from "./repository";
 import { CatalogType } from "./types";
 import { prisma } from "@/lib/prisma";
 
-export const getCatalogs = cache(async (type: CatalogType, activeOnly: boolean = true) => {
+export async function getCatalogs(type: CatalogType, activeOnly: boolean = true) {
+  "use cache";
+  cacheLife("days");
+  cacheTag(`catalog-${type}`);
+  
   const repo = getCatalogRepo(type);
   if (!repo) return [];
   return repo.findAll(activeOnly ? { active: true } : undefined);
-});
+}
 
-export const getCatalogById = cache(async (type: CatalogType, id: number) => {
+export async function getCatalogById(type: CatalogType, id: number) {
+  "use cache";
+  cacheLife("days");
+  cacheTag(`catalog-${type}`, `catalog-${type}-${id}`);
+
   const repo = getCatalogRepo(type);
   if (!repo) return null;
   return repo.findById(id);
-});
+}
 
-export const searchIcd10 = cache(async (query: string, limit: number = 300) => {
-  if (!query || query.trim() === '') {
+export async function searchIcd10(query: string, limit: number = 300) {
+  "use cache";
+  cacheLife("max");
+  cacheTag("icd10");
+
+  if (!query || query.trim() === "") {
     return prisma.icd10Code.findMany({
       where: { active: true },
       take: limit,
-      orderBy: { code: 'asc' },
+      orderBy: { code: "asc" },
     });
   }
   
@@ -33,6 +45,6 @@ export const searchIcd10 = cache(async (query: string, limit: number = 300) => {
       ],
     },
     take: limit,
-    orderBy: { code: 'asc' },
+    orderBy: { code: "asc" },
   });
-});
+}

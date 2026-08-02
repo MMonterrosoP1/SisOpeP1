@@ -7,9 +7,16 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
 
-export async function EncounterList({ patientId }: { patientId: number }) {
+export async function EncounterList({ 
+  patientId,
+  encountersPromise 
+}: { 
+  patientId: number;
+  encountersPromise?: Promise<any>;
+}) {
   // Fetch the last 10 encounters
-  const { data: encounters } = await getEncountersByPatient(patientId, { page: 1, pageSize: 10 });
+  const promise = encountersPromise || getEncountersByPatient(patientId, { page: 1, pageSize: 10 });
+  const { data: encounters } = await promise;
 
   if (encounters.length === 0) {
     return (
