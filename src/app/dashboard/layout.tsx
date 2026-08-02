@@ -1,12 +1,10 @@
+import { Suspense } from "react";
 import { getAuthSession } from "@/shared/auth/auth-guard";
 import { DashboardLayoutClient } from "@/shared/components/dashboard-layout-client";
 import { redirect } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+async function DashboardAuthWrapper({ children }: { children: React.ReactNode }) {
   let session;
   try {
     session = await getAuthSession();
@@ -14,7 +12,6 @@ export default async function DashboardLayout({
     redirect("/sign-in");
   }
 
-  // Ensure user has required fields
   const user = {
     id: session.user.id,
     name: session.user.name || "Usuario",
@@ -26,5 +23,21 @@ export default async function DashboardLayout({
     <DashboardLayoutClient user={user}>
       {children}
     </DashboardLayoutClient>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen w-full items-center justify-center bg-muted/50">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    }>
+      <DashboardAuthWrapper>{children}</DashboardAuthWrapper>
+    </Suspense>
   );
 }
