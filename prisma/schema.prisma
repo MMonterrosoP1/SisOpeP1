@@ -649,14 +649,25 @@ model Habit {
 
 /// Ejercicio
 
-model Exercise {
-  id           Int     @id @default(autoincrement())
-  encounterId  Int
-  doesExercise Boolean @default(false)
-  sportType    String?
-  timesPerWeek Int?
+model ExerciseCatalog {
+  id   Int    @id @default(autoincrement())
+  code String @unique
+  name String
 
-  encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  exercises Exercise[]
+
+  @@map("exercise_catalog")
+}
+
+model Exercise {
+  id                Int     @id @default(autoincrement())
+  encounterId       Int
+  doesExercise      Boolean @default(false)
+  exerciseCatalogId Int?
+  timesPerWeek      Int?
+
+  encounter       Encounter        @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  exerciseCatalog ExerciseCatalog? @relation(fields: [exerciseCatalogId], references: [id])
 
   @@map("exercise")
 }

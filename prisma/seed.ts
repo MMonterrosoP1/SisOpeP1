@@ -334,7 +334,31 @@ async function main() {
     });
   }
 
-  // 17. Seed Admin User
+  // 17. Exercise Catalog
+  console.log("Cargando Catálogo de Ejercicios...");
+  const exerciseCount = await prisma.exerciseCatalog.count();
+  if (exerciseCount > 0) {
+    console.log("El catálogo de ejercicios ya tiene datos, omitiendo carga.");
+  } else {
+    try {
+      const exerciseRecords = readCSV("ejercicios.csv", ",");
+      for (const record of exerciseRecords) {
+        if (record["Nombre"]) {
+          const name = record["Nombre"].trim();
+          const code = name.toUpperCase().replace(/\s+/g, "_");
+          await prisma.exerciseCatalog.upsert({
+            where: { code },
+            update: { name },
+            create: { code, name }
+          });
+        }
+      }
+    } catch (e) {
+      console.log("No se pudo cargar ejercicios.csv:", e);
+    }
+  }
+
+  // 18. Seed Admin User
   console.log("Creando usuario administrador...");
 
   const existingAdmin = await prisma.user.findUnique({
