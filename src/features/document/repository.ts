@@ -27,11 +27,12 @@ export const documentRepository = {
       include: {
         patient: {
           include: {
+            person: true,
             workplace: true,
             jobPosition: true,
           }
         },
-        practitioner: true,
+        practitioner: { include: { person: true } },
         medicalAptitude: true,
         suspensionHour: true,
         diagnoses: {

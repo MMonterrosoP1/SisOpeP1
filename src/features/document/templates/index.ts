@@ -19,8 +19,8 @@ export function mapEncounterToCertificateData(encounter: any): CertificateData {
   const patient = encounter.patient;
   
   // Calculate age dynamically
-  const age = patient.birthDate 
-    ? differenceInYears(new Date(encounter.createdAt), new Date(patient.birthDate))
+  const age = patient.person?.birthDate 
+    ? differenceInYears(new Date(encounter.createdAt), new Date(patient.person.birthDate))
     : 0;
     
   // Format date: dd/MM/yyyy
@@ -29,17 +29,17 @@ export function mapEncounterToCertificateData(encounter: any): CertificateData {
   return {
     date: dateFormatted,
     workplaceName: patient.workplace?.name || "",
-    fullName: `${patient.givenNames} ${patient.familyNames}`,
+    fullName: `${patient.person?.givenNames} ${patient.person?.familyNames}`,
     age,
     employeeCode: "", // Dejalo vacio por el momento
-    identityDocument: patient.identityDocument || "",
-    sex: patient.sex === 'MALE' ? 'Masculino' : 'Femenino',
+    identityDocument: patient.person?.identityDocument || "",
+    sex: patient.person?.sex === 'MALE' ? 'Masculino' : 'Femenino',
     jobPositionName: patient.jobPosition?.name || "",
     aptitude: mapAptitude(encounter.medicalAptitude?.name),
     employerObservation: encounter.employerObservation || "",
-    practitionerPreamble: encounter.practitioner?.metadata?.certificatePreamble || "El/La infrascrito/a Médico/a y Cirujano/a hace constar:",
+    practitionerPreamble: encounter.practitioner?.preamble || "El/La infrascrito/a Médico/a y Cirujano/a hace constar:",
     practitionerName: encounter.practitioner?.name || "",
-    practitionerSex: encounter.practitioner?.metadata?.sex || null,
+    practitionerSex: encounter.practitioner?.person?.sex || null,
   };
 }
 

@@ -82,6 +82,10 @@ model User {
   sessions Session[]
   accounts Account[]
 
+  // Vínculo a Person (Opcional para que Better Auth no falle al crear)
+  personId Int?    @unique
+  person   Person? @relation(fields: [personId], references: [id])
+
   // Relaciones del negocio
   encounters          Encounter[]
   documents           Document[]
@@ -91,7 +95,7 @@ model User {
   banReason  String?   @db.Text
   banExpires DateTime?
 
-  metadata   Json?
+  preamble   String?   @db.Text
 
   @@map("user")
 }
@@ -369,7 +373,7 @@ model SuspensionHourCatalog {
 // ENTIDADES PRINCIPALES
 // ═══════════════════════════════════════════════════════════════════════
 
-model Patient {
+model Person {
   id               Int          @id @default(autoincrement())
   givenNames       String
   familyNames      String
@@ -377,8 +381,22 @@ model Patient {
   identityDocument String       @unique
   birthDate        DateTime     @db.Date
   sex              Sex
-  maritalStatusId  Int
   phone            String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  patient Patient?
+  user    User?
+
+  @@index([identityDocument])
+  @@index([familyNames, givenNames])
+  @@map("person")
+}
+
+model Patient {
+  id               Int          @id @default(autoincrement())
+  personId         Int          @unique
+  maritalStatusId  Int
   companyId        Int
   workplaceId      Int
   workAreaId       Int
@@ -388,6 +406,7 @@ model Patient {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
+  person        Person               @relation(fields: [personId], references: [id], onDelete: Cascade)
   company       Company              @relation(fields: [companyId], references: [id])
   workplace     Workplace            @relation(fields: [workplaceId], references: [id])
   workArea      WorkArea             @relation(fields: [workAreaId], references: [id])
@@ -400,8 +419,6 @@ model Patient {
   documents           Document[]
 
   @@index([companyId])
-  @@index([identityDocument])
-  @@index([familyNames, givenNames])
   @@map("patient")
 }
 
