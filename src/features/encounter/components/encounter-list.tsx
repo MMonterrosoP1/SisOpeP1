@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
 import { getEncountersByPatient } from "../queries";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
@@ -40,7 +39,7 @@ export async function EncounterList({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {encounters.map((encounter) => {
+        {encounters.map((encounter: any) => {
           const medCert = encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE');
           const illnessCert = encounter.documents?.find((d: any) => d.documentType.code === 'ILLNESS_CERTIFICATE');
           
