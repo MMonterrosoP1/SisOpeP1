@@ -8,8 +8,8 @@ export type CreateAuditLogParams = {
   action: AuditAction;
   entityType: string;
   entityId: string | number;
-  previousData?: any;
-  newData?: any;
+  previousData?: unknown;
+  newData?: unknown;
   description?: string;
 };
 
@@ -25,7 +25,7 @@ export const auditService = {
         headersList.get("x-real-ip") ||
         null;
       userAgent = headersList.get("user-agent") || null;
-    } catch (err) {
+    } catch {
       // Might throw if called outside request context (e.g., background job without headers)
       console.warn("[Audit Service] Could not retrieve headers");
     }

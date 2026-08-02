@@ -15,7 +15,7 @@ export const getEncounters = cache(
   async (
     filtersData: unknown,
     paginationData: unknown
-  ): Promise<PaginatedResponse<any>> => {
+  ): Promise<PaginatedResponse<unknown>> => {
     const filters = encounterFilterSchema.parse(filtersData || {});
     const pagination = paginationSchema.parse(paginationData || {});
 

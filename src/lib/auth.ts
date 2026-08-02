@@ -12,7 +12,7 @@ export const auth = betterAuth({
     // Permite sign-up si la variable ALLOW_SIGNUP está en "true" (útil para el seeder)
     disableSignUp: process.env.ALLOW_SIGNUP === "true" ? false : true,
     autoSignIn: false,
-    sendResetPassword: async ({ user, url, token }, request) => {
+    sendResetPassword: async ({ user, url }) => {
       // Mock for now
       console.log(`[Mock Email] Password reset requested for ${user.email}. URL: ${url}`);
     },
@@ -42,7 +42,7 @@ export const auth = betterAuth({
     session: {
       create: {
         after: async (session) => {
-          const sessionData = session as any;
+          const sessionData = session as { id: string; userId: string; ipAddress?: string | null; userAgent?: string | null; };
           if (!sessionData) return;
           // Audit: LOGIN
           try {

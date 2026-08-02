@@ -41,7 +41,7 @@ export const habitSchema = z.object({
 
 export const exerciseSchema = z.object({
   doesExercise: z.boolean(),
-  sportType: z.string().max(255, "Máximo 255 caracteres").optional().nullable(),
+  exerciseCatalogId: idParamSchema.optional().nullable(),
   timesPerWeek: z.number({ message: "Debe ser un número" }).int("Debe ser un número entero").min(0, "Debe ser al menos 0").max(28, "Máximo 28").optional().nullable(),
 });
 
@@ -106,7 +106,7 @@ export const createEncounterSchema = z.object({
     });
   }
 
-  if (data.exercises && data.exercises.some(e => e.doesExercise && (!e.sportType || e.timesPerWeek === undefined || e.timesPerWeek === null))) {
+  if (data.exercises && data.exercises.some(e => e.doesExercise && (!e.exerciseCatalogId || e.timesPerWeek === undefined || e.timesPerWeek === null))) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Si realiza ejercicio, debe especificar el tipo de deporte y las veces por semana",
@@ -140,3 +140,6 @@ export const createEncounterSchema = z.object({
     }
   }
 });
+
+export type CreateEncounterInput = z.infer<typeof createEncounterSchema>;
+export type EncounterFilters = { patientId?: number; practitionerId?: string; encounterTypeId?: number; };

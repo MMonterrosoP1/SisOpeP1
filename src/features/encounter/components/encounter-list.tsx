@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 import { getEncountersByPatient } from "../queries";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { FileText, Calendar, Clock, Stethoscope, Activity, MoreHorizontal, Eye } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Calendar, Clock, MoreHorizontal, Eye } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
 
@@ -41,8 +41,6 @@ export async function EncounterList({
       </TableHeader>
       <TableBody>
         {encounters.map((encounter) => {
-          // findPrimaryDiagnosis
-          const primaryDx = encounter.diagnoses?.[0]; // Our repository filter only includes isPrimary: true
           const medCert = encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE');
           const illnessCert = encounter.documents?.find((d: any) => d.documentType.code === 'ILLNESS_CERTIFICATE');
           

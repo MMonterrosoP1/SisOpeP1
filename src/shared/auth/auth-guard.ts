@@ -18,7 +18,7 @@ export async function getAuthSession() {
 export async function requireActiveUser() {
   const session = await getAuthSession();
   
-  const user = session.user as any;
+  const user = session.user as typeof session.user & { banned?: boolean; active?: boolean };
   if (user.banned) {
     throw new ForbiddenError("User is banned");
   }

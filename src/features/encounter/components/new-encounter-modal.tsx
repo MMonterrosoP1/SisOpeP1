@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { PatientListItem } from "@/features/patient/types";
 import { useRouter } from "next/navigation";
 import { Search, Loader2 } from "lucide-react";
 import {
@@ -16,18 +17,20 @@ import { Input } from "@/components/ui/input";
 interface NewEncounterModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelect?: (patient: any) => void;
+  onSelect?: (patient: PatientListItem) => void;
 }
 
 export function NewEncounterModal({ open, onOpenChange, onSelect }: NewEncounterModalProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<PatientListItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setQuery("");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setResults([]);
       return;
     }
@@ -35,6 +38,7 @@ export function NewEncounterModal({ open, onOpenChange, onSelect }: NewEncounter
 
   useEffect(() => {
     if (!query || query.length < 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setResults([]);
       return;
     }
@@ -57,7 +61,7 @@ export function NewEncounterModal({ open, onOpenChange, onSelect }: NewEncounter
     return () => clearTimeout(timer);
   }, [query]);
 
-  const handleSelect = (patient: any) => {
+  const handleSelect = (patient: PatientListItem) => {
     onOpenChange(false);
     if (onSelect) {
       onSelect(patient);

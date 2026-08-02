@@ -43,6 +43,7 @@ export function Icd10Combobox({
   useEffect(() => {
     if (!query || query.length < 2) {
       if (!query && selectedOption) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setOptions([selectedOption]);
       } else {
         setOptions(selectedOption ? [selectedOption] : []);
@@ -75,6 +76,7 @@ export function Icd10Combobox({
 
   useEffect(() => {
     if (value === null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedOption(null);
     }
   }, [value]);

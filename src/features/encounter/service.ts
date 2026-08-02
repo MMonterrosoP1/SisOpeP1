@@ -3,9 +3,10 @@ import { patientRepository } from "../patient/repository";
 import { auditService } from "@/shared/audit/audit.service";
 import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
 import { calculateBmi, classifyBmi } from "./domain/bmi-calculator";
+import { CreateEncounterInput } from "./schemas";
 
 export const encounterService = {
-  async create(data: any, userId: string) {
+  async create(data: CreateEncounterInput, userId: string) {
     const patient = await patientRepository.findById(data.patientId);
     if (!patient) {
       throw new NotFoundError("Patient not found", "patient", data.patientId);

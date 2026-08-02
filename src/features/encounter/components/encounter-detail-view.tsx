@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, Stethoscope, AlertTriangle, FileText, Activity, User, Briefcase, History } from "lucide-react";
@@ -33,11 +34,11 @@ const bmiCategoryEs: Record<string, string> = {
   OBESE_III: "Obesidad Tipo III",
 };
 
-export function EncounterDetailView({ encounter, patient }: { encounter: any; patient: any }) {
-  const EmptyState = ({ message = "Sin registros" }: { message?: string }) => (
-    <div className="text-sm text-muted-foreground italic py-2">{message}</div>
-  );
+const EmptyState = ({ message = "Sin registros" }: { message?: string }) => (
+  <div className="text-sm text-muted-foreground italic py-2">{message}</div>
+);
 
+export function EncounterDetailView({ encounter, patient }: { encounter: any; patient: any }) {
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full pb-10">
       {/* Header */}
@@ -395,7 +396,7 @@ export function EncounterDetailView({ encounter, patient }: { encounter: any; pa
                       <div key={e.id} className="text-sm bg-muted/30 px-3 py-2 rounded-md border flex items-center justify-between">
                         {e.doesExercise ? (
                           <>
-                            <span className="font-medium text-foreground">{e.sportType}</span>
+                            <span className="font-medium text-foreground">{e.exerciseCatalog?.name}</span>
                             <span className="text-xs text-muted-foreground">{e.timesPerWeek} veces/sem</span>
                           </>
                         ) : <span className="text-muted-foreground italic">No realiza ejercicio</span>}

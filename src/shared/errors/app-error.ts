@@ -40,7 +40,7 @@ export class ForbiddenError extends AppError {
   }
 }
 
-export function handleActionError(error: unknown): ActionResponse<any> {
+export function handleActionError(error: unknown): ActionResponse<unknown> {
   console.error("[Action Error]", error);
 
   if (error instanceof AppError) {
