@@ -64,9 +64,9 @@ export default async function GlobalEncountersPage({
                     <TableCell>
                       <div className="flex flex-col gap-0.5">
                         <Link href={`/patients/${encounter.patientId}`} className="font-medium hover:underline text-primary">
-                          {encounter.patient?.givenNames} {encounter.patient?.familyNames}
+                          {encounter.patient?.person?.givenNames} {encounter.patient?.person?.familyNames}
                         </Link>
-                        <span className="text-xs text-muted-foreground">{encounter.patient?.identityDocument || "Sin DPI"}</span>
+                        <span className="text-xs text-muted-foreground">{encounter.patient?.person?.identityDocument || "Sin DPI"}</span>
                       </div>
                     </TableCell>
                     <TableCell>
