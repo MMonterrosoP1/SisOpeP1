@@ -21,8 +21,10 @@
 /build
 
 # misc
-.DS_Store
-*.pem
+# copilot
+.copilot-instructions.md
+copilot-instructions.md
+.github/copilot-instructions.md
 
 # debug
 npm-debug.log*
@@ -49,3 +51,4 @@ get_inventory.js
 inventory.json
 skill_output*.txt
 skill-output*.txt
+.github
