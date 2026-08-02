@@ -37,6 +37,7 @@ export function DashboardLayoutClient({ user, children }: DashboardLayoutClientP
             height={36}
             priority
             className="h-9 w-auto object-contain"
+            style={{ width: 'auto', height: 'auto' }}
           />
           <Button
             variant="ghost"
