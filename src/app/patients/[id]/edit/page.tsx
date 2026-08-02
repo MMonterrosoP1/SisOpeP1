@@ -49,7 +49,7 @@ export default async function EditPatientPage({
         <div>
           <h1 className="text-2xl font-bold">Editar Paciente</h1>
           <p className="text-muted-foreground text-sm">
-            Actualizando datos de {patient.givenNames} {patient.familyNames}.
+            Actualizando datos de {patient.person.givenNames} {patient.person.familyNames}.
           </p>
         </div>
       </div>

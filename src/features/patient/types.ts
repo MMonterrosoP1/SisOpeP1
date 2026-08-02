@@ -4,6 +4,7 @@ import { z } from "zod";
 
 export type PatientWithRelations = Prisma.PatientGetPayload<{
   include: {
+    person: true;
     company: true;
     workplace: true;
     workArea: true;

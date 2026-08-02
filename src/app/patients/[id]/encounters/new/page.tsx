@@ -75,23 +75,23 @@ export default async function NewEncounterPage({
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">{isFollowUp ? "Reconsulta:" : "Nueva Consulta:"} {patient.givenNames} {patient.familyNames}</h1>
+          <h1 className="text-2xl font-bold">{isFollowUp ? "Reconsulta:" : "Nueva Consulta:"} {patient.person.givenNames} {patient.person.familyNames}</h1>
           <p className="text-muted-foreground text-sm">Registre los datos de la evaluación médica del paciente.</p>
         </div>
       </div>
 
       <EncounterForm 
         patientId={patientId} 
-        patientSex={patient.sex as any} 
+        patientSex={patient.person.sex as any} 
         catalogs={catalogs}
         previousDefaults={previousDefaults}
         isFollowUp={isFollowUp}
         previousEncounterDate={previousEncounterDate}
         patientSummary={{
-          fullName: `${patient.givenNames} ${patient.familyNames}`,
+          fullName: `${patient.person.givenNames} ${patient.person.familyNames}`,
           age: (() => {
             const today = new Date();
-            const birth = new Date(patient.birthDate);
+            const birth = new Date(patient.person.birthDate);
             let age = today.getFullYear() - birth.getFullYear();
             const m = today.getMonth() - birth.getMonth();
             if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
@@ -99,8 +99,8 @@ export default async function NewEncounterPage({
             }
             return age >= 0 ? age : 0;
           })(),
-          identityDocument: patient.identityDocument,
-          phone: patient.phone,
+          identityDocument: patient.person.identityDocument,
+          phone: patient.person.phone,
           jobPosition: patient.jobPosition?.name,
           workplace: patient.workplace?.name,
         }}

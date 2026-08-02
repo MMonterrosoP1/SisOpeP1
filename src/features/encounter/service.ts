@@ -15,12 +15,12 @@ export const encounterService = {
     }
 
     if (data.pregnancyStatus && data.pregnancyStatus !== "NOT_APPLICABLE") {
-      if (patient.sex !== "FEMALE") {
+      if (patient.person?.sex !== "FEMALE") {
         throw new ValidationError("Pregnancy status is only applicable to female patients");
       }
     }
 
-    if (data.gynecologicalHistory && patient.sex !== "FEMALE") {
+    if (data.gynecologicalHistory && patient.person?.sex !== "FEMALE") {
       throw new ValidationError("Gynecological history is only applicable to female patients");
     }
 

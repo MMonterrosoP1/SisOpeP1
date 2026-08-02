@@ -56,7 +56,7 @@ export const documentService = {
     );
 
     // 4. Subir el archivo a Vercel Blob
-    const filename = `documentos/${encounter.patient.identityDocument}/${documentTypeCode}-${encounterId}-${Date.now()}.pdf`;
+    const filename = `documentos/${encounter.patient.person.identityDocument}/${documentTypeCode}-${encounterId}-${Date.now()}.pdf`;
     const blob = await put(filename, pdfBuffer, {
       access: 'private',
       contentType: 'application/pdf',

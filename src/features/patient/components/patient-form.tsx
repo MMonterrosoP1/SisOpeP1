@@ -241,13 +241,13 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
   });
 
   const [formData, setFormData] = useState<PatientFormData>({
-    givenNames: initialData?.givenNames || "",
-    familyNames: initialData?.familyNames || "",
-    documentType: initialData?.documentType || "DPI",
-    identityDocument: initialData?.identityDocument || "",
-    birthDate: formatDateInputValue(initialData?.birthDate),
-    sex: initialData?.sex || "MALE",
-    phone: initialData?.phone || "",
+    givenNames: initialData?.person?.givenNames || "",
+    familyNames: initialData?.person?.familyNames || "",
+    documentType: initialData?.person?.documentType || "DPI",
+    identityDocument: initialData?.person?.identityDocument || "",
+    birthDate: formatDateInputValue(initialData?.person?.birthDate),
+    sex: initialData?.person?.sex || "MALE",
+    phone: initialData?.person?.phone || "",
     maritalStatusId: initialData?.maritalStatusId ? String(initialData.maritalStatusId) : "",
     bloodTypeId: initialData?.bloodTypeId ? String(initialData.bloodTypeId) : "",
     companyId: initialData?.companyId ? String(initialData.companyId) : "",

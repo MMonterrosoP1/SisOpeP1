@@ -9,7 +9,8 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    disableSignUp: true,
+    // Permite sign-up si la variable ALLOW_SIGNUP está en "true" (útil para el seeder)
+    disableSignUp: process.env.ALLOW_SIGNUP === "true" ? false : true,
     autoSignIn: false,
     sendResetPassword: async ({ user, url, token }, request) => {
       // Mock for now
