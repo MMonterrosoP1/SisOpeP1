@@ -341,7 +341,21 @@ async function main() {
     where: { email: "admin@clinica.com" }
   });
 
+  const personAdmin = await prisma.person.upsert({
+    where: { identityDocument: "0000000000000" },
+    update: {},
+    create: {
+      givenNames: "Administrador",
+      familyNames: "del Sistema",
+      identityDocument: "0000000000000",
+      birthDate: new Date("1980-01-01"),
+      sex: "FEMALE"
+    }
+  });
+
   if (!existingAdmin) {
+    // Temporalmente permitimos sign-up para poder crear la cuenta desde el API
+    process.env.ALLOW_SIGNUP = "true";
     const { auth } = require("../src/lib/auth");
 
     await auth.api.signUpEmail({
@@ -356,29 +370,23 @@ async function main() {
       where: { email: "admin@clinica.com" },
       data: {
         role: "ADMIN",
-        name: "administrador",
-        metadata: {
-          certificatePreamble: "La infrascrita Médica y Cirujana egresada de la Facultad de Ciencias Médicas de la Universidad de San Carlos de Guatemala, colegiada activa número veintiún mil ochocientos treinta y tres.",
-          sex: "FEMALE"
-        }
+        personId: personAdmin.id,
+        preamble: "La infrascrita Médica y Cirujana egresada de la Facultad de Ciencias Médicas de la Universidad de San Carlos de Guatemala, colegiada activa número veintiún mil ochocientos treinta y tres."
       }
     });
 
     console.log("✅ Usuario administrador creado: admin@clinica.com / AdminPassword123!");
   } else {
-    // Si ya existe, nos aseguramos que tenga rol de ADMIN
+    // Si ya existe, nos aseguramos que tenga rol de ADMIN y personId
     await prisma.user.update({
       where: { email: "admin@clinica.com" },
       data: {
         role: "ADMIN",
-        name: "administrador",
-        metadata: {
-          certificatePreamble: "La infrascrita Médica y Cirujana egresada de la Facultad de Ciencias Médicas de la Universidad de San Carlos de Guatemala, colegiada activa número veintiún mil ochocientos treinta y tres.",
-          sex: "FEMALE"
-        }
+        personId: personAdmin.id,
+        preamble: "La infrascrita Médica y Cirujana egresada de la Facultad de Ciencias Médicas de la Universidad de San Carlos de Guatemala, colegiada activa número veintiún mil ochocientos treinta y tres."
       }
     });
-    console.log("✅ El usuario administrador ya existe y tiene rol ADMIN.");
+    console.log("✅ El usuario administrador ya existe y tiene rol ADMIN y Person vinculado.");
   }
 
   console.log("🚀 Seeding completado con éxito!");
