@@ -7,7 +7,7 @@ import { safeParseAction } from "@/shared/utils/zod-helpers";
 import { handleActionError } from "@/shared/errors/app-error";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { ActionResponse } from "@/shared/schemas/action-response";
-import { searchIcd10, getCatalogs } from "./queries";
+import { getCatalogs } from "./queries";
 
 function normalizeCatalogName(name: string): string {
   return name
@@ -120,16 +120,6 @@ export async function toggleCatalogActive(
 
     const updated = await catalogService.toggleActive(type, id, session.user.id);
     return { success: true, data: updated };
-  } catch (error) {
-    return handleActionError(error);
-  }
-}
-
-export async function searchIcd10Action(query: string): Promise<ActionResponse<any>> {
-  try {
-    await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
-    const results = await searchIcd10(query);
-    return { success: true, data: results };
   } catch (error) {
     return handleActionError(error);
   }
