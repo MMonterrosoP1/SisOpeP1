@@ -32,7 +32,7 @@ export default async function PatientDetailPage({
           </Link>
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-3">
-              {patient.givenNames} {patient.familyNames}
+              {patient.person.givenNames} {patient.person.familyNames}
               <Badge variant={patient.active ? "default" : "destructive"}>
                 {patient.active ? "Activo" : "Inactivo"}
               </Badge>
@@ -66,24 +66,24 @@ export default async function PatientDetailPage({
               <div>
                 <dt className="text-sm text-muted-foreground">Documento</dt>
                 <dd className="font-medium">
-                  {patient.documentType}: {patient.identityDocument}
+                  {patient.person.documentType}: {patient.person.identityDocument}
                 </dd>
               </div>
               <div>
                 <dt className="text-sm text-muted-foreground">Fecha de Nacimiento</dt>
                 <dd className="font-medium">
-                  {patient.birthDate ? new Date(patient.birthDate).toLocaleDateString() : "-"}
+                  {patient.person.birthDate ? new Date(patient.person.birthDate).toLocaleDateString() : "-"}
                 </dd>
               </div>
               <div>
                 <dt className="text-sm text-muted-foreground">Sexo</dt>
                 <dd className="font-medium">
-                  {patient.sex === "MALE" ? "Masculino" : "Femenino"}
+                  {patient.person.sex === "MALE" ? "Masculino" : "Femenino"}
                 </dd>
               </div>
               <div>
                 <dt className="text-sm text-muted-foreground">Teléfono</dt>
-                <dd className="font-medium">{patient.phone || "-"}</dd>
+                <dd className="font-medium">{patient.person.phone || "-"}</dd>
               </div>
               <div className="col-span-2">
                 <dt className="text-sm text-muted-foreground">Correo Electrónico</dt>

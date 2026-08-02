@@ -31,7 +31,7 @@ export const patientService = {
       throw new NotFoundError("Paciente no encontrado", "patient", id);
     }
 
-    if (data.identityDocument && data.identityDocument !== existingPatient.identityDocument) {
+    if (data.identityDocument && data.identityDocument !== existingPatient.person?.identityDocument) {
       const existing = await patientRepository.findByDocument(data.identityDocument);
       if (existing) {
         throw new ConflictError(`El paciente con documento ${data.identityDocument} ya existe`, {

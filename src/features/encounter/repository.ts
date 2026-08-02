@@ -15,7 +15,7 @@ export const encounterRepository = {
         take: pagination.take,
         orderBy: { createdAt: "desc" },
         include: {
-          patient: { select: { givenNames: true, familyNames: true, identityDocument: true } },
+          patient: { select: { id: true, person: { select: { givenNames: true, familyNames: true, identityDocument: true } } } },
           practitioner: { select: { name: true, email: true } },
           encounterType: { select: { name: true } },
           diagnoses: {
@@ -36,7 +36,7 @@ export const encounterRepository = {
     return prisma.encounter.findUnique({
       where: { id },
       include: {
-        patient: true,
+        patient: { include: { person: true } },
         practitioner: { select: { id: true, name: true, email: true } },
         encounterType: true,
         referralLevel: true,
@@ -63,7 +63,7 @@ export const encounterRepository = {
       where: { patientId },
       orderBy: { createdAt: "desc" },
       include: {
-        patient: true,
+        patient: { include: { person: true } },
         practitioner: { select: { id: true, name: true, email: true } },
         encounterType: true,
         referralLevel: true,
