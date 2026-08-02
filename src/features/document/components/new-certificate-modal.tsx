@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useActionState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +30,29 @@ export function NewCertificateModal() {
   const [documentTypeCode, setDocumentTypeCode] = useState<string>("MEDICAL_CERTIFICATE");
 
   // Step 3: Generation
-  const [isGenerating, startGenerating] = useTransition();
+  const [generateState, generateFormAction, isGenerating] = useActionState(
+    async (_prev: any) => {
+      if (!selectedEncounterId || !documentTypeCode) {
+        return { success: false, error: "Selección incompleta" };
+      }
+      return await generateDocumentAction({
+        encounterId: parseInt(selectedEncounterId),
+        documentTypeCode,
+      });
+    },
+    null
+  );
+
+  useEffect(() => {
+    if (!generateState) return;
+    if (generateState.success) {
+      toast.success("Constancia generada exitosamente");
+      setOpen(false);
+      router.refresh();
+    } else if (generateState.error) {
+      toast.error(generateState.error || "Ocurrió un error al generar la constancia");
+    }
+  }, [generateState, router]);
 
   // Reset state when modal opens/closes
   useEffect(() => {
@@ -75,24 +97,7 @@ export function NewCertificateModal() {
     }
   }, [selectedPatient]);
 
-  const handleGenerate = () => {
-    if (!selectedEncounterId || !documentTypeCode) return;
 
-    startGenerating(async () => {
-      const res = await generateDocumentAction({
-        encounterId: parseInt(selectedEncounterId),
-        documentTypeCode,
-      });
-
-      if (res.success) {
-        toast.success("Constancia generada exitosamente");
-        setOpen(false);
-        router.refresh();
-      } else {
-        toast.error(res.error || "Ocurrió un error al generar la constancia");
-      }
-    });
-  };
 
   const selectedEncounter = encounters.find(e => e.id.toString() === selectedEncounterId);
   const existingDocument = selectedEncounter?.documents?.find((d: any) => d.documentType.code === documentTypeCode);
@@ -248,16 +253,16 @@ export function NewCertificateModal() {
                       ? 'Los días de reposo se tomarán de los datos clínicos registrados en la consulta.'
                       : 'Se generará la constancia de asistencia para esta consulta.'}
                   </p>
-                  <div className="flex justify-end mt-1">
+                  <form action={generateFormAction} className="flex justify-end mt-1">
                     <Button
-                      onClick={handleGenerate}
+                      type="submit"
                       disabled={isGenerating}
                       className="w-full sm:w-auto"
                     >
                       {isGenerating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                       Generar Constancia
                     </Button>
-                  </div>
+                  </form>
                 </div>
               )}
             </div>
