@@ -1,7 +1,6 @@
 import { z } from "zod";
-import { ActionResponse } from "../schemas/action-response";
 
-export function formatZodError(error: z.ZodError<any>): Record<string, string[]> {
+export function formatZodError(error: z.ZodError<unknown>): Record<string, string[]> {
   const fieldErrors: Record<string, string[]> = {};
   
   error.issues.forEach((err) => {

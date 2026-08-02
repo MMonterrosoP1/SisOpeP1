@@ -182,6 +182,7 @@ function CollapsibleSection({
 
   // Auto-expand when errors appear (useEffect to avoid render side-effect)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (hasError) setExpanded(true);
   }, [hasError]);
 
@@ -214,10 +215,40 @@ interface EncounterFormProps {
     jobPosition?: string;
     workplace?: string;
   };
-  previousDefaults?: Record<string, any>;
+  previousDefaults?: Partial<EncounterFormState>;
   isFollowUp?: boolean;
   previousEncounterDate?: string;
 }
+
+type EncounterFormState = {
+  patientId: number;
+  encounterTypeId: string;
+  isFirstVisit: boolean;
+  symptomatology: string;
+  illnessHistory: string;
+  gynecologicalHistory: string;
+  pregnancyStatus: string;
+  sleepHours: string;
+  medicationsAdministered: string;
+  suspensionHourId: string;
+  referralLevelId: string;
+  medicalAptitudeId: string;
+  internalObservation: string;
+  employerObservation: string;
+  followUpDate: string;
+  vitalSign: { systolicBP: string; diastolicBP: string; heartRate: string; respiratoryRate: string; oxygenSaturation: string; glucose: string; temperature: string; };
+  anthropometry: { weight: string; height: string; abdominalCircumference: string; };
+  diagnoses: { icd10CodeId: number | null; diseaseTypeId: string; observations: string; isPrimary: boolean; }[];
+  allergies: { allergenCatalogId: string; detail: string; }[];
+  habits: { habitCatalogId: string; duration: string; quantity: string; frequency: string; observations: string; }[];
+  exercises: { doesExercise: boolean; exerciseCatalogId: string; timesPerWeek: string; }[];
+  medicalHistory: { icd10CodeId: number | null; observations: string; }[];
+  surgicalHistory: { surgicalProcedureId: string; observations: string; }[];
+  traumaHistory: { icd10CodeId: number | null; observations: string; }[];
+  familyHistory: { icd10CodeId: number | null; observations: string; }[];
+  occupationalExposures: { occupationalExposureId: string; observations: string; }[];
+  workDisabilities: { workDisabilityId: string; observations: string; }[];
+};
 
 export function EncounterForm({ patientId, patientSex, catalogs, patientSummary, previousDefaults, isFollowUp, previousEncounterDate }: EncounterFormProps) {
   const router = useRouter();
@@ -259,7 +290,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
     }
   };
 
-  const defaultFormData = {
+  const defaultFormData: EncounterFormState = {
     patientId,
     encounterTypeId: "",
     isFirstVisit: false,
@@ -282,7 +313,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
     diagnoses: [{ icd10CodeId: null, diseaseTypeId: "", observations: "", isPrimary: true }],
     allergies: [],
     habits: [],
-    exercises: [{ doesExercise: false, sportType: "", timesPerWeek: "" }],
+    exercises: [{ doesExercise: false, exerciseCatalogId: "", timesPerWeek: "" }],
     medicalHistory: [],
     surgicalHistory: [],
     traumaHistory: [],
@@ -291,7 +322,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
     workDisabilities: []
   };
 
-  const [formData, setFormData] = useState<any>(previousDefaults ? { ...defaultFormData, ...previousDefaults } : defaultFormData);
+  const [formData, setFormData] = useState<EncounterFormState>(previousDefaults ? { ...defaultFormData, ...previousDefaults } as EncounterFormState : defaultFormData);
 
   const handleClearData = () => {
     setFormData(defaultFormData);
@@ -303,28 +334,28 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
     return (localCatalogs[catalogKey] ?? []).map((item) => ({ key: String(item.id), label: item.name }));
   };
 
-  const handleFieldChange = (field: string, value: any) => {
-    setFormData((prev: any) => ({ ...prev, [field]: value }));
+  const handleFieldChange = (field: string, value: unknown) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleNestedChange = (section: string, field: string, value: any) => {
-    setFormData((prev: any) => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
+  const handleNestedChange = (section: string, field: string, value: unknown) => {
+    setFormData((prev) => ({ ...prev, [section]: { ...((prev as Record<string, Record<string, unknown>>)[section]), [field]: value } }));
   };
 
-  const handleArrayChange = (section: string, index: number, field: string, value: any) => {
-    setFormData((prev: any) => {
-      const arr = [...prev[section]];
+  const handleArrayChange = (section: string, index: number, field: string, value: unknown) => {
+    setFormData((prev) => {
+      const arr = [...(prev as Record<string, Record<string, unknown>[]>)[section]];
       arr[index] = { ...arr[index], [field]: value };
       return { ...prev, [section]: arr };
     });
   };
 
-  const addArrayItem = (section: string, defaultItem: any) => {
-    setFormData((prev: any) => ({ ...prev, [section]: [...prev[section], defaultItem] }));
+  const addArrayItem = (section: string, defaultItem: unknown) => {
+    setFormData((prev) => ({ ...prev, [section]: [...(prev as Record<string, unknown[]>)[section], defaultItem] }));
   };
 
   const removeArrayItem = (section: string, index: number) => {
-    setFormData((prev: any) => ({ ...prev, [section]: prev[section].filter((_: any, i: number) => i !== index) }));
+    setFormData((prev) => ({ ...prev, [section]: (prev as Record<string, unknown[]>)[section].filter((_: unknown, i: number) => i !== index) }));
   };
 
   const toOptionalNumber = (val: string | number | null | undefined) => {
@@ -355,7 +386,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
     if (!formData.encounterTypeId) {
       clientErrors["encounterTypeId"] = ["Seleccione el tipo de consulta"];
     }
-    const validDiagnoses = formData.diagnoses.filter((d: any) => d.icd10CodeId);
+    const validDiagnoses = formData.diagnoses.filter((d) => d.icd10CodeId);
     if (validDiagnoses.length === 0) {
       clientErrors["diagnoses"] = ["Debe agregar al menos un diagnóstico con código ICD-10"];
     }
@@ -408,61 +439,61 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
           abdominalCircumference: toOptionalNumber(formData.anthropometry.abdominalCircumference),
         } : undefined,
 
-        diagnoses: formData.diagnoses.map((d: any) => ({
+        diagnoses: formData.diagnoses.map((d) => ({
           icd10CodeId: toOptionalNumber(d.icd10CodeId),
           diseaseTypeId: toOptionalNumber(d.diseaseTypeId),
           observations: d.observations || undefined,
           isPrimary: d.isPrimary
-        })).filter((d: any) => d.icd10CodeId),
+        })).filter((d) => d.icd10CodeId),
 
-        allergies: formData.allergies.map((a: any) => ({
+        allergies: formData.allergies.map((a) => ({
           allergenCatalogId: toOptionalNumber(a.allergenCatalogId),
           detail: a.detail || undefined
-        })).filter((a: any) => a.allergenCatalogId),
+        })).filter((a) => a.allergenCatalogId),
 
-        habits: formData.habits.map((h: any) => ({
+        habits: formData.habits.map((h) => ({
           habitCatalogId: toOptionalNumber(h.habitCatalogId),
           duration: h.duration || undefined,
           quantity: toOptionalNumber(h.quantity),
           frequency: h.frequency || undefined,
           observations: h.observations || undefined
-        })).filter((h: any) => h.habitCatalogId),
+        })).filter((h) => h.habitCatalogId),
 
-        exercises: formData.exercises.map((e: any) => ({
+        exercises: formData.exercises.map((e) => ({
           doesExercise: e.doesExercise,
-          sportType: e.sportType || undefined,
+          exerciseCatalogId: toOptionalNumber(e.exerciseCatalogId),
           timesPerWeek: toOptionalNumber(e.timesPerWeek)
-        })).filter((e: any) => e.sportType || e.doesExercise),
+        })).filter((e) => e.exerciseCatalogId || e.doesExercise),
 
-        medicalHistory: formData.medicalHistory.map((h: any) => ({
+        medicalHistory: formData.medicalHistory.map((h) => ({
           icd10CodeId: toOptionalNumber(h.icd10CodeId),
           observations: h.observations || undefined
-        })).filter((h: any) => h.icd10CodeId),
+        })).filter((h) => h.icd10CodeId),
 
-        surgicalHistory: formData.surgicalHistory.map((s: any) => ({
+        surgicalHistory: formData.surgicalHistory.map((s) => ({
           surgicalProcedureId: toOptionalNumber(s.surgicalProcedureId),
           observations: s.observations || undefined
-        })).filter((s: any) => s.surgicalProcedureId),
+        })).filter((s) => s.surgicalProcedureId),
 
-        traumaHistory: formData.traumaHistory.map((h: any) => ({
+        traumaHistory: formData.traumaHistory.map((h) => ({
           icd10CodeId: toOptionalNumber(h.icd10CodeId),
           observations: h.observations || undefined
-        })).filter((h: any) => h.icd10CodeId),
+        })).filter((h) => h.icd10CodeId),
 
-        familyHistory: formData.familyHistory.map((h: any) => ({
+        familyHistory: formData.familyHistory.map((h) => ({
           icd10CodeId: toOptionalNumber(h.icd10CodeId),
           observations: h.observations || undefined
-        })).filter((h: any) => h.icd10CodeId),
+        })).filter((h) => h.icd10CodeId),
 
-        occupationalExposures: formData.occupationalExposures.map((e: any) => ({
+        occupationalExposures: formData.occupationalExposures.map((e) => ({
           occupationalExposureId: toOptionalNumber(e.occupationalExposureId),
           observations: e.observations || undefined
-        })).filter((e: any) => e.occupationalExposureId),
+        })).filter((e) => e.occupationalExposureId),
 
-        workDisabilities: formData.workDisabilities.map((w: any) => ({
+        workDisabilities: formData.workDisabilities.map((w) => ({
           workDisabilityId: toOptionalNumber(w.workDisabilityId),
           observations: w.observations || undefined
-        })).filter((w: any) => w.workDisabilityId),
+        })).filter((w) => w.workDisabilityId),
       };
 
       const res = await createEncounter(payload);
@@ -675,7 +706,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
       <CollapsibleSection title="Diagnósticos (Obligatorio)" defaultExpanded>
         {getFieldError("diagnoses") && <FieldError error={getFieldError("diagnoses")} />}
         <div className="flex flex-col gap-4">
-          {formData.diagnoses.map((d: any, index: number) => (
+          {formData.diagnoses.map((d, index: number) => (
             <div key={index} className="flex flex-col gap-4 p-4 border rounded-lg relative">
               {index > 0 && (
                 <Button
@@ -730,7 +761,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
                       const arr = [...formData.diagnoses];
                       if (c) arr.forEach(item => item.isPrimary = false); // Solo uno puede ser primario
                       arr[index].isPrimary = !!c;
-                      setFormData((prev: any) => ({ ...prev, diagnoses: arr }));
+                      setFormData((prev) => ({ ...prev, diagnoses: arr }));
                     }}
                   />
                   <Label className="cursor-pointer">Diagnóstico Principal</Label>
@@ -750,7 +781,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
         hasError={Object.keys(fieldErrors).some(k => k.startsWith("allergies."))}
       >
         <div className="flex flex-col gap-4">
-          {formData.allergies.map((a: any, index: number) => (
+          {formData.allergies.map((a, index: number) => (
             <div key={index} className="flex flex-col gap-4 p-4 border rounded-lg relative">
               <Button variant="ghost" size="icon" className="absolute right-2 top-2 text-destructive" onClick={() => removeArrayItem("allergies", index)}>
                 <Trash2 className="h-4 w-4" />
@@ -813,7 +844,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
                   onCheckedChange={(c) => {
                     handleArrayChange("exercises", 0, "doesExercise", !!c);
                     if (!c) {
-                      handleArrayChange("exercises", 0, "sportType", "");
+                      handleArrayChange("exercises", 0, "exerciseCatalogId", "");
                       handleArrayChange("exercises", 0, "timesPerWeek", "");
                     }
                   }}
@@ -823,16 +854,23 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
               <FieldError error={getFieldError("exercises")} />
               {formData.exercises[0]?.doesExercise && (
                 <>
-                  <div className="flex flex-col gap-2">
-                    <Label>Tipo de Deporte</Label>
-                    <Input
-                      className={getFieldError("exercises.0.sportType") ? "border-destructive ring-1 ring-destructive" : ""}
-                      aria-invalid={!!getFieldError("exercises.0.sportType")}
-                      value={formData.exercises[0]?.sportType || ""}
-                      onChange={(e) => handleArrayChange("exercises", 0, "sportType", e.target.value)}
-                    />
-                    <FieldError error={getFieldError("exercises.0.sportType")} />
-                  </div>
+                  <CatalogSelectFieldWithAdd
+                    name="exercises.0.exerciseCatalogId"
+                    label="Tipo de Deporte"
+                    placeholder="Seleccione un deporte"
+                    value={String(formData.exercises[0]?.exerciseCatalogId || "")}
+                    options={getCatalogOptions("exerciseCatalog")}
+                    error={getFieldError("exercises.0.exerciseCatalogId")}
+                    onChange={(val) => handleArrayChange("exercises", 0, "exerciseCatalogId", val)}
+                    onAddClick={() => setQuickAddDialog({
+                      open: true,
+                      type: "exerciseCatalog",
+                      title: "Tipo de Deporte",
+                      field: "exerciseCatalogId",
+                      arrayName: "exercises",
+                      arrayIndex: 0
+                    })}
+                  />
                   <div className="flex flex-col gap-2">
                     <Label>Veces por Semana</Label>
                     <Input
@@ -850,7 +888,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
           </div>
 
           <h4 className="font-semibold text-sm mt-2">Otros Hábitos (Fumar, Beber, etc.)</h4>
-          {formData.habits.map((h: any, index: number) => (
+          {formData.habits.map((h, index: number) => (
             <div key={index} className="flex flex-col gap-4 p-4 border rounded-lg relative">
               <Button variant="ghost" size="icon" className="absolute right-2 top-2 text-destructive" onClick={() => removeArrayItem("habits", index)}>
                 <Trash2 className="h-4 w-4" />
@@ -938,7 +976,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
           {[{ key: "medicalHistory", title: "Médicos" }, { key: "traumaHistory", title: "Traumáticos" }, { key: "familyHistory", title: "Familiares" }].map((section) => (
             <div key={section.key} className="flex flex-col gap-2">
               <h4 className="font-semibold text-sm">{section.title}</h4>
-              {formData[section.key].map((h: any, index: number) => (
+              {formData[section.key].map((h, index: number) => (
                 <div key={index} className="flex gap-4 items-end">
                   <div className="flex-1 flex flex-col gap-2">
                     <Label>Código ICD-10</Label>
@@ -967,7 +1005,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
 
           <div className="flex flex-col gap-2">
             <h4 className="font-semibold text-sm">Quirúrgicos</h4>
-            {formData.surgicalHistory.map((s: any, index: number) => (
+            {formData.surgicalHistory.map((s, index: number) => (
               <div key={index} className="flex gap-4 items-end">
                 <div className="flex-1">
                   <CatalogSelectFieldWithAdd 
@@ -1061,7 +1099,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
               <h4 className="font-semibold text-sm">Exposiciones Laborales</h4>
             </div>
             <FieldError error={getFieldError("occupationalExposures")} />
-            {formData.occupationalExposures.map((e: any, index: number) => (
+            {formData.occupationalExposures.map((e, index: number) => (
               <div key={index} className="flex gap-4 items-end">
                 <div className="flex-1">
                   <CatalogSelectFieldWithAdd 
@@ -1106,7 +1144,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
               <h4 className="font-semibold text-sm">Discapacidades Laborales</h4>
             </div>
             <FieldError error={getFieldError("workDisabilities")} />
-            {formData.workDisabilities.map((w: any, index: number) => (
+            {formData.workDisabilities.map((w, index: number) => (
               <div key={index} className="flex gap-4 items-end">
                 <div className="flex-1">
                   <CatalogSelectFieldWithAdd 
@@ -1293,7 +1331,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
       </div>
 
       <CatalogQuickAddDialog
-        type={quickAddDialog.type as any}
+        type={quickAddDialog.type as CatalogType}
         title={quickAddDialog.title}
         open={quickAddDialog.open}
         onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}

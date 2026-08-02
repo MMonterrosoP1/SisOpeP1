@@ -152,7 +152,7 @@ export const patientRepository = {
       if (!patient) throw new Error("Patient not found");
 
       // Update person
-      const personDataToUpdate: any = {};
+      const personDataToUpdate: Prisma.PersonUpdateInput = {};
       if (givenNames !== undefined) personDataToUpdate.givenNames = givenNames;
       if (familyNames !== undefined) personDataToUpdate.familyNames = familyNames;
       if (documentType !== undefined) personDataToUpdate.documentType = documentType;

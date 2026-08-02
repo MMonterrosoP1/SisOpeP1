@@ -32,7 +32,7 @@ interface PatientTableProps {
   totalCount: number;
 }
 
-export function PatientTable({ data, totalCount }: PatientTableProps) {
+export function PatientTable({ data }: PatientTableProps) {
   const [selectedPatient, setSelectedPatient] = useState<PatientListItem | null>(null);
   const [isToggleModalOpen, setIsToggleModalOpen] = useState(false);
 
@@ -149,6 +149,7 @@ export function PatientTable({ data, totalCount }: PatientTableProps) {
     }),
   ];
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -163,7 +164,7 @@ export function PatientTable({ data, totalCount }: PatientTableProps) {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className={(header.column.columnDef.meta as any)?.className}>
+                  <TableHead key={header.id} className={(header.column.columnDef.meta as { className?: string })?.className}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -180,7 +181,7 @@ export function PatientTable({ data, totalCount }: PatientTableProps) {
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className={(cell.column.columnDef.meta as any)?.className}>
+                    <TableCell key={cell.id} className={(cell.column.columnDef.meta as { className?: string })?.className}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

@@ -1,4 +1,6 @@
-export function mapEncounterToFormDefaults(encounter: any, patientId: number): any {
+type EncounterData = NonNullable<Awaited<ReturnType<typeof import("../repository").encounterRepository.findLatestByPatient>>>;
+
+export function mapEncounterToFormDefaults(encounter: EncounterData | null, patientId: number) {
   if (!encounter) return null;
 
   return {
@@ -34,19 +36,19 @@ export function mapEncounterToFormDefaults(encounter: any, patientId: number): a
       abdominalCircumference: encounter.anthropometry.abdominalCircumference?.toString() || "",
     } : { weight: "", height: "", abdominalCircumference: "" },
 
-    diagnoses: encounter.diagnoses?.length > 0 ? encounter.diagnoses.map((d: any) => ({
+    diagnoses: encounter.diagnoses?.length > 0 ? encounter.diagnoses.map((d) => ({
       icd10CodeId: d.icd10CodeId,
       diseaseTypeId: d.diseaseTypeId ? String(d.diseaseTypeId) : "",
       observations: d.observations || "",
       isPrimary: d.isPrimary || false,
     })) : [{ icd10CodeId: null, diseaseTypeId: "", observations: "", isPrimary: true }],
 
-    allergies: encounter.allergies?.map((a: any) => ({
+    allergies: encounter.allergies?.map((a) => ({
       allergenCatalogId: String(a.allergenCatalogId),
       detail: a.detail || "",
     })) || [],
 
-    habits: encounter.habits?.map((h: any) => ({
+    habits: encounter.habits?.map((h) => ({
       habitCatalogId: String(h.habitCatalogId),
       duration: h.duration || "",
       quantity: h.quantity?.toString() || "",
@@ -54,38 +56,38 @@ export function mapEncounterToFormDefaults(encounter: any, patientId: number): a
       observations: h.observations || "",
     })) || [],
 
-    exercises: encounter.exercises?.length > 0 ? encounter.exercises.map((e: any) => ({
+    exercises: encounter.exercises?.length > 0 ? encounter.exercises.map((e) => ({
       doesExercise: e.doesExercise || false,
-      sportType: e.sportType || "",
+      exerciseCatalogId: e.exerciseCatalogId ? String(e.exerciseCatalogId) : "",
       timesPerWeek: e.timesPerWeek?.toString() || "",
-    })) : [{ doesExercise: false, sportType: "", timesPerWeek: "" }],
+    })) : [{ doesExercise: false, exerciseCatalogId: "", timesPerWeek: "" }],
 
-    medicalHistory: encounter.medicalHistoryEntries?.map((h: any) => ({
+    medicalHistory: encounter.medicalHistoryEntries?.map((h) => ({
       icd10CodeId: h.icd10CodeId,
       observations: h.observations || "",
     })) || [],
 
-    surgicalHistory: encounter.surgicalHistoryEntries?.map((s: any) => ({
+    surgicalHistory: encounter.surgicalHistoryEntries?.map((s) => ({
       surgicalProcedureId: String(s.surgicalProcedureId),
       observations: s.observations || "",
     })) || [],
 
-    traumaHistory: encounter.traumaHistoryEntries?.map((h: any) => ({
+    traumaHistory: encounter.traumaHistoryEntries?.map((h) => ({
       icd10CodeId: h.icd10CodeId,
       observations: h.observations || "",
     })) || [],
 
-    familyHistory: encounter.familyHistoryEntries?.map((h: any) => ({
+    familyHistory: encounter.familyHistoryEntries?.map((h) => ({
       icd10CodeId: h.icd10CodeId,
       observations: h.observations || "",
     })) || [],
 
-    occupationalExposures: encounter.occupationalExposureEntries?.map((e: any) => ({
+    occupationalExposures: encounter.occupationalExposureEntries?.map((e) => ({
       occupationalExposureId: String(e.occupationalExposureId),
       observations: e.observations || "",
     })) || [],
 
-    workDisabilities: encounter.workDisabilityEntries?.map((w: any) => ({
+    workDisabilities: encounter.workDisabilityEntries?.map((w) => ({
       workDisabilityId: String(w.workDisabilityId),
       observations: w.observations || "",
     })) || [],

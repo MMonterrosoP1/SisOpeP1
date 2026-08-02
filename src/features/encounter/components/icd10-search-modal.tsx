@@ -82,6 +82,7 @@ export function Icd10SearchModal({
   // Virtualization setup
   const parentRef = useRef<HTMLDivElement>(null);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
     count: results.length,
     getScrollElement: () => parentRef.current,

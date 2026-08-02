@@ -18,7 +18,6 @@ import {
   BookOpen,
   Shield,
   UserCog,
-  Building2,
   PanelLeftClose,
   PanelLeft
 } from "lucide-react";

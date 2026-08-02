@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Filter, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 export type FilterSelectOption = { key: string; label: string; };
 import { Button } from "@/components/ui/button";
@@ -26,11 +25,13 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
   const searchParams = useSearchParams();
   const searchParamValue = searchParams.get("search") ?? "";
   const [searchValue, setSearchValue] = useState(searchParamValue);
+  const [prevSearchParam, setPrevSearchParam] = useState(searchParamValue);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  useEffect(() => {
+  if (searchParamValue !== prevSearchParam) {
+    setPrevSearchParam(searchParamValue);
     setSearchValue(searchParamValue);
-  }, [searchParamValue]);
+  }
 
   const createQueryString = useCallback(
     (params: Record<string, string | null>) => {

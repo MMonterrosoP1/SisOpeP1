@@ -8,7 +8,7 @@ import { handleActionError } from "@/shared/errors/app-error";
 import { ActionResponse } from "@/shared/schemas/action-response";
 import { revalidatePath } from "next/cache";
 
-export async function createPatient(data: unknown): Promise<ActionResponse<any>> {
+export async function createPatient(data: unknown): Promise<ActionResponse<unknown>> {
   try {
     const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 
@@ -23,7 +23,7 @@ export async function createPatient(data: unknown): Promise<ActionResponse<any>>
   }
 }
 
-export async function updatePatient(id: number, data: unknown): Promise<ActionResponse<any>> {
+export async function updatePatient(id: number, data: unknown): Promise<ActionResponse<unknown>> {
   try {
     const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 
@@ -39,7 +39,7 @@ export async function updatePatient(id: number, data: unknown): Promise<ActionRe
   }
 }
 
-export async function togglePatientActive(id: number): Promise<ActionResponse<any>> {
+export async function togglePatientActive(id: number): Promise<ActionResponse<unknown>> {
   try {
     const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 

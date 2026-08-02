@@ -32,7 +32,7 @@ export async function proxy(request: NextRequest) {
     }
   } else {
     // Check if user is active and not banned
-    const user = session.user as any;
+    const user = session.user as typeof session.user & { active?: boolean; banned?: boolean };
     if (user.active === false || user.banned === true) {
       if (!isAuthRoute) {
          return NextResponse.redirect(new URL("/sign-in?error=inactive", request.url));

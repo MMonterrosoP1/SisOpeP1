@@ -7,7 +7,7 @@ import { withAuth } from "@/shared/auth/auth-guard";
 import { handleActionError } from "@/shared/errors/app-error";
 import { ActionResponse } from "@/shared/schemas/action-response";
 
-export async function createEncounter(data: unknown): Promise<ActionResponse<any>> {
+export async function createEncounter(data: unknown): Promise<ActionResponse<unknown>> {
   try {
     const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 
@@ -16,6 +16,18 @@ export async function createEncounter(data: unknown): Promise<ActionResponse<any
 
     const created = await encounterService.create(parseResult.data, session.user.id);
     return { success: true, data: created };
+  } catch (error) {
+    return handleActionError(error);
+  }
+}
+
+import { getEncountersByPatient } from "./queries";
+
+export async function getRecentEncountersAction(patientId: number): Promise<ActionResponse<unknown>> {
+  try {
+    await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
+    const result = await getEncountersByPatient(patientId, { page: 1, pageSize: 15 });
+    return { success: true, data: result.data };
   } catch (error) {
     return handleActionError(error);
   }

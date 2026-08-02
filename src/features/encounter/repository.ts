@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
+import { EncounterFilters, CreateEncounterInput } from "./schemas";
 
 export const encounterRepository = {
-  async findAll(filters: any, pagination: { skip: number; take: number }) {
+  async findAll(filters: EncounterFilters, pagination: { skip: number; take: number }) {
     const where: Prisma.EncounterWhereInput = {};
     if (filters.patientId) where.patientId = filters.patientId;
     if (filters.practitionerId) where.practitionerId = filters.practitionerId;
@@ -46,7 +47,7 @@ export const encounterRepository = {
         diagnoses: { include: { icd10Code: true, diseaseType: true } },
         allergies: { include: { allergenCatalog: true } },
         habits: { include: { habitCatalog: true } },  
-        exercises: true,
+        exercises: { include: { exerciseCatalog: true } },
         medicalHistoryEntries: { include: { icd10Code: true } },
         surgicalHistoryEntries: { include: { surgicalProcedure: true } },
         traumaHistoryEntries: { include: { icd10Code: true } },
@@ -73,7 +74,7 @@ export const encounterRepository = {
         diagnoses: { include: { icd10Code: true, diseaseType: true } },
         allergies: { include: { allergenCatalog: true } },
         habits: { include: { habitCatalog: true } },  
-        exercises: true,
+        exercises: { include: { exerciseCatalog: true } },
         medicalHistoryEntries: { include: { icd10Code: true } },
         surgicalHistoryEntries: { include: { surgicalProcedure: true } },
         traumaHistoryEntries: { include: { icd10Code: true } },
@@ -85,7 +86,7 @@ export const encounterRepository = {
     });
   },
 
-  async create(data: any) {
+  async create(data: CreateEncounterInput) {
     const {
       vitalSign,
       anthropometry,
