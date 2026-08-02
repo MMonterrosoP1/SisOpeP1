@@ -62,7 +62,7 @@ export function EncounterDetailView({ encounter, patient }: { encounter: any; pa
           <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground mt-1">
             <span className="flex items-center gap-1.5">
               <User className="h-4 w-4" />
-              Paciente: <span className="font-medium text-foreground">{patient.givenNames} {patient.familyNames}</span>
+              Paciente: <span className="font-medium text-foreground">{patient.person?.givenNames} {patient.person?.familyNames}</span>
             </span>
             <span className="flex items-center gap-1.5">
               <Activity className="h-4 w-4" />
@@ -278,7 +278,7 @@ export function EncounterDetailView({ encounter, patient }: { encounter: any; pa
         {/* Right Column - Histories and Complementary */}
         <div className="flex flex-col gap-6">
 
-          {patient.sex === "FEMALE" && (
+          {patient.person?.sex === "FEMALE" && (
             <Card>
               <CardHeader className="pb-3 border-b mb-3">
                 <CardTitle className="text-md">Ginecología</CardTitle>
