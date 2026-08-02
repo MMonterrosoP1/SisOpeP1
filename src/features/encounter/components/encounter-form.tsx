@@ -335,27 +335,27 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
   };
 
   const handleFieldChange = (field: string, value: unknown) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
   };
 
   const handleNestedChange = (section: string, field: string, value: unknown) => {
-    setFormData((prev) => ({ ...prev, [section]: { ...((prev as Record<string, Record<string, unknown>>)[section]), [field]: value } }));
+    setFormData((prev: any) => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
   };
 
   const handleArrayChange = (section: string, index: number, field: string, value: unknown) => {
-    setFormData((prev) => {
-      const arr = [...(prev as Record<string, Record<string, unknown>[]>)[section]];
+    setFormData((prev: any) => {
+      const arr = [...prev[section]];
       arr[index] = { ...arr[index], [field]: value };
       return { ...prev, [section]: arr };
     });
   };
 
   const addArrayItem = (section: string, defaultItem: unknown) => {
-    setFormData((prev) => ({ ...prev, [section]: [...(prev as Record<string, unknown[]>)[section], defaultItem] }));
+    setFormData((prev: any) => ({ ...prev, [section]: [...prev[section], defaultItem] }));
   };
 
   const removeArrayItem = (section: string, index: number) => {
-    setFormData((prev) => ({ ...prev, [section]: (prev as Record<string, unknown[]>)[section].filter((_: unknown, i: number) => i !== index) }));
+    setFormData((prev: any) => ({ ...prev, [section]: prev[section].filter((_: any, i: number) => i !== index) }));
   };
 
   const toOptionalNumber = (val: string | number | null | undefined) => {
@@ -659,7 +659,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
                   className={`[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none${err ? " border-destructive ring-1 ring-destructive" : ""
                     }`}
                   aria-invalid={!!err}
-                  value={formData.vitalSign[field]}
+                  value={(formData.vitalSign as any)[field]}
                   onChange={(e) => handleNestedChange("vitalSign", field, e.target.value)}
                 />
                 <FieldError error={err} />
@@ -678,7 +678,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
                 type="number" step="0.1"
                 className={getFieldError(`anthropometry.${field}`) ? "border-destructive ring-1 ring-destructive" : ""}
                 aria-invalid={!!getFieldError(`anthropometry.${field}`)}
-                value={formData.anthropometry[field]}
+                value={(formData.anthropometry as any)[field]}
                 onChange={(e) => handleNestedChange("anthropometry", field, e.target.value)}
               />
               <FieldError error={getFieldError(`anthropometry.${field}`)} />
@@ -710,6 +710,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
             <div key={index} className="flex flex-col gap-4 p-4 border rounded-lg relative">
               {index > 0 && (
                 <Button
+                  type="button"
                   variant="ghost" size="icon"
                   className="absolute right-2 top-2 text-destructive"
                   onClick={() => removeArrayItem("diagnoses", index)}
@@ -783,7 +784,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
         <div className="flex flex-col gap-4">
           {formData.allergies.map((a, index: number) => (
             <div key={index} className="flex flex-col gap-4 p-4 border rounded-lg relative">
-              <Button variant="ghost" size="icon" className="absolute right-2 top-2 text-destructive" onClick={() => removeArrayItem("allergies", index)}>
+              <Button type="button" variant="ghost" size="icon" className="absolute right-2 top-2 text-destructive" onClick={() => removeArrayItem("allergies", index)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full md:w-[95%]">
@@ -890,7 +891,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
           <h4 className="font-semibold text-sm mt-2">Otros Hábitos (Fumar, Beber, etc.)</h4>
           {formData.habits.map((h, index: number) => (
             <div key={index} className="flex flex-col gap-4 p-4 border rounded-lg relative">
-              <Button variant="ghost" size="icon" className="absolute right-2 top-2 text-destructive" onClick={() => removeArrayItem("habits", index)}>
+              <Button type="button" variant="ghost" size="icon" className="absolute right-2 top-2 text-destructive" onClick={() => removeArrayItem("habits", index)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:w-[95%]">
@@ -976,7 +977,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
           {[{ key: "medicalHistory", title: "Médicos" }, { key: "traumaHistory", title: "Traumáticos" }, { key: "familyHistory", title: "Familiares" }].map((section) => (
             <div key={section.key} className="flex flex-col gap-2">
               <h4 className="font-semibold text-sm">{section.title}</h4>
-              {formData[section.key].map((h, index: number) => (
+              {((formData as any)[section.key] || []).map((h: any, index: number) => (
                 <div key={index} className="flex gap-4 items-end">
                   <div className="flex-1 flex flex-col gap-2">
                     <Label>Código ICD-10</Label>
@@ -992,7 +993,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
                     />
                     <FieldError error={getFieldError(`${section.key}.${index}.observations`)} />
                   </div>
-                  <Button variant="ghost" size="icon" className="text-destructive mb-0.5" onClick={() => removeArrayItem(section.key, index)}>
+                  <Button type="button" variant="ghost" size="icon" className="text-destructive mb-0.5" onClick={() => removeArrayItem(section.key, index)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -1035,7 +1036,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
                   />
                   <FieldError error={getFieldError(`surgicalHistory.${index}.observations`)} />
                 </div>
-                <Button variant="ghost" size="icon" className="text-destructive mb-0.5" onClick={() => removeArrayItem("surgicalHistory", index)}>
+                <Button type="button" variant="ghost" size="icon" className="text-destructive mb-0.5" onClick={() => removeArrayItem("surgicalHistory", index)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -1129,7 +1130,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
                   />
                   <FieldError error={getFieldError(`occupationalExposures.${index}.observations`)} />
                 </div>
-                <Button variant="ghost" size="icon" className="text-destructive mb-0.5" onClick={() => removeArrayItem("occupationalExposures", index)}>
+                <Button type="button" variant="ghost" size="icon" className="text-destructive mb-0.5" onClick={() => removeArrayItem("occupationalExposures", index)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -1174,7 +1175,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
                   />
                   <FieldError error={getFieldError(`workDisabilities.${index}.observations`)} />
                 </div>
-                <Button variant="ghost" size="icon" className="text-destructive mb-0.5" onClick={() => removeArrayItem("workDisabilities", index)}>
+                <Button type="button" variant="ghost" size="icon" className="text-destructive mb-0.5" onClick={() => removeArrayItem("workDisabilities", index)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
