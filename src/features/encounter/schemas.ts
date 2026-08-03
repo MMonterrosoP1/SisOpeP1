@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PregnancyStatusSchema } from "@/shared/schemas/enums";
+import { BmiCategorySchema, PregnancyStatusSchema } from "@/shared/schemas/enums";
 import { idParamSchema } from "@/shared/utils/zod-helpers";
 import { VITAL_SIGN_RANGES } from "./domain/vital-sign-ranges";
 
@@ -17,6 +17,8 @@ export const anthropometrySchema = z.object({
   weight: z.number().min(0.5, "Debe ser al menos 0.5").max(500, "Debe ser máximo 500").optional().nullable(),
   height: z.number().min(20, "Debe ser al menos 20").max(300, "Debe ser máximo 300").optional().nullable(),
   abdominalCircumference: z.number().min(10, "Debe ser al menos 10").max(300, "Debe ser máximo 300").optional().nullable(),
+  bmi: z.number().optional().nullable(),
+  bmiCategory: BmiCategorySchema.optional().nullable(),
 });
 
 export const diagnosisSchema = z.object({

@@ -83,7 +83,7 @@ export async function EncounterList({
                     <MoreHorizontal className="h-4 w-4" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <Link href={`/patients/${patientId}/encounters/${encounter.id}`}>
+                    <Link prefetch={false} href={`/patients/${patientId}/encounters/${encounter.id}`}>
                       <DropdownMenuItem className="cursor-pointer">
                         <Eye className="w-4 h-4 mr-2 text-muted-foreground" />
                         <span>Ver Detalle</span>

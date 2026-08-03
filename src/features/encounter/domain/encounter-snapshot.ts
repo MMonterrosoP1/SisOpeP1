@@ -1,7 +1,6 @@
 type EncounterData = NonNullable<Awaited<ReturnType<typeof import("../repository").encounterRepository.findLatestByPatient>>>;
 
-export function mapEncounterToFormDefaults(encounter: EncounterData | null, patientId: number) {
-  if (!encounter) return null;
+export function mapEncounterToFormDefaults(encounter: EncounterData, patientId: number) {
 
   return {
     patientId,
