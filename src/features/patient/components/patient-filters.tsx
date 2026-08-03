@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Filter, X } from "lucide-react";
 import { Input } from "@/components/ui/input";

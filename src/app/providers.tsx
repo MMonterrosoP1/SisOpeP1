@@ -3,7 +3,6 @@
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
-import { useEffect } from "react";
 
 // Suppress the React 19 false positive warning caused by next-themes
 if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
