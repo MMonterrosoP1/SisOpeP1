@@ -2,15 +2,10 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Calendar, Clock, MoreHorizontal, Download, Printer, ExternalLink } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { FileText, Calendar, Clock, MoreHorizontal, Download, ExternalLink } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { PaginatedResponse } from "@/shared/schemas/pagination";
-import { NewCertificateModal } from "./new-certificate-modal";
 
 interface CertificatesTableProps {
   data: any[];
@@ -18,62 +13,9 @@ interface CertificatesTableProps {
 }
 
 export function CertificatesTable({ data, meta }: CertificatesTableProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
-
-  // Minimal debounced search
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (searchTerm) {
-        params.set("search", searchTerm);
-        params.set("page", "1");
-      } else {
-        params.delete("search");
-      }
-      
-      const newQuery = params.toString();
-      if (newQuery !== searchParams.toString()) {
-        router.push(`${pathname}?${newQuery}`);
-      }
-    }, 300);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm, pathname, router, searchParams]);
-
-  const handleNextPage = () => {
-    if (meta.page < meta.totalPages) {
-      const params = new URLSearchParams(searchParams);
-      params.set("page", (meta.page + 1).toString());
-      router.push(`${pathname}?${params.toString()}`);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (meta.page > 1) {
-      const params = new URLSearchParams(searchParams);
-      params.set("page", (meta.page - 1).toString());
-      router.push(`${pathname}?${params.toString()}`);
-    }
-  };
-
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Input
-            placeholder="Buscar paciente por nombre o documento..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-[350px]"
-          />
-        </div>
-        <NewCertificateModal />
-      </div>
-
-      <div className="rounded-md border">
+    <div className="overflow-x-auto">
+      <div className="rounded-md">
         <Table>
           <TableHeader>
             <TableRow>
@@ -162,30 +104,6 @@ export function CertificatesTable({ data, meta }: CertificatesTableProps) {
           </TableBody>
         </Table>
       </div>
-
-      {meta.totalPages > 1 && (
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePrevPage}
-            disabled={meta.page === 1}
-          >
-            Anterior
-          </Button>
-          <div className="text-sm text-muted-foreground mx-2">
-            Página {meta.page} de {meta.totalPages}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleNextPage}
-            disabled={meta.page === meta.totalPages}
-          >
-            Siguiente
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
