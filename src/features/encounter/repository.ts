@@ -88,6 +88,7 @@ export const encounterRepository = {
 
   async create(data: CreateEncounterInput) {
     const {
+      practitionerId,
       vitalSign,
       anthropometry,
       diagnoses,
@@ -103,21 +104,108 @@ export const encounterRepository = {
       ...encounterData
     } = data;
 
+    if (!practitionerId) {
+      throw new Error("Missing practitionerId in encounter create payload");
+    }
+
+    const diagnosisCreates: Prisma.DiagnosisUncheckedCreateWithoutEncounterInput[] | undefined = diagnoses?.length
+      ? diagnoses.map((diagnosis) => ({
+          icd10CodeId: diagnosis.icd10CodeId,
+          diseaseTypeId: diagnosis.diseaseTypeId ?? undefined,
+          observations: diagnosis.observations ?? undefined,
+          isPrimary: diagnosis.isPrimary,
+        }))
+      : undefined;
+
+    const allergyCreates: Prisma.AllergyUncheckedCreateWithoutEncounterInput[] | undefined = allergies?.length
+      ? allergies.map((allergy) => ({
+          allergenCatalogId: allergy.allergenCatalogId,
+          detail: allergy.detail ?? "",
+        }))
+      : undefined;
+
+    const habitCreates: Prisma.HabitUncheckedCreateWithoutEncounterInput[] | undefined = habits?.length
+      ? habits.map((habit) => ({
+          habitCatalogId: habit.habitCatalogId,
+          duration: habit.duration ?? undefined,
+          quantity: habit.quantity ?? undefined,
+          frequency: (habit.frequency as any) ?? undefined,
+          observations: habit.observations ?? undefined,
+        }))
+      : undefined;
+
+    const exerciseCreates: Prisma.ExerciseUncheckedCreateWithoutEncounterInput[] | undefined = exercises?.length
+      ? exercises.map((exercise) => ({
+          doesExercise: exercise.doesExercise,
+          exerciseCatalogId: exercise.exerciseCatalogId ?? undefined,
+          timesPerWeek: exercise.timesPerWeek ?? undefined,
+        }))
+      : undefined;
+
+    const medicalHistoryCreates: Prisma.MedicalHistoryEntryUncheckedCreateWithoutEncounterInput[] | undefined = medicalHistory?.length
+      ? medicalHistory
+          .filter((entry) => entry.icd10CodeId !== null && entry.icd10CodeId !== undefined)
+          .map((entry) => ({
+            icd10CodeId: entry.icd10CodeId as number,
+            observations: entry.observations ?? undefined,
+          }))
+      : undefined;
+
+    const surgicalHistoryCreates: Prisma.SurgicalHistoryEntryUncheckedCreateWithoutEncounterInput[] | undefined = surgicalHistory?.length
+      ? surgicalHistory.map((entry) => ({
+          surgicalProcedureId: entry.surgicalProcedureId,
+          observations: entry.observations ?? undefined,
+        }))
+      : undefined;
+
+    const traumaHistoryCreates: Prisma.TraumaHistoryEntryUncheckedCreateWithoutEncounterInput[] | undefined = traumaHistory?.length
+      ? traumaHistory
+          .filter((entry) => entry.icd10CodeId !== null && entry.icd10CodeId !== undefined)
+          .map((entry) => ({
+            icd10CodeId: entry.icd10CodeId as number,
+            observations: entry.observations ?? undefined,
+          }))
+      : undefined;
+
+    const familyHistoryCreates: Prisma.FamilyHistoryEntryUncheckedCreateWithoutEncounterInput[] | undefined = familyHistory?.length
+      ? familyHistory
+          .filter((entry) => entry.icd10CodeId !== null && entry.icd10CodeId !== undefined)
+          .map((entry) => ({
+            icd10CodeId: entry.icd10CodeId as number,
+            observations: entry.observations ?? undefined,
+          }))
+      : undefined;
+
+    const occupationalExposureCreates: Prisma.OccupationalExposureEntryUncheckedCreateWithoutEncounterInput[] | undefined = occupationalExposures?.length
+      ? occupationalExposures.map((entry) => ({
+          occupationalExposureId: entry.occupationalExposureId,
+          observations: entry.observations ?? undefined,
+        }))
+      : undefined;
+
+    const workDisabilityCreates: Prisma.WorkDisabilityEntryUncheckedCreateWithoutEncounterInput[] | undefined = workDisabilities?.length
+      ? workDisabilities.map((entry) => ({
+          workDisabilityId: entry.workDisabilityId,
+          observations: entry.observations ?? undefined,
+        }))
+      : undefined;
+
     return prisma.encounter.create({
       data: {
         ...encounterData,
+        practitionerId,
         vitalSign: vitalSign ? { create: vitalSign } : undefined,
         anthropometry: anthropometry ? { create: anthropometry } : undefined,
-        diagnoses: diagnoses?.length ? { create: diagnoses } : undefined,
-        allergies: allergies?.length ? { create: allergies } : undefined,
-        habits: habits?.length ? { create: habits } : undefined,
-        exercises: exercises?.length ? { create: exercises } : undefined,
-        medicalHistoryEntries: medicalHistory?.length ? { create: medicalHistory } : undefined,
-        surgicalHistoryEntries: surgicalHistory?.length ? { create: surgicalHistory } : undefined,
-        traumaHistoryEntries: traumaHistory?.length ? { create: traumaHistory } : undefined,
-        familyHistoryEntries: familyHistory?.length ? { create: familyHistory } : undefined,
-        occupationalExposureEntries: occupationalExposures?.length ? { create: occupationalExposures } : undefined,
-        workDisabilityEntries: workDisabilities?.length ? { create: workDisabilities } : undefined,
+        diagnoses: diagnosisCreates ? { create: diagnosisCreates } : undefined,
+        allergies: allergyCreates ? { create: allergyCreates } : undefined,
+        habits: habitCreates ? { create: habitCreates } : undefined,
+        exercises: exerciseCreates ? { create: exerciseCreates } : undefined,
+        medicalHistoryEntries: medicalHistoryCreates ? { create: medicalHistoryCreates } : undefined,
+        surgicalHistoryEntries: surgicalHistoryCreates ? { create: surgicalHistoryCreates } : undefined,
+        traumaHistoryEntries: traumaHistoryCreates ? { create: traumaHistoryCreates } : undefined,
+        familyHistoryEntries: familyHistoryCreates ? { create: familyHistoryCreates } : undefined,
+        occupationalExposureEntries: occupationalExposureCreates ? { create: occupationalExposureCreates } : undefined,
+        workDisabilityEntries: workDisabilityCreates ? { create: workDisabilityCreates } : undefined,
       },
       include: {
         diagnoses: true,

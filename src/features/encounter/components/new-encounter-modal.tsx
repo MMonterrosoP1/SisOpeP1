@@ -110,7 +110,7 @@ export function NewEncounterModal({ open, onOpenChange, onSelect }: NewEncounter
               </div>
               <div className="flex gap-2 text-xs text-muted-foreground">
                 <span>DPI: {patient.identityDocument}</span>
-                {patient.company && <span>• {patient.company.name}</span>}
+                {(patient.companyAcronym || patient.companyName) && <span>• {patient.companyAcronym || patient.companyName}</span>}
               </div>
             </button>
           ))}
