@@ -2,7 +2,7 @@
 
 import { CatalogType } from "./types";
 import { catalogService } from "./service";
-import { createCatalogSchema, updateCatalogSchema, allergenCatalogSchema, exerciseCatalogSchema, maritalStatusSchema } from "./schemas";
+import { createCatalogSchema, updateCatalogSchema, allergenCatalogSchema, exerciseCatalogSchema, maritalStatusSchema, companySchema, companyUpdateSchema } from "./schemas";
 import { safeParseAction } from "@/shared/utils/zod-helpers";
 import { handleActionError } from "@/shared/errors/app-error";
 import { withAuth } from "@/shared/auth/auth-guard";
@@ -20,6 +20,7 @@ export async function createCatalogItem(
       type === 'allergenCatalog' ? allergenCatalogSchema :
       type === 'exerciseCatalog' ? exerciseCatalogSchema :
       type === 'maritalStatus'   ? maritalStatusSchema   :
+      type === 'company'         ? companySchema         :
       createCatalogSchema;
     const parseResult = safeParseAction(schema, data);
     if (!parseResult.success) return parseResult;
@@ -39,7 +40,8 @@ export async function updateCatalogItem(
   try {
     const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 
-    const parseResult = safeParseAction(updateCatalogSchema, data);
+    const updateSchema = type === 'company' ? companyUpdateSchema : updateCatalogSchema;
+    const parseResult = safeParseAction(updateSchema, data);
     if (!parseResult.success) return parseResult;
 
     const updated = await catalogService.update(type, id, parseResult.data, session.user.id);

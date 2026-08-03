@@ -6,6 +6,17 @@ export const createCatalogSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(255),
 });
 
+export const companySchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(255),
+  acronym: z.string().trim().max(20).optional().transform(v => v || undefined),
+});
+
+export const companyUpdateSchema = z.object({
+  name: z.string().trim().min(1).max(255).optional(),
+  acronym: z.string().trim().max(20).optional().transform(v => v || undefined),
+  active: z.boolean().optional(),
+});
+
 export const updateCatalogSchema = createCatalogSchema.partial().extend({
   active: z.boolean().optional(),
 });
