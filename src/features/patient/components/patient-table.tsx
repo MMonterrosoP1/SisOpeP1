@@ -95,7 +95,7 @@ export function PatientTable({ data }: PatientTableProps) {
               <Tooltip>
                 <TooltipTrigger
                   render={
-                    <Link href={`/patients/${patient.id}`}>
+                    <Link prefetch={false} href={`/patients/${patient.id}`}>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                         <Eye className="w-4 h-4" />
                       </Button>
@@ -108,7 +108,7 @@ export function PatientTable({ data }: PatientTableProps) {
               <Tooltip>
                 <TooltipTrigger
                   render={
-                    <Link href={`/patients/${patient.id}/edit`}>
+                    <Link prefetch={false} href={`/patients/${patient.id}/edit`}>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                         <Edit2 className="w-4 h-4" />
                       </Button>

@@ -2,8 +2,7 @@ import { getEncounters } from "@/features/encounter/queries";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { FileText, Calendar, Clock, Stethoscope, User, Activity, MoreHorizontal, Eye } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Calendar, Clock, MoreHorizontal, Eye } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EncountersHeader } from "@/features/encounter/components/encounters-header";
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
@@ -44,7 +43,6 @@ export default async function GlobalEncountersPage({
             </TableHeader>
             <TableBody>
               {encounters.map((encounter: any) => {
-                const primaryDx = encounter.diagnoses?.[0];
                 const medCert = encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE');
                 const illnessCert = encounter.documents?.find((d: any) => d.documentType.code === 'ILLNESS_CERTIFICATE');
                 return (
@@ -63,7 +61,7 @@ export default async function GlobalEncountersPage({
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-0.5">
-                        <Link href={`/patients/${encounter.patientId}`} className="font-medium hover:underline text-primary">
+                        <Link prefetch={false} href={`/patients/${encounter.patientId}`} className="font-medium hover:underline text-primary">
                           {encounter.patient?.person?.givenNames} {encounter.patient?.person?.familyNames}
                         </Link>
                         <span className="text-xs text-muted-foreground">{encounter.patient?.person?.identityDocument || "Sin DPI"}</span>
@@ -95,7 +93,7 @@ export default async function GlobalEncountersPage({
                           <MoreHorizontal className="h-4 w-4" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
-                          <Link href={`/patients/${encounter.patientId}/encounters/${encounter.id}`}>
+                          <Link prefetch={false} href={`/patients/${encounter.patientId}/encounters/${encounter.id}`}>
                             <DropdownMenuItem className="cursor-pointer">
                               <Eye className="w-4 h-4 mr-2 text-muted-foreground" />
                               <span>Ver Detalle</span>
