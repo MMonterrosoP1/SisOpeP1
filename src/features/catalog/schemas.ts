@@ -25,3 +25,7 @@ export const maritalStatusSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(255),
   sex: SexSchema.optional(),
 });
+
+export const exerciseCatalogSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(255),
+});

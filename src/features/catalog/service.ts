@@ -29,7 +29,7 @@ export const catalogService = {
       newData: created,
     });
 
-    revalidateTag(`catalog-${type}`);
+    revalidateTag(`catalog-${type}`, "max");
 
     return created;
   },
@@ -64,8 +64,8 @@ export const catalogService = {
       newData: updated,
     });
 
-    revalidateTag(`catalog-${type}`);
-    revalidateTag(`catalog-${type}-${id}`);
+    revalidateTag(`catalog-${type}`, "max");
+    revalidateTag(`catalog-${type}-${id}`, "max");
 
     return updated;
   },
@@ -95,8 +95,8 @@ export const catalogService = {
       description: `Toggled active status to ${updated.active}`,
     });
 
-    revalidateTag(`catalog-${type}`);
-    revalidateTag(`catalog-${type}-${id}`);
+    revalidateTag(`catalog-${type}`, "max");
+    revalidateTag(`catalog-${type}-${id}`, "max");
 
     return updated;
   },

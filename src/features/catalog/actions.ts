@@ -2,7 +2,7 @@
 
 import { CatalogType } from "./types";
 import { catalogService } from "./service";
-import { createCatalogSchema, updateCatalogSchema, allergenCatalogSchema } from "./schemas";
+import { createCatalogSchema, updateCatalogSchema, allergenCatalogSchema, exerciseCatalogSchema, maritalStatusSchema } from "./schemas";
 import { safeParseAction } from "@/shared/utils/zod-helpers";
 import { handleActionError } from "@/shared/errors/app-error";
 import { withAuth } from "@/shared/auth/auth-guard";
@@ -16,7 +16,11 @@ export async function createCatalogItem(
   try {
     const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 
-    const schema = type === 'allergenCatalog' ? allergenCatalogSchema : createCatalogSchema;
+    const schema =
+      type === 'allergenCatalog' ? allergenCatalogSchema :
+      type === 'exerciseCatalog' ? exerciseCatalogSchema :
+      type === 'maritalStatus'   ? maritalStatusSchema   :
+      createCatalogSchema;
     const parseResult = safeParseAction(schema, data);
     if (!parseResult.success) return parseResult;
 
