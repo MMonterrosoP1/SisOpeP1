@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Sidebar } from "./sidebar";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { LogoFull } from "@/shared/components/logo";
 import { Menu } from "lucide-react";
 
 interface DashboardLayoutClientProps {
@@ -30,14 +30,8 @@ export function DashboardLayoutClient({ user, children }: DashboardLayoutClientP
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         {/* Mobile Header */}
         <header className="lg:hidden sticky top-0 z-40 flex items-center justify-between h-16 px-4 border-b border-border bg-background/80 backdrop-blur-md">
-          <Image
-            src="/premed-dark.png"
-            alt="FM-PREMED Logo"
-            width={130}
-            height={36}
-            priority
+          <LogoFull
             className="h-9 w-auto object-contain"
-            style={{ width: 'auto', height: 'auto' }}
           />
           <Button
             variant="ghost"

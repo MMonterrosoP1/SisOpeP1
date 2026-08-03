@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { LogoFull } from "@/shared/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,7 +66,7 @@ export default function SignInPage() {
     <div className="flex min-h-screen bg-background items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex items-center justify-center">
-          <Image src="/premed-dark.png" alt="FM-PREMED Logo" width={200} height={64} priority className="h-16 w-auto object-contain" />
+          <LogoFull className="h-16 w-auto object-contain" />
         </div>
 
         <Card className="w-full">
