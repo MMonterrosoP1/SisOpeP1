@@ -1,0 +1,138 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
+
+const { encounterRepositoryMock, patientRepositoryMock, auditServiceMock } = vi.hoisted(() => ({
+  encounterRepositoryMock: {
+    findAll: vi.fn(),
+    create: vi.fn(),
+    findById: vi.fn(),
+  },
+  patientRepositoryMock: {
+    findById: vi.fn(),
+  },
+  auditServiceMock: {
+    log: vi.fn(),
+  },
+}));
+
+vi.mock("./repository", () => ({
+  encounterRepository: encounterRepositoryMock,
+}));
+
+vi.mock("../patient/repository", () => ({
+  patientRepository: patientRepositoryMock,
+}));
+
+vi.mock("@/shared/audit/audit.service", () => ({
+  auditService: auditServiceMock,
+}));
+
+import { encounterService } from "./service";
+
+const basePayload = {
+  patientId: 1,
+  encounterTypeId: 2,
+  diagnoses: [{ icd10CodeId: 10, isPrimary: true }],
+};
+
+describe("encounterService", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("create: throws NotFoundError when patient does not exist", async () => {
+    patientRepositoryMock.findById.mockResolvedValueOnce(null);
+
+    await expect(encounterService.create({ ...basePayload } as never, "user-1")).rejects.toBeInstanceOf(NotFoundError);
+    expect(encounterRepositoryMock.create).not.toHaveBeenCalled();
+  });
+
+  it("create: throws ValidationError when patient is inactive", async () => {
+    patientRepositoryMock.findById.mockResolvedValueOnce({ id: 1, active: false, person: { sex: "FEMALE" } });
+
+    await expect(encounterService.create({ ...basePayload } as never, "user-1")).rejects.toBeInstanceOf(ValidationError);
+    expect(encounterRepositoryMock.create).not.toHaveBeenCalled();
+  });
+
+  it("create: rejects pregnancy status for non-female patients", async () => {
+    patientRepositoryMock.findById.mockResolvedValueOnce({ id: 1, active: true, person: { sex: "MALE" } });
+
+    await expect(
+      encounterService.create({ ...basePayload, pregnancyStatus: "PREGNANT" } as never, "user-1")
+    ).rejects.toMatchObject({ message: "Pregnancy status is only applicable to female patients" });
+  });
+
+  it("create: rejects gynecological history for non-female patients", async () => {
+    patientRepositoryMock.findById.mockResolvedValueOnce({ id: 1, active: true, person: { sex: "MALE" } });
+
+    await expect(
+      encounterService.create({ ...basePayload, gynecologicalHistory: "detail" } as never, "user-1")
+    ).rejects.toMatchObject({ message: "Gynecological history is only applicable to female patients" });
+  });
+
+  it("create: computes bmi, marks first visit and audits", async () => {
+    const created = { id: 123, patientId: 1 };
+    patientRepositoryMock.findById.mockResolvedValueOnce({ id: 1, active: true, person: { sex: "FEMALE" } });
+    encounterRepositoryMock.findAll.mockResolvedValueOnce({ items: [], totalCount: 0 });
+    encounterRepositoryMock.create.mockResolvedValueOnce(created);
+
+    const payload = {
+      ...basePayload,
+      anthropometry: { weight: 154, height: 170 },
+      pregnancyStatus: "NOT_APPLICABLE",
+    };
+
+    const result = await encounterService.create(payload as never, "user-99");
+
+    expect(result).toBe(created);
+    expect(encounterRepositoryMock.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        practitionerId: "user-99",
+        isFirstVisit: true,
+        anthropometry: expect.objectContaining({
+          weight: 154,
+          height: 170,
+          bmi: 24.17,
+          bmiCategory: "NORMAL",
+        }),
+      })
+    );
+    expect(auditServiceMock.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "user-99",
+        action: "CREATE",
+        entityType: "encounter",
+        entityId: 123,
+      })
+    );
+  });
+
+  it("create: marks isFirstVisit false when previous encounters exist", async () => {
+    patientRepositoryMock.findById.mockResolvedValueOnce({ id: 1, active: true, person: { sex: "FEMALE" } });
+    encounterRepositoryMock.findAll.mockResolvedValueOnce({ items: [{ id: 1 }], totalCount: 1 });
+    encounterRepositoryMock.create.mockResolvedValueOnce({ id: 44 });
+
+    await encounterService.create({ ...basePayload } as never, "user-1");
+
+    expect(encounterRepositoryMock.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isFirstVisit: false,
+      })
+    );
+  });
+
+  it("getDetail: throws NotFoundError when encounter does not exist", async () => {
+    encounterRepositoryMock.findById.mockResolvedValueOnce(null);
+
+    await expect(encounterService.getDetail(999)).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("getDetail: returns encounter when found", async () => {
+    const encounter = { id: 10 };
+    encounterRepositoryMock.findById.mockResolvedValueOnce(encounter);
+
+    const result = await encounterService.getDetail(10);
+
+    expect(result).toBe(encounter);
+  });
+});
