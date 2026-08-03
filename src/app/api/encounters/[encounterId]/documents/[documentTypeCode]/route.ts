@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { get } from "@vercel/blob";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { getDocumentByEncounterAndType } from "@/features/document/queries";
+import { AppError } from "@/shared/errors/app-error";
 
 export async function GET(
   request: NextRequest,
@@ -40,6 +41,10 @@ export async function GET(
       headers: newHeaders,
     });
   } catch (error) {
+    if (error instanceof AppError) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
+    }
+
     console.error("Error fetching private document blob:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }

@@ -107,7 +107,7 @@ export function CertificatesTable({ data, meta }: CertificatesTableProps) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Link href={`/patients/${doc.patientId}`} className="hover:underline font-medium">
+                    <Link prefetch={false} href={`/patients/${doc.patientId}`} className="hover:underline font-medium">
                       {doc.patient?.person?.givenNames} {doc.patient?.person?.familyNames}
                     </Link>
                     <div className="text-xs text-muted-foreground">
@@ -121,7 +121,7 @@ export function CertificatesTable({ data, meta }: CertificatesTableProps) {
                   </TableCell>
                   <TableCell>
                     {doc.encounter ? (
-                      <Link href={`/patients/${doc.patientId}/encounters/${doc.encounter.id}`} className="hover:underline text-sm flex items-center gap-1">
+                      <Link prefetch={false} href={`/patients/${doc.patientId}/encounters/${doc.encounter.id}`} className="hover:underline text-sm flex items-center gap-1">
                         <ExternalLink className="w-3.5 h-3.5" />
                         {new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(doc.encounter.date))}
                       </Link>

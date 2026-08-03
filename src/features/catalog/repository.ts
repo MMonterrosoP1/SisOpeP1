@@ -59,7 +59,13 @@ export const maritalStatusRepo = createCatalogRepo(prisma.maritalStatusCatalog);
 export const bloodTypeRepo = createCatalogRepo(prisma.bloodTypeCatalog);
 export const habitCatalogRepo = createCatalogRepo(prisma.habitCatalog);
 export const suspensionHourRepo = createCatalogRepo(prisma.suspensionHourCatalog);
-export const exerciseCatalogRepo = createCatalogRepo(prisma.exerciseCatalog, false);
+export const exerciseCatalogRepo = {
+  ...createCatalogRepo(prisma.exerciseCatalog, false),
+  create: async (data: { name: string }) => {
+    const code = data.name.toUpperCase().replace(/\s+/g, "_");
+    return prisma.exerciseCatalog.create({ data: { ...data, code } });
+  },
+};
 
 export const getCatalogRepo = (type: string) => {
   const map: Record<string, ReturnType<typeof createCatalogRepo>> = {
