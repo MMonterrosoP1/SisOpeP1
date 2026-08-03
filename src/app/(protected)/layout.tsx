@@ -4,7 +4,7 @@ import { DashboardLayoutClient } from "@/shared/components/dashboard-layout-clie
 import { redirect } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-async function EncountersAuthWrapper({ children }: { children: React.ReactNode }) {
+async function ProtectedAuthWrapper({ children }: { children: React.ReactNode }) {
   let session;
   try {
     session = await getAuthSession();
@@ -26,7 +26,7 @@ async function EncountersAuthWrapper({ children }: { children: React.ReactNode }
   );
 }
 
-export default function EncountersLayout({
+export default function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -37,7 +37,7 @@ export default function EncountersLayout({
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     }>
-      <EncountersAuthWrapper>{children}</EncountersAuthWrapper>
+      <ProtectedAuthWrapper>{children}</ProtectedAuthWrapper>
     </Suspense>
   );
 }
