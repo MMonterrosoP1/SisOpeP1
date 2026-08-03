@@ -14,7 +14,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e:critical": "vitest run src/e2e --retry=1",
+    "test:e2e:critical:ci": "vitest run src/e2e --retry=1 --reporter=default"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
