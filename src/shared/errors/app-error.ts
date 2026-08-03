@@ -40,6 +40,13 @@ export class ForbiddenError extends AppError {
   }
 }
 
+export class UnauthorizedError extends AppError {
+  constructor(message: string = "No autenticado") {
+    super(message, "UNAUTHORIZED", 401);
+    this.name = "UnauthorizedError";
+  }
+}
+
 export function handleActionError(error: unknown): ActionResponse<unknown> {
   console.error("[Action Error]", error);
 

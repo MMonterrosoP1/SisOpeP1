@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { UserRole } from "../schemas/enums";
-import { ForbiddenError } from "../errors/app-error";
+import { ForbiddenError, UnauthorizedError } from "../errors/app-error";
 
 export async function getAuthSession() {
   const session = await auth.api.getSession({
@@ -9,7 +9,7 @@ export async function getAuthSession() {
   });
   
   if (!session) {
-    throw new ForbiddenError("Not authenticated");
+    throw new UnauthorizedError("Not authenticated");
   }
   
   return session;
