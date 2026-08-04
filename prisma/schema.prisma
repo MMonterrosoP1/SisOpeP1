@@ -4,8 +4,9 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["fullTextIndex", "fullTextSearch"]
 }
 
 datasource db {
@@ -429,6 +430,7 @@ model Icd10Code {
   diagnoses             Diagnosis[]
 
   @@index([code])
+  @@fulltext([description])
   @@map("icd10_code")
 }
 

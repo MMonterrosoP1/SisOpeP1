@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { cacheLifeMock, cacheTagMock, getCatalogRepoMock, icd10FindManyMock } = vi.hoisted(() => ({
+const { cacheLifeMock, cacheTagMock, getCatalogRepoMock, icd10FindManyMock, icd10CountMock } = vi.hoisted(() => ({
   cacheLifeMock: vi.fn(),
   cacheTagMock: vi.fn(),
   getCatalogRepoMock: vi.fn(),
   icd10FindManyMock: vi.fn(),
+  icd10CountMock: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({
@@ -20,9 +21,12 @@ vi.mock("@/lib/prisma", () => ({
   prisma: {
     icd10Code: {
       findMany: icd10FindManyMock,
+      count: icd10CountMock,
     },
   },
 }));
+
+import { prisma } from "@/lib/prisma";
 
 import { getCatalogById, getCatalogs, searchIcd10 } from "./queries";
 
@@ -78,33 +82,47 @@ describe("catalog queries", () => {
   });
 
   it("searchIcd10: returns active records when query is empty", async () => {
-    icd10FindManyMock.mockResolvedValueOnce([{ code: "A01" }]);
-
-    const result = await searchIcd10("", 5);
-
-    expect(icd10FindManyMock).toHaveBeenCalledWith({
+    (prisma.icd10Code.findMany as any).mockResolvedValue([{ id: 1 }]);
+    (prisma.icd10Code.count as any) = vi.fn().mockResolvedValue(1);
+    
+    const result = await searchIcd10("");
+    
+    expect(prisma.icd10Code.findMany).toHaveBeenCalledWith({
       where: { active: true },
-      take: 5,
+      take: 50,
+      skip: 0,
       orderBy: { code: "asc" },
     });
-    expect(result).toEqual([{ code: "A01" }]);
+    expect(prisma.icd10Code.count).toHaveBeenCalledWith({
+      where: { active: true },
+    });
+    expect(result).toEqual({ items: [{ id: 1 }], totalCount: 1, page: 1, pageSize: 50 });
   });
 
   it("searchIcd10: searches by code or description", async () => {
-    icd10FindManyMock.mockResolvedValueOnce([{ code: "A01" }]);
+    (prisma.icd10Code.findMany as any).mockResolvedValue([{ id: 2 }]);
+    (prisma.icd10Code.count as any) = vi.fn().mockResolvedValue(1);
 
-    await searchIcd10("fiebre", 3);
-
-    expect(icd10FindManyMock).toHaveBeenCalledWith({
+    const result = await searchIcd10("diabetes");
+    
+    expect(prisma.icd10Code.findMany).toHaveBeenCalledWith(expect.objectContaining({
       where: {
         active: true,
         OR: [
-          { code: { contains: "fiebre" } },
-          { description: { contains: "fiebre" } },
+          { code: { contains: "diabetes" } },
+          { description: { search: "+diabetes*" } },
         ],
       },
-      take: 3,
-      orderBy: { code: "asc" },
-    });
+    }));
+    expect(prisma.icd10Code.count).toHaveBeenCalledWith(expect.objectContaining({
+      where: {
+        active: true,
+        OR: [
+          { code: { contains: "diabetes" } },
+          { description: { search: "+diabetes*" } },
+        ],
+      }
+    }));
+    expect(result).toEqual({ items: [{ id: 2 }], totalCount: 1, page: 1, pageSize: 50 });
   });
 });

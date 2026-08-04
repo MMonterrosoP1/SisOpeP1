@@ -8,8 +8,10 @@ export async function GET(request: NextRequest) {
     await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get("q") || "";
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const pageSize = Math.min(100, Math.max(10, parseInt(searchParams.get("pageSize") || "50", 10)));
     
-    const results = await searchIcd10(query);
+    const results = await searchIcd10(query, page, pageSize);
     return NextResponse.json({ success: true, data: results });
   } catch (error) {
     if (error instanceof AppError) {
