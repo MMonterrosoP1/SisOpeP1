@@ -34,6 +34,7 @@ type CatalogItem = {
   id: number;
   name: string;
   acronym?: string | null;
+  sex?: "MALE" | "FEMALE" | null;
 };
 
 type SelectOption = {
@@ -279,8 +280,26 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
     });
   };
 
-  const handleChange = <K extends keyof PatientFormData>(field: K, value: PatientFormData[K]) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (field: keyof PatientFormData, value: any) => {
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value };
+      
+      if (field === "sex" && next.maritalStatusId) {
+        const currentMaritalStatus = localCatalogs.maritalStatus?.find(ms => String(ms.id) === next.maritalStatusId);
+        if (currentMaritalStatus && currentMaritalStatus.sex && currentMaritalStatus.sex !== value) {
+           next.maritalStatusId = "";
+        }
+      }
+      
+      return next;
+    });
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const handleEmergencyChange = <K extends keyof EmergencyContactFormData>(
@@ -498,9 +517,11 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
             <div className="flex flex-col gap-2">
               <CatalogComboboxField
                 name="maritalStatusId"
-                label="Estado civil"
+                label="Estado Civil"
                 value={formData.maritalStatusId}
-                options={getCatalogOptions("maritalStatus")}
+                options={(localCatalogs.maritalStatus || [])
+                  .filter(item => !item.sex || item.sex === formData.sex)
+                  .map((item) => ({ key: String(item.id), label: item.name }))}
                 placeholder="Seleccione estado civil"
                 isRequired
                 error={getFieldError("maritalStatusId")}

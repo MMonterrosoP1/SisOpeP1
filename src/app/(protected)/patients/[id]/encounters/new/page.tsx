@@ -4,8 +4,8 @@ import { getLatestEncounterByPatient } from "@/features/encounter/queries";
 import { mapEncounterToFormDefaults } from "@/features/encounter/domain/encounter-snapshot";
 import { EncounterForm } from "@/features/encounter/components/encounter-form";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { BackButton } from "@/shared/components/back-button";
 import { notFound } from "next/navigation";
 
 export default async function NewEncounterPage({
@@ -72,11 +72,7 @@ export default async function NewEncounterPage({
   return (
     <div className="flex flex-col gap-6 p-6 max-w-5xl mx-auto w-full">
       <div className="flex items-center gap-4">
-        <Link href={`/patients/${patientId}`}>
-          <Button variant="outline" size="icon">
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-        </Link>
+        <BackButton />
         <div>
           <h1 className="text-2xl font-bold">{isFollowUp ? "Reconsulta:" : "Nueva Consulta:"} {patient.person.givenNames} {patient.person.familyNames}</h1>
           <p className="text-muted-foreground text-sm">Registre los datos de la evaluación médica del paciente.</p>
