@@ -17,6 +17,11 @@ export const auditRepository = {
       orderBy: {
         createdAt: "desc",
       },
+      include: {
+        user: {
+          select: { name: true, email: true, image: true },
+        },
+      },
     });
   },
 
@@ -38,9 +43,32 @@ export const auditRepository = {
       },
       include: {
         user: {
-          select: { name: true, email: true },
+          select: { name: true, email: true, image: true },
         },
       },
     });
+  },
+
+  async findMany(params: {
+    skip?: number;
+    take?: number;
+    where?: Prisma.AuditLogWhereInput;
+    orderBy?: Prisma.AuditLogOrderByWithRelationInput;
+  }) {
+    return prisma.auditLog.findMany({
+      skip: params.skip,
+      take: params.take,
+      where: params.where,
+      orderBy: params.orderBy ?? { createdAt: "desc" },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, image: true },
+        },
+      },
+    });
+  },
+
+  async countMany(where?: Prisma.AuditLogWhereInput) {
+    return prisma.auditLog.count({ where });
   },
 };
