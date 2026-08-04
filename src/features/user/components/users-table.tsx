@@ -15,6 +15,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import {
   Table,
@@ -155,67 +156,69 @@ export function UsersTable({ data }: UsersTableProps) {
                           <span className="sr-only">Acciones</span>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          
-                          <DropdownMenuItem 
-                            disabled={isSelf}
-                            onClick={() => { setSelectedUser(user); setRoleDialogOpen(true); }}
-                          >
-                            <Shield className="w-4 h-4 mr-2" />
-                            Cambiar Rol
-                          </DropdownMenuItem>
-                          
-                          <DropdownMenuItem 
-                            disabled={isSelf}
-                            onClick={() => { setSelectedUser(user); setPasswordDialogOpen(true); }}
-                          >
-                            <Key className="w-4 h-4 mr-2" />
-                            Cambiar Contraseña
-                          </DropdownMenuItem>
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            
+                            <DropdownMenuItem 
+                              disabled={isSelf}
+                              onClick={() => { setSelectedUser(user); setRoleDialogOpen(true); }}
+                            >
+                              <Shield className="w-4 h-4 mr-2" />
+                              Cambiar Rol
+                            </DropdownMenuItem>
+                            
+                            <DropdownMenuItem 
+                              disabled={isSelf}
+                              onClick={() => { setSelectedUser(user); setPasswordDialogOpen(true); }}
+                            >
+                              <Key className="w-4 h-4 mr-2" />
+                              Cambiar Contraseña
+                            </DropdownMenuItem>
 
-                          <DropdownMenuItem 
-                            disabled={isSelf || user.role === "ADMIN"}
-                            onClick={() => handleImpersonate(user)}
-                          >
-                            <MonitorPlay className="w-4 h-4 mr-2" />
-                            Impersonar
-                          </DropdownMenuItem>
-                          
-                          <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              disabled={isSelf || user.role === "ADMIN"}
+                              onClick={() => handleImpersonate(user)}
+                            >
+                              <MonitorPlay className="w-4 h-4 mr-2" />
+                              Impersonar
+                            </DropdownMenuItem>
+                            
+                            <DropdownMenuSeparator />
 
-                          <DropdownMenuItem 
-                            disabled={isSelf}
-                            onClick={() => handleToggleActive(user)}
-                          >
-                            {user.active ? (
-                              <><UserX className="w-4 h-4 mr-2" /> Desactivar</>
-                            ) : (
-                              <><UserCheck className="w-4 h-4 mr-2" /> Activar</>
-                            )}
-                          </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              disabled={isSelf}
+                              onClick={() => handleToggleActive(user)}
+                            >
+                              {user.active ? (
+                                <><UserX className="w-4 h-4 mr-2" /> Desactivar</>
+                              ) : (
+                                <><UserCheck className="w-4 h-4 mr-2" /> Activar</>
+                              )}
+                            </DropdownMenuItem>
 
-                          <DropdownMenuItem 
-                            disabled={isSelf}
-                            onClick={() => handleRevokeSessions(user)}
-                          >
-                            <LogOut className="w-4 h-4 mr-2" />
-                            Revocar Sesiones
-                          </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              disabled={isSelf}
+                              onClick={() => handleRevokeSessions(user)}
+                            >
+                              <LogOut className="w-4 h-4 mr-2" />
+                              Revocar Sesiones
+                            </DropdownMenuItem>
 
-                          <DropdownMenuSeparator />
+                            <DropdownMenuSeparator />
 
-                          <DropdownMenuItem 
-                            disabled={isSelf}
-                            className={user.banned ? "text-green-600 focus:text-green-600" : "text-destructive focus:text-destructive"}
-                            onClick={() => { setSelectedUser(user); setBanDialogOpen(true); }}
-                          >
-                            {user.banned ? (
-                              <><UserCheck className="w-4 h-4 mr-2" /> Desbanear</>
-                            ) : (
-                              <><ShieldAlert className="w-4 h-4 mr-2" /> Banear</>
-                            )}
-                          </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              disabled={isSelf}
+                              className={user.banned ? "text-green-600 focus:text-green-600" : "text-destructive focus:text-destructive"}
+                              onClick={() => { setSelectedUser(user); setBanDialogOpen(true); }}
+                            >
+                              {user.banned ? (
+                                <><UserCheck className="w-4 h-4 mr-2" /> Desbanear</>
+                              ) : (
+                                <><ShieldAlert className="w-4 h-4 mr-2" /> Banear</>
+                              )}
+                            </DropdownMenuItem>
+                          </DropdownMenuGroup>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

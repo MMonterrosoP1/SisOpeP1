@@ -1,7 +1,13 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { admin } from "better-auth/plugins";
+import { admin, createAccessControl } from "better-auth/plugins";
 import { prisma } from "./prisma";
+
+const statement = {
+  user: ["create", "list", "set-role", "ban", "impersonate", "impersonate-admins", "delete", "set-password", "set-email", "get", "update"],
+  session: ["list", "revoke", "delete"]
+};
+const ac = createAccessControl(statement);
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -70,8 +76,22 @@ export const auth = betterAuth({
   },
   plugins: [
     admin({
-      adminRole: "ADMIN",
+      adminRoles: ["ADMIN"],
       defaultRole: "VIEWER",
+      roles: {
+        ADMIN: ac.newRole({
+          user: ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "set-email", "get", "update"],
+          session: ["list", "revoke", "delete"]
+        }),
+        DOCTOR: ac.newRole({
+          user: [],
+          session: []
+        }),
+        VIEWER: ac.newRole({
+          user: [],
+          session: []
+        }),
+      },
     }),
   ],
 });
