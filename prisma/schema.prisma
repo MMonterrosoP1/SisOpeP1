@@ -87,15 +87,64 @@ model User {
   person   Person? @relation(fields: [personId], references: [id])
 
   // Relaciones del negocio
-  encounters          Encounter[]
-  documents           Document[]
-  auditLogs           AuditLog[]
+  encounters Encounter[]
+  documents  Document[]
+  auditLogs  AuditLog[]
 
   banned     Boolean?  @default(false)
   banReason  String?   @db.Text
   banExpires DateTime?
 
-  preamble   String?   @db.Text
+  preamble String? @db.Text
+
+  // Relaciones de auditoría (creación/modificación)
+  createdPersons      Person[]      @relation("CreatedPerson")
+  updatedPersons      Person[]      @relation("UpdatedPerson")
+  createdPatients     Patient[]     @relation("CreatedPatient")
+  updatedPatients     Patient[]     @relation("UpdatedPatient")
+  createdEncounters   Encounter[]   @relation("CreatedEncounter")
+  updatedEncounters   Encounter[]   @relation("UpdatedEncounter")
+  createdCompanies    Company[]     @relation("CreatedCompany")
+  updatedCompanies    Company[]     @relation("UpdatedCompany")
+  createdWorkplaces   Workplace[]   @relation("CreatedWorkplace")
+  updatedWorkplaces   Workplace[]   @relation("UpdatedWorkplace")
+  createdWorkAreas    WorkArea[]    @relation("CreatedWorkArea")
+  updatedWorkAreas    WorkArea[]    @relation("UpdatedWorkArea")
+  createdJobPositions JobPosition[] @relation("CreatedJobPosition")
+  updatedJobPositions JobPosition[] @relation("UpdatedJobPosition")
+
+  createdEncounterTypes            EncounterType[]            @relation("CreatedEncounterType")
+  updatedEncounterTypes            EncounterType[]            @relation("UpdatedEncounterType")
+  createdOccupationalExposures     OccupationalExposure[]     @relation("CreatedOccupationalExposure")
+  updatedOccupationalExposures     OccupationalExposure[]     @relation("UpdatedOccupationalExposure")
+  createdWorkDisabilitys           WorkDisability[]           @relation("CreatedWorkDisability")
+  updatedWorkDisabilitys           WorkDisability[]           @relation("UpdatedWorkDisability")
+  createdSurgicalProcedureCatalogs SurgicalProcedureCatalog[] @relation("CreatedSurgicalProcedureCatalog")
+  updatedSurgicalProcedureCatalogs SurgicalProcedureCatalog[] @relation("UpdatedSurgicalProcedureCatalog")
+  createdReferralLevels            ReferralLevel[]            @relation("CreatedReferralLevel")
+  updatedReferralLevels            ReferralLevel[]            @relation("UpdatedReferralLevel")
+  createdMedicalAptitudes          MedicalAptitude[]          @relation("CreatedMedicalAptitude")
+  updatedMedicalAptitudes          MedicalAptitude[]          @relation("UpdatedMedicalAptitude")
+  createdRelationshipTypes         RelationshipType[]         @relation("CreatedRelationshipType")
+  updatedRelationshipTypes         RelationshipType[]         @relation("UpdatedRelationshipType")
+  createdAllergyCategorys          AllergyCategory[]          @relation("CreatedAllergyCategory")
+  updatedAllergyCategorys          AllergyCategory[]          @relation("UpdatedAllergyCategory")
+  createdAllergenCatalogs          AllergenCatalog[]          @relation("CreatedAllergenCatalog")
+  updatedAllergenCatalogs          AllergenCatalog[]          @relation("UpdatedAllergenCatalog")
+  createdDiseaseTypeCatalogs       DiseaseTypeCatalog[]       @relation("CreatedDiseaseTypeCatalog")
+  updatedDiseaseTypeCatalogs       DiseaseTypeCatalog[]       @relation("UpdatedDiseaseTypeCatalog")
+  createdMaritalStatusCatalogs     MaritalStatusCatalog[]     @relation("CreatedMaritalStatusCatalog")
+  updatedMaritalStatusCatalogs     MaritalStatusCatalog[]     @relation("UpdatedMaritalStatusCatalog")
+  createdBloodTypeCatalogs         BloodTypeCatalog[]         @relation("CreatedBloodTypeCatalog")
+  updatedBloodTypeCatalogs         BloodTypeCatalog[]         @relation("UpdatedBloodTypeCatalog")
+  createdHabitCatalogs             HabitCatalog[]             @relation("CreatedHabitCatalog")
+  updatedHabitCatalogs             HabitCatalog[]             @relation("UpdatedHabitCatalog")
+  createdSuspensionHourCatalogs    SuspensionHourCatalog[]    @relation("CreatedSuspensionHourCatalog")
+  updatedSuspensionHourCatalogs    SuspensionHourCatalog[]    @relation("UpdatedSuspensionHourCatalog")
+  createdExerciseCatalogs          ExerciseCatalog[]          @relation("CreatedExerciseCatalog")
+  updatedExerciseCatalogs          ExerciseCatalog[]          @relation("UpdatedExerciseCatalog")
+  createdDocumentTypeCatalogs      DocumentTypeCatalog[]      @relation("CreatedDocumentTypeCatalog")
+  updatedDocumentTypeCatalogs      DocumentTypeCatalog[]      @relation("UpdatedDocumentTypeCatalog")
 
   @@map("user")
 }
@@ -153,22 +202,36 @@ model Verification {
 // ═══════════════════════════════════════════════════════════════════════
 
 model DocumentTypeCatalog {
-  id      Int        @id @default(autoincrement())
-  code    String     @unique // "MEDICAL_CERTIFICATE", "ILLNESS_CERTIFICATE"
-  name    String
-  active  Boolean    @default(true)
+  id     Int     @id @default(autoincrement())
+  code   String  @unique // "MEDICAL_CERTIFICATE", "ILLNESS_CERTIFICATE"
+  name   String
+  active Boolean @default(true)
 
   documents Document[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedDocumentTypeCatalog", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedDocumentTypeCatalog", fields: [updatedById], references: [id])
 
   @@map("document_type_catalog")
 }
 
 model Company {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  acronym   String?
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  acronym     String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedCompany", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedCompany", fields: [updatedById], references: [id])
 
   patients Patient[]
 
@@ -176,10 +239,16 @@ model Company {
 }
 
 model Workplace {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedWorkplace", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedWorkplace", fields: [updatedById], references: [id])
 
   patients Patient[]
 
@@ -187,10 +256,16 @@ model Workplace {
 }
 
 model WorkArea {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedWorkArea", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedWorkArea", fields: [updatedById], references: [id])
 
   patients Patient[]
 
@@ -198,10 +273,16 @@ model WorkArea {
 }
 
 model JobPosition {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedJobPosition", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedJobPosition", fields: [updatedById], references: [id])
 
   patients Patient[]
 
@@ -215,6 +296,14 @@ model EncounterType {
 
   encounters Encounter[]
 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedEncounterType", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedEncounterType", fields: [updatedById], references: [id])
+
   @@map("encounter_type")
 }
 
@@ -225,6 +314,14 @@ model OccupationalExposure {
 
   entries OccupationalExposureEntry[]
 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedOccupationalExposure", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedOccupationalExposure", fields: [updatedById], references: [id])
+
   @@map("occupational_exposure")
 }
 
@@ -234,6 +331,14 @@ model WorkDisability {
   active Boolean @default(true)
 
   entries WorkDisabilityEntry[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedWorkDisability", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedWorkDisability", fields: [updatedById], references: [id])
 
   @@map("work_disability")
 }
@@ -246,6 +351,14 @@ model SurgicalProcedureCatalog {
 
   entries SurgicalHistoryEntry[]
 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedSurgicalProcedureCatalog", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedSurgicalProcedureCatalog", fields: [updatedById], references: [id])
+
   @@map("surgical_procedure_catalog")
 }
 
@@ -255,6 +368,14 @@ model ReferralLevel {
   active Boolean @default(true)
 
   encounters Encounter[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedReferralLevel", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedReferralLevel", fields: [updatedById], references: [id])
 
   @@map("referral_level")
 }
@@ -266,6 +387,14 @@ model MedicalAptitude {
 
   encounters Encounter[]
 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedMedicalAptitude", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedMedicalAptitude", fields: [updatedById], references: [id])
+
   @@map("medical_aptitude")
 }
 
@@ -274,6 +403,14 @@ model RelationshipType {
   name String @unique
 
   emergencyContacts EmergencyContact[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedRelationshipType", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedRelationshipType", fields: [updatedById], references: [id])
 
   @@map("relationship_type")
 }
@@ -302,6 +439,14 @@ model AllergyCategory {
 
   allergens AllergenCatalog[]
 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedAllergyCategory", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedAllergyCategory", fields: [updatedById], references: [id])
+
   @@map("allergy_category")
 }
 
@@ -314,6 +459,14 @@ model AllergenCatalog {
   allergyCategory AllergyCategory @relation(fields: [allergyCategoryId], references: [id])
   allergies       Allergy[]
 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedAllergenCatalog", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedAllergenCatalog", fields: [updatedById], references: [id])
+
   @@unique([name, allergyCategoryId])
   @@map("allergen_catalog")
 }
@@ -325,6 +478,14 @@ model HabitCatalog {
 
   habits Habit[]
 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedHabitCatalog", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedHabitCatalog", fields: [updatedById], references: [id])
+
   @@map("habit_catalog")
 }
 
@@ -334,6 +495,14 @@ model DiseaseTypeCatalog {
   active Boolean @default(true)
 
   diagnoses Diagnosis[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedDiseaseTypeCatalog", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedDiseaseTypeCatalog", fields: [updatedById], references: [id])
 
   @@map("disease_type_catalog")
 }
@@ -346,6 +515,14 @@ model MaritalStatusCatalog {
 
   patients Patient[]
 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedMaritalStatusCatalog", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedMaritalStatusCatalog", fields: [updatedById], references: [id])
+
   @@map("marital_status_catalog")
 }
 
@@ -356,6 +533,14 @@ model BloodTypeCatalog {
 
   patients Patient[]
 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedBloodTypeCatalog", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedBloodTypeCatalog", fields: [updatedById], references: [id])
+
   @@map("blood_type_catalog")
 }
 
@@ -365,6 +550,14 @@ model SuspensionHourCatalog {
   active Boolean @default(true)
 
   encounters Encounter[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedSuspensionHourCatalog", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedSuspensionHourCatalog", fields: [updatedById], references: [id])
 
   @@map("suspension_hour_catalog")
 }
@@ -384,6 +577,11 @@ model Person {
   phone            String?
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
+  createdById      String?
+  updatedById      String?
+
+  createdBy User? @relation("CreatedPerson", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedPerson", fields: [updatedById], references: [id])
 
   patient Patient?
   user    User?
@@ -394,17 +592,22 @@ model Person {
 }
 
 model Patient {
-  id               Int          @id @default(autoincrement())
-  personId         Int          @unique
-  maritalStatusId  Int
-  companyId        Int
-  workplaceId      Int
-  workAreaId       Int
-  jobPositionId    Int
-  bloodTypeId      Int?
-  active           Boolean      @default(true)
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  id              Int      @id @default(autoincrement())
+  personId        Int      @unique
+  maritalStatusId Int
+  companyId       Int
+  workplaceId     Int
+  workAreaId      Int
+  jobPositionId   Int
+  bloodTypeId     Int?
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdById     String?
+  updatedById     String?
+
+  createdBy User? @relation("CreatedPatient", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedPatient", fields: [updatedById], references: [id])
 
   person        Person               @relation(fields: [personId], references: [id], onDelete: Cascade)
   company       Company              @relation(fields: [companyId], references: [id])
@@ -414,9 +617,9 @@ model Patient {
   maritalStatus MaritalStatusCatalog @relation(fields: [maritalStatusId], references: [id])
   bloodType     BloodTypeCatalog?    @relation(fields: [bloodTypeId], references: [id])
 
-  emergencyContacts   EmergencyContact[]
-  encounters          Encounter[]
-  documents           Document[]
+  emergencyContacts EmergencyContact[]
+  encounters        Encounter[]
+  documents         Document[]
 
   @@index([companyId])
   @@map("patient")
@@ -460,13 +663,19 @@ model Encounter {
   employerObservation     String?         @db.Text
   followUpDate            DateTime?       @db.Date
   createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @default(now()) @updatedAt
+  createdById             String?
+  updatedById             String?
+
+  createdBy User? @relation("CreatedEncounter", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedEncounter", fields: [updatedById], references: [id])
 
   // Relaciones
-  patient         Patient          @relation(fields: [patientId], references: [id])
-  practitioner    User             @relation(fields: [practitionerId], references: [id])
-  encounterType   EncounterType    @relation(fields: [encounterTypeId], references: [id])
-  referralLevel   ReferralLevel?   @relation(fields: [referralLevelId], references: [id])
-  medicalAptitude MedicalAptitude? @relation(fields: [medicalAptitudeId], references: [id])
+  patient         Patient                @relation(fields: [patientId], references: [id])
+  practitioner    User                   @relation(fields: [practitionerId], references: [id])
+  encounterType   EncounterType          @relation(fields: [encounterTypeId], references: [id])
+  referralLevel   ReferralLevel?         @relation(fields: [referralLevelId], references: [id])
+  medicalAptitude MedicalAptitude?       @relation(fields: [medicalAptitudeId], references: [id])
   suspensionHour  SuspensionHourCatalog? @relation(fields: [suspensionHourId], references: [id])
 
   // Datos clínicos
@@ -497,8 +706,8 @@ model Encounter {
 /// Signos vitales — FHIR: Observation (category: vital-signs)
 
 model VitalSign {
-  id               Int      @id @default(autoincrement())
-  encounterId      Int      @unique
+  id               Int    @id @default(autoincrement())
+  encounterId      Int    @unique
   systolicBP       Float? // PA sistólica (mmHg)
   diastolicBP      Float? // PA diastólica (mmHg)
   heartRate        Float? // FC (bpm)
@@ -506,7 +715,6 @@ model VitalSign {
   oxygenSaturation Float? // SPO2 (%)
   glucose          Float? // Glucosa (mg/dL)
   temperature      Float? // Temperatura (°C)
-  recordedAt       DateTime @default(now())
 
   encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
 
@@ -523,7 +731,6 @@ model Anthropometry {
   bmi                    Float? // Calculado: weight / (height/100)²
   bmiCategory            BmiCategory? // Clasificación automática OMS
   abdominalCircumference Float? // cm
-  recordedAt             DateTime     @default(now())
 
   encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
 
@@ -656,6 +863,14 @@ model ExerciseCatalog {
 
   exercises Exercise[]
 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdById String?
+  updatedById String?
+
+  createdBy User? @relation("CreatedExerciseCatalog", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedExerciseCatalog", fields: [updatedById], references: [id])
+
   @@map("exercise_catalog")
 }
 
@@ -694,13 +909,13 @@ model Diagnosis {
 // ═══════════════════════════════════════════════════════════════════════
 
 model Document {
-  id               Int      @id @default(autoincrement())
-  encounterId      Int
-  patientId        Int
-  documentTypeId   Int
-  issuedByUserId   String
-  issuedAt         DateTime @default(now())
-  pdfUrl           String?  @db.Text
+  id             Int      @id @default(autoincrement())
+  encounterId    Int
+  patientId      Int
+  documentTypeId Int
+  issuedByUserId String
+  issuedAt       DateTime @default(now())
+  pdfUrl         String?  @db.Text
 
   documentType DocumentTypeCatalog @relation(fields: [documentTypeId], references: [id])
   encounter    Encounter           @relation(fields: [encounterId], references: [id], onDelete: Cascade)

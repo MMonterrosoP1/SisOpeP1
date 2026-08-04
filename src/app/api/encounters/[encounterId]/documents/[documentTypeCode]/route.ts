@@ -3,6 +3,7 @@ import { get } from "@vercel/blob";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { getDocumentByEncounterAndType } from "@/features/document/queries";
 import { AppError } from "@/shared/errors/app-error";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
@@ -10,13 +11,24 @@ export async function GET(
 ) {
   try {
     // 1. Verify Authentication
-    await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
+    const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 
     const { encounterId, documentTypeCode } = await params;
     const encounterIdNumber = parseInt(encounterId, 10);
 
     if (isNaN(encounterIdNumber) || !documentTypeCode) {
       return NextResponse.json({ error: "Parámetros inválidos" }, { status: 400 });
+    }
+
+    // 1.5. Verify Ownership
+    if (session.user.role === "DOCTOR") {
+      const encounter = await prisma.encounter.findUnique({
+        where: { id: encounterIdNumber },
+        select: { practitionerId: true }
+      });
+      if (!encounter || encounter.practitionerId !== session.user.id) {
+        return NextResponse.json({ error: "Acceso denegado a este documento" }, { status: 403 });
+      }
     }
 
     // 2. Fetch certificate URL from DB

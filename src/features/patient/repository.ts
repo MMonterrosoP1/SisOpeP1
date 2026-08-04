@@ -88,7 +88,7 @@ export const patientRepository = {
     });
   },
 
-  async create(data: PatientCreateInput) {
+  async create(data: PatientCreateInput, auditFields?: { createdById?: string; updatedById?: string }) {
     const { emergencyContacts, givenNames, familyNames, documentType, identityDocument, birthDate, sex, phone, ...patientData } = data;
 
     try {
@@ -100,18 +100,22 @@ export const patientRepository = {
 
         if (!person) {
           person = await tx.person.create({
-            data: { givenNames, familyNames, documentType, identityDocument, birthDate, sex, phone }
+            data: { givenNames, familyNames, documentType, identityDocument, birthDate, sex, phone, ...auditFields }
           });
         } else {
           person = await tx.person.update({
             where: { id: person.id },
-            data: { givenNames, familyNames, documentType, birthDate, sex, phone }
+            data: { 
+              givenNames, familyNames, documentType, birthDate, sex, phone, 
+              ...(auditFields?.updatedById && { updatedBy: { connect: { id: auditFields.updatedById } } }) 
+            }
           });
         }
 
         return tx.patient.create({
           data: {
             ...patientData,
+            ...auditFields,
             personId: person.id,
             emergencyContacts: Array.isArray(emergencyContacts) && emergencyContacts.length > 0 ? {
               create: emergencyContacts,
@@ -137,7 +141,7 @@ export const patientRepository = {
     }
   },
 
-  async update(id: number, data: PatientUpdateInput) {
+  async update(id: number, data: PatientUpdateInput, auditFields?: { updatedById?: string }) {
     const { emergencyContacts, givenNames, familyNames, documentType, identityDocument, birthDate, sex, phone, ...patientData } = data;
     
     return prisma.$transaction(async (tx) => {
@@ -160,6 +164,7 @@ export const patientRepository = {
       if (birthDate !== undefined) personDataToUpdate.birthDate = birthDate;
       if (sex !== undefined) personDataToUpdate.sex = sex;
       if (phone !== undefined) personDataToUpdate.phone = phone;
+      if (auditFields?.updatedById) personDataToUpdate.updatedBy = { connect: { id: auditFields.updatedById } };
 
       if (Object.keys(personDataToUpdate).length > 0) {
         await tx.person.update({
@@ -172,6 +177,7 @@ export const patientRepository = {
         where: { id },
         data: {
           ...patientData,
+          updatedById: auditFields?.updatedById,
           emergencyContacts: emergencyContacts ? {
             create: emergencyContacts.map((c) => ({
               fullName: c.fullName,

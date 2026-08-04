@@ -12,7 +12,7 @@ export const patientService = {
       });
     }
 
-    const created = await patientRepository.create(data);
+    const created = await patientRepository.create(data, { createdById: userId, updatedById: userId });
 
     await auditService.log({
       userId,
@@ -40,7 +40,7 @@ export const patientService = {
       }
     }
 
-    const updated = await patientRepository.update(id, data);
+    const updated = await patientRepository.update(id, data, { updatedById: userId });
 
     await auditService.log({
       userId,
@@ -60,7 +60,7 @@ export const patientService = {
       throw new NotFoundError("Paciente no encontrado", "patient", id);
     }
 
-    const updated = await patientRepository.toggleActive(id);
+    const updated = await patientRepository.update(id, { active: !existingPatient.active }, { updatedById: userId });
 
     await auditService.log({
       userId,
