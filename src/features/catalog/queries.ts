@@ -23,28 +23,49 @@ export async function getCatalogById(type: CatalogType, id: number) {
   return repo.findById(id);
 }
 
-export async function searchIcd10(query: string, limit: number = 300) {
+export async function searchIcd10(query: string, page: number = 1, pageSize: number = 50) {
   "use cache";
   cacheLife("max");
   cacheTag("icd10");
 
+  const skip = (page - 1) * pageSize;
+
   if (!query || query.trim() === "") {
-    return prisma.icd10Code.findMany({
-      where: { active: true },
-      take: limit,
-      orderBy: { code: "asc" },
-    });
+    const [items, totalCount] = await Promise.all([
+      prisma.icd10Code.findMany({
+        where: { active: true },
+        take: pageSize,
+        skip,
+        orderBy: { code: "asc" },
+      }),
+      prisma.icd10Code.count({ where: { active: true } }),
+    ]);
+    return { items, totalCount, page, pageSize };
   }
   
-  return prisma.icd10Code.findMany({
-    where: {
-      active: true,
-      OR: [
-        { code: { contains: query } },
-        { description: { contains: query } },
-      ],
-    },
-    take: limit,
-    orderBy: { code: "asc" },
-  });
+  const trimmed = query.trim();
+  const isCodeSearch = /^[A-Za-z]\d/i.test(trimmed);
+  
+  if (isCodeSearch) {
+    const where = { active: true, code: { startsWith: trimmed.toUpperCase() } };
+    const [items, totalCount] = await Promise.all([
+      prisma.icd10Code.findMany({ where, take: pageSize, skip, orderBy: { code: "asc" } }),
+      prisma.icd10Code.count({ where }),
+    ]);
+    return { items, totalCount, page, pageSize };
+  }
+
+  const fullTextQuery = trimmed.split(/\s+/).map(w => `+${w}*`).join(" ");
+  const where = {
+    active: true,
+    OR: [
+      { code: { contains: trimmed } },
+      { description: { search: fullTextQuery } },
+    ],
+  };
+  const [items, totalCount] = await Promise.all([
+    prisma.icd10Code.findMany({ where, take: pageSize, skip, orderBy: { code: "asc" } }),
+    prisma.icd10Code.count({ where }),
+  ]);
+  return { items, totalCount, page, pageSize };
 }

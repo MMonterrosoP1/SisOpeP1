@@ -6,6 +6,7 @@ import { encounterService } from "./service";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { handleActionError } from "@/shared/errors/app-error";
 import { ActionResponse } from "@/shared/schemas/action-response";
+import { revalidatePath } from "next/cache";
 
 export async function createEncounter(data: unknown): Promise<ActionResponse<unknown>> {
   try {
@@ -15,6 +16,10 @@ export async function createEncounter(data: unknown): Promise<ActionResponse<unk
     if (!parseResult.success) return parseResult;
 
     const created = await encounterService.create(parseResult.data, session.user.id);
+    
+    // Invalidar caché del paciente
+    revalidatePath(`/patients/${parseResult.data.patientId}`);
+    
     return { success: true, data: created };
   } catch (error) {
     return handleActionError(error);

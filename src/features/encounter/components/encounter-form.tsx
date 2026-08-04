@@ -501,7 +501,6 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
       if (res.success) {
         toast.success("Consulta creada correctamente");
         router.push(`/patients/${patientId}`);
-        router.refresh();
       } else {
         if (res.fieldErrors) {
           setFieldErrors(res.fieldErrors);

@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, Stethoscope, AlertTriangle, FileText, Activity, User, Briefcase, History } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { DocumentActionButton } from "@/features/document/components/document-action-button";
 
@@ -39,18 +40,23 @@ const EmptyState = ({ message = "Sin registros" }: { message?: string }) => (
 );
 
 export function EncounterDetailView({ encounter, patient }: { encounter: any; patient: any }) {
+  const router = useRouter();
+  
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full pb-10">
       {/* Header */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-card p-6 rounded-xl border shadow-sm">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-            <Link href="/encounters">
-              <Button variant="ghost" size="sm" className="h-8 px-2 -ml-2 text-muted-foreground hover:text-foreground">
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Volver a consultas
-              </Button>
-            </Link>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 px-2 -ml-2 text-muted-foreground hover:text-foreground" 
+              onClick={() => router.back()}
+            >
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Regresar
+            </Button>
           </div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             Consulta Médica
