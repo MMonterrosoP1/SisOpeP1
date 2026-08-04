@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { LogoIcon, LogoFull } from "@/shared/components/logo";
+import { authClient } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   Tooltip,
@@ -39,8 +41,8 @@ const navItems: NavItem[] = [
   { name: "Consultas", href: "/encounters", icon: Stethoscope, roles: ["ADMIN", "DOCTOR"] },
   { name: "Constancias", href: "/certificates", icon: FileText, roles: ["ADMIN", "DOCTOR"] },
   { name: "Catálogos", href: "/catalogs", icon: BookOpen, roles: ["ADMIN"] },
-  { name: "Auditoría", href: "/dashboard/audit", icon: Shield, roles: ["ADMIN"] },
-  { name: "Usuarios", href: "/dashboard/users", icon: UserCog, roles: ["ADMIN"] },
+  { name: "Auditoría", href: "/audit", icon: Shield, roles: ["ADMIN"] },
+  { name: "Usuarios", href: "/users", icon: UserCog, roles: ["ADMIN"] },
 ];
 
 interface SidebarProps {
@@ -57,6 +59,14 @@ interface SidebarProps {
 export function Sidebar({ user, isMobileOpen, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { data: session } = authClient.useSession();
+
+  const isImpersonating = !!session?.session?.impersonatedBy;
+
+  const handleStopImpersonating = async () => {
+    await authClient.admin.stopImpersonating();
+    window.location.href = "/users";
+  };
 
   const filteredItems = navItems.filter((item) =>
     item.roles.includes(user.role as UserRole)
@@ -170,6 +180,22 @@ export function Sidebar({ user, isMobileOpen, onMobileClose }: SidebarProps) {
           </div>
 
           <div className="border-t border-border">
+            {isImpersonating && (
+              <div className="p-3 bg-destructive/10 border-b border-border">
+                {!isCollapsed ? (
+                  <div className="flex flex-col gap-2">
+                    <p className="text-xs font-medium text-destructive">Modo Impersonation</p>
+                    <Button variant="destructive" size="sm" className="w-full h-7 text-xs" onClick={handleStopImpersonating}>
+                      Salir
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="destructive" size="icon" className="w-full h-8" onClick={handleStopImpersonating} title="Salir de impersonation">
+                    <UserCog className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            )}
             <UserMenu user={user} isCollapsed={isCollapsed} />
           </div>
         </div>
@@ -194,6 +220,16 @@ export function Sidebar({ user, isMobileOpen, onMobileClose }: SidebarProps) {
             {/* Footer */}
             <div className="mt-auto flex flex-col gap-4">
               <div className="border-t border-border">
+                {isImpersonating && (
+                  <div className="p-3 bg-destructive/10 border-b border-border">
+                    <div className="flex flex-col gap-2">
+                      <p className="text-xs font-medium text-destructive">Modo Impersonation</p>
+                      <Button variant="destructive" size="sm" className="w-full" onClick={handleStopImpersonating}>
+                        Dejar de impersonar
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 <UserMenu user={user} isCollapsed={false} />
               </div>
             </div>
