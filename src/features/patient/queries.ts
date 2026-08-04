@@ -40,7 +40,7 @@ export const getPatientById = cache(async (id: number): Promise<PatientWithRelat
 
 export const searchPatients = cache(async (query: string, limit: number = 10) => {
   await requireActiveUser();
-  if (!query || query.length < 2) return [];
+  if (!query || query.length < 3) return [];
   const { items } = await patientRepository.findAll({ search: query, active: true }, { skip: 0, take: limit });
   return items;
 });

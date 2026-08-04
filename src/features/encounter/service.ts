@@ -45,7 +45,11 @@ export const encounterService = {
 
     data.practitionerId = userId;
 
-    const created = await encounterRepository.create(data);
+    const created = await encounterRepository.create({
+      ...data,
+      createdById: userId,
+      updatedById: userId,
+    });
 
     await auditService.log({
       userId,

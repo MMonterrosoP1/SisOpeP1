@@ -141,6 +141,18 @@
       "skillPath": "skills/react-performance-optimization/SKILL.md",
       "computedHash": "724c150fb303279768abde163de33c4b3c9629ffaaca98b6414ae11c9e8c1ec0"
     },
+    "security-bounty-hunter": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/security-bounty-hunter/SKILL.md",
+      "computedHash": "d7b3ad7c505025a3835a87b44823f8baa78eaf2b4295255a4f5642cbfe9bcd6d"
+    },
+    "security-review": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/security-review/SKILL.md",
+      "computedHash": "9b1791054c648b84ca424fc1342dede2e04759dc73436bb91d21675d5a4c13ea"
+    },
     "seo": {
       "source": "addyosmani/web-quality-skills",
       "sourceType": "autoskills-registry",

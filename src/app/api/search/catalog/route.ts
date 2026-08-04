@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCatalogs } from "@/features/catalog/queries";
 import { CatalogType } from "@/features/catalog/types";
 import { withAuth } from "@/shared/auth/auth-guard";
-import { handleActionError } from "@/shared/errors/app-error";
+import { AppError } from "@/shared/errors/app-error";
 
 function normalizeCatalogName(name: string): string {
   return name
@@ -71,7 +71,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: similar });
   } catch (error) {
-    const actionError = handleActionError(error);
-    return NextResponse.json(actionError, { status: 400 });
+    if (error instanceof AppError) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
+    }
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

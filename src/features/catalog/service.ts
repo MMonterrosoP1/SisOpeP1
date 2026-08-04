@@ -19,7 +19,9 @@ export const catalogService = {
       }
     }
 
-    const created = await repo.create(data);
+    const insertData = { ...data, createdById: userId, updatedById: userId };
+
+    const created = await repo.create(insertData);
 
     await auditService.log({
       userId,
@@ -53,7 +55,9 @@ export const catalogService = {
       }
     }
 
-    const updated = await repo.update(id, data);
+    const updateData = { ...data, updatedById: userId };
+
+    const updated = await repo.update(id, updateData);
 
     await auditService.log({
       userId,
@@ -83,7 +87,9 @@ export const catalogService = {
       throw new ConflictError(`El tipo de catálogo ${type} no admite borrado lógico (soft delete)`);
     }
 
-    const updated = await repo.update(id, { active: !existingItem.active });
+    const updateData = { active: !existingItem.active, updatedById: userId };
+
+    const updated = await repo.update(id, updateData);
 
     await auditService.log({
       userId,
