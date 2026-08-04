@@ -33,9 +33,14 @@ export const auth = betterAuth({
       strategy: "compact",
     },
   },
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  trustedOrigins: process.env.BETTER_AUTH_TRUSTED_ORIGINS 
+    ? process.env.BETTER_AUTH_TRUSTED_ORIGINS.split(",") 
+    : ["http://localhost:3000"],
   advanced: {
     ipAddress: {
       ipAddressHeaders: ["x-forwarded-for", "x-real-ip"],
+      trustedProxyHeaders: process.env.TRUSTED_PROXIES === "true" || process.env.NODE_ENV === "production",
     },
   },
   databaseHooks: {
