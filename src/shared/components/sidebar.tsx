@@ -89,25 +89,21 @@ export function Sidebar({ user, defaultCollapsed = false, isMobileOpen, onMobile
             key={item.href}
             href={item.href}
             onClick={() => onMobileClose()}
-            className={`flex items-center gap-3 px-3 mx-1 rounded-xl cursor-pointer transition-all duration-200 ${
-              isMobile ? "py-3.5" : "py-2.5"
-            } ${
-              isActive 
-                ? "bg-primary/10 text-primary font-medium" 
+            className={`flex items-center gap-3 px-3 mx-1 rounded-xl cursor-pointer transition-all duration-200 ${isMobile ? "py-3.5" : "py-2.5"
+              } ${isActive
+                ? "bg-primary/10 text-primary font-medium"
                 : "hover:bg-muted text-muted-foreground hover:text-foreground"
-            } ${collapsed ? "justify-center" : ""}`}
+              } ${collapsed ? "justify-center" : ""}`}
           >
             <item.icon
-              className={`shrink-0 ${isMobile ? "w-5 h-5" : "w-4 h-4"} stroke-[1.5] ${
-                isActive ? "text-primary" : "text-muted-foreground"
-              }`}
+              className={`shrink-0 ${isMobile ? "w-5 h-5" : "w-4 h-4"} stroke-[1.5] ${isActive ? "text-primary" : "text-muted-foreground"
+                }`}
             />
 
             {!collapsed && (
               <span
-                className={`${isMobile ? "text-base" : "text-sm"} ${
-                  isActive ? "font-semibold text-primary" : "font-medium"
-                }`}
+                className={`${isMobile ? "text-base" : "text-sm"} ${isActive ? "font-semibold text-primary" : "font-medium"
+                  }`}
               >
                 {item.name}
               </span>
@@ -143,22 +139,15 @@ export function Sidebar({ user, defaultCollapsed = false, isMobileOpen, onMobile
     <>
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden lg:flex flex-col h-screen bg-background border-r border-border py-4 px-2 transition-all duration-300 ${
-          isCollapsed ? "w-[80px]" : "w-64"
-        }`}
+        className={`hidden lg:flex flex-col h-screen bg-background border-r border-border py-4 px-2 transition-all duration-300 ${isCollapsed ? "w-[80px]" : "w-64"
+          }`}
       >
         {/* Logo Area */}
-        <div className="px-3 pb-3 flex items-center justify-center">
+        <div className={`pb-3 flex items-center justify-center h-20 ${isCollapsed ? 'px-0' : 'px-3'}`}>
           {isCollapsed ? (
-            <LogoIcon
-              key="logo-collapsed"
-              className="w-10 h-10 object-contain"
-            />
+            <LogoIcon className="h-13 w-auto mt-4" />
           ) : (
-            <LogoFull
-              key="logo-expanded"
-              className="h-13 w-auto object-contain mt-4"
-            />
+            <LogoFull className="h-13 w-auto mt-4" />
           )}
         </div>
 
@@ -212,9 +201,7 @@ export function Sidebar({ user, defaultCollapsed = false, isMobileOpen, onMobile
           <div className="flex flex-col h-full py-4">
             {/* Logo Area */}
             <div className="px-3 pb-6 pt-4 flex items-center justify-center">
-              <LogoFull
-                className="h-10 w-auto object-contain"
-              />
+              <LogoFull className="h-12 w-auto" />
             </div>
 
             {/* Main Content */}

@@ -65,8 +65,8 @@ export default function SignInPage() {
   return (
     <div className="flex min-h-screen bg-background items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="mb-8 flex items-center justify-center">
-          <LogoFull className="h-16 w-auto object-contain" />
+        <div className="mb-8 flex items-center justify-center h-20">
+          <LogoFull className="h-16 w-auto" />
         </div>
 
         <Card className="w-full">

@@ -30,11 +30,8 @@ export function DashboardLayoutClient({ user, defaultCollapsed = false, children
       />
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        {/* Mobile Header */}
         <header className="lg:hidden sticky top-0 z-40 flex items-center justify-between h-16 px-4 border-b border-border bg-background/80 backdrop-blur-md">
-          <LogoFull
-            className="h-9 w-auto object-contain"
-          />
+          <LogoFull className="h-10 w-auto" />
           <Button
             variant="ghost"
             size="icon"
