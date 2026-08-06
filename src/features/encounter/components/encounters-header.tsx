@@ -15,10 +15,13 @@ export function EncountersHeader() {
           <h1 className="text-2xl font-bold">Consultas</h1>
           <p className="text-muted-foreground text-sm">Visualiza el historial global de todas las consultas realizadas.</p>
         </div>
-        <Button onClick={() => setModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Nueva Consulta
-        </Button>
+        
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <Button onClick={() => setModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Nueva Consulta
+          </Button>
+        </div>
       </div>
       
       <NewEncounterModal open={modalOpen} onOpenChange={setModalOpen} />
