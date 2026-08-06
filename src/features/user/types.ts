@@ -1,4 +1,4 @@
-import { UserRole } from "@/shared/schemas/enums";
+import { UserRole, Sex } from "@/shared/schemas/enums";
 
 export interface UserListItem {
   id: string;
@@ -12,6 +12,8 @@ export interface UserListItem {
   emailVerified: boolean;
   createdAt: Date;
   image?: string | null;
+  preamble?: string | null;
+  sex?: Sex | null;
 }
 
 export interface UserListResponse {

@@ -28,6 +28,7 @@ import {
 import { SetRoleDialog } from "./set-role-dialog";
 import { BanUserDialog } from "./ban-user-dialog";
 import { SetPasswordDialog } from "./set-password-dialog";
+import { EditDoctorInfoDialog } from "./edit-doctor-info-dialog";
 import { toast } from "sonner";
 import { toggleUserActive, revokeAllUserSessions } from "../actions";
 import { authClient } from "@/lib/auth-client";
@@ -42,6 +43,7 @@ export function UsersTable({ data }: UsersTableProps) {
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [banDialogOpen, setBanDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [editDoctorDialogOpen, setEditDoctorDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null);
 
   const currentUserId = session?.user?.id;
@@ -176,6 +178,15 @@ export function UsersTable({ data }: UsersTableProps) {
                               Cambiar Contraseña
                             </DropdownMenuItem>
 
+                            {user.role === "DOCTOR" && (
+                              <DropdownMenuItem 
+                                onClick={() => { setSelectedUser(user); setEditDoctorDialogOpen(true); }}
+                              >
+                                <UserCog className="w-4 h-4 mr-2" />
+                                Editar Info Médico
+                              </DropdownMenuItem>
+                            )}
+
                             <DropdownMenuItem 
                               disabled={isSelf || user.role === "ADMIN"}
                               onClick={() => handleImpersonate(user)}
@@ -246,6 +257,11 @@ export function UsersTable({ data }: UsersTableProps) {
             open={passwordDialogOpen} 
             onOpenChange={setPasswordDialogOpen} 
             user={selectedUser} 
+          />
+          <EditDoctorInfoDialog
+            open={editDoctorDialogOpen}
+            onOpenChange={setEditDoctorDialogOpen}
+            user={selectedUser}
           />
         </>
       )}
