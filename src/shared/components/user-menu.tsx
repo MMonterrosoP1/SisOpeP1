@@ -91,8 +91,8 @@ export function UserMenu({ user, isCollapsed }: UserMenuProps) {
           <span className="text-sm font-medium text-foreground truncate">
             {user.name}
           </span>
-          <span className="text-xs text-muted-foreground truncate capitalize">
-            {user.role.toLowerCase() === "admin" ? "Admin" : user.role.toLowerCase()}
+          <span className="text-xs text-muted-foreground truncate">
+            {user.email}
           </span>
         </div>
       </DropdownMenuTrigger>

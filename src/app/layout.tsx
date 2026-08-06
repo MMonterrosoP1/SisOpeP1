@@ -15,8 +15,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PREMED",
-  description: "Gestion clinica medica PREMED",
+  title: {
+    template: "%s | PREMED",
+    default: "PREMED | Gestión Clínica Médica",
+  },
+  description: "Sistema de gestión clínica médica PREMED",
 };
 
 export default function RootLayout({

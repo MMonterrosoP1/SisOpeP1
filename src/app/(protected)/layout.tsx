@@ -4,6 +4,8 @@ import { DashboardLayoutClient } from "@/shared/components/dashboard-layout-clie
 import { redirect } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { cookies } from "next/headers";
+
 async function ProtectedAuthWrapper({ children }: { children: React.ReactNode }) {
   let session;
   try {
@@ -19,8 +21,11 @@ async function ProtectedAuthWrapper({ children }: { children: React.ReactNode })
     role: (session.user as any).role || "VIEWER",
   };
 
+  const cookieStore = await cookies();
+  const sidebarCollapsed = cookieStore.get("sidebar_collapsed")?.value === "true";
+
   return (
-    <DashboardLayoutClient user={user}>
+    <DashboardLayoutClient user={user} defaultCollapsed={sidebarCollapsed}>
       {children}
     </DashboardLayoutClient>
   );

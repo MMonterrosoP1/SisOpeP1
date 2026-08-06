@@ -20,15 +20,13 @@ export async function GET(
       return NextResponse.json({ error: "Parámetros inválidos" }, { status: 400 });
     }
 
-    // 1.5. Verify Ownership
-    if (session.user.role === "DOCTOR") {
-      const encounter = await prisma.encounter.findUnique({
-        where: { id: encounterIdNumber },
-        select: { practitionerId: true }
-      });
-      if (!encounter || encounter.practitionerId !== session.user.id) {
-        return NextResponse.json({ error: "Acceso denegado a este documento" }, { status: 403 });
-      }
+    // 1.5. Verifica la existencia de la consulta (opcional, pero útil si se quiere dar 404 antes)
+    const encounter = await prisma.encounter.findUnique({
+      where: { id: encounterIdNumber },
+      select: { id: true }
+    });
+    if (!encounter) {
+      return NextResponse.json({ error: "Consulta no encontrada" }, { status: 404 });
     }
 
     // 2. Fetch certificate URL from DB
