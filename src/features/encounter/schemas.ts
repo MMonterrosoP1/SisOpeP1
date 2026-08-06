@@ -144,4 +144,4 @@ export const createEncounterSchema = z.object({
 });
 
 export type CreateEncounterInput = z.infer<typeof createEncounterSchema>;
-export type EncounterFilters = { patientId?: number; practitionerId?: string; encounterTypeId?: number; };
+export type EncounterFilters = { patientId?: number; practitionerId?: string; encounterTypeId?: number; search?: string; };

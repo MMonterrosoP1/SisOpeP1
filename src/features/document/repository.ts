@@ -91,7 +91,7 @@ export const documentRepository = {
   },
 
   async findAll(
-    filters: { search?: string; type?: string; },
+    filters: { search?: string; type?: string; practitionerId?: string; },
     pagination: { skip: number; take: number }
   ) {
     const whereClause: any = {};
@@ -110,6 +110,13 @@ export const documentRepository = {
           ],
         },
       };
+    }
+
+    if (filters.practitionerId) {
+      whereClause.OR = [
+        { issuedByUserId: filters.practitionerId },
+        { encounter: { practitionerId: filters.practitionerId } },
+      ];
     }
 
     const [items, totalCount] = await Promise.all([

@@ -52,13 +52,14 @@ interface SidebarProps {
     email: string;
     role: string;
   };
+  defaultCollapsed?: boolean;
   isMobileOpen: boolean;
   onMobileClose: () => void;
 }
 
-export function Sidebar({ user, isMobileOpen, onMobileClose }: SidebarProps) {
+export function Sidebar({ user, defaultCollapsed = false, isMobileOpen, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const { data: session } = authClient.useSession();
 
   const isImpersonating = !!session?.session?.impersonatedBy;
@@ -168,7 +169,11 @@ export function Sidebar({ user, isMobileOpen, onMobileClose }: SidebarProps) {
         <div className="mt-auto flex flex-col gap-4">
           <div className={`px-3 ${isCollapsed ? "flex justify-center" : ""}`}>
             <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
+              onClick={() => {
+                const newValue = !isCollapsed;
+                setIsCollapsed(newValue);
+                document.cookie = `sidebar_collapsed=${newValue}; path=/; max-age=31536000`; // Persist for 1 year
+              }}
               className="flex items-center justify-center p-1.5 rounded-md hover:bg-muted text-muted-foreground transition-colors"
             >
               {isCollapsed ? (

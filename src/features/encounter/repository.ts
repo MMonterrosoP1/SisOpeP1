@@ -8,6 +8,17 @@ export const encounterRepository = {
     if (filters.patientId) where.patientId = filters.patientId;
     if (filters.practitionerId) where.practitionerId = filters.practitionerId;
     if (filters.encounterTypeId) where.encounterTypeId = filters.encounterTypeId;
+    if (filters.search) {
+      where.patient = {
+        person: {
+          OR: [
+            { identityDocument: { contains: filters.search } },
+            { givenNames: { contains: filters.search } },
+            { familyNames: { contains: filters.search } },
+          ],
+        },
+      };
+    }
 
     const [data, totalCount] = await Promise.all([
       prisma.encounter.findMany({

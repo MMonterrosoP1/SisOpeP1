@@ -13,16 +13,18 @@ interface DashboardLayoutClientProps {
     email: string;
     role: string;
   };
+  defaultCollapsed?: boolean;
   children: React.ReactNode;
 }
 
-export function DashboardLayoutClient({ user, children }: DashboardLayoutClientProps) {
+export function DashboardLayoutClient({ user, defaultCollapsed = false, children }: DashboardLayoutClientProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   return (
     <div className="flex h-screen w-full bg-muted/50 overflow-hidden">
       <Sidebar
         user={user}
+        defaultCollapsed={defaultCollapsed}
         isMobileOpen={isMobileOpen}
         onMobileClose={() => setIsMobileOpen(false)}
       />
