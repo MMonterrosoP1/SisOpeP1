@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
-export function CertificatesFilters() {
+export function CertificatesFilters({ currentPractitionerId }: { currentPractitionerId?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const searchParamValue = searchParams.get("search") ?? "";
@@ -45,8 +45,14 @@ export function CertificatesFilters() {
     [searchParams]
   );
 
+  const saveFiltersCookie = (paramsString: string) => {
+    document.cookie = `cookie_certificates_filters=${paramsString}; path=/;`;
+  };
+
   const handleFilterChange = (key: string, value: string | null) => {
-    router.push(`?${createQueryString({ [key]: value })}`);
+    const newParams = createQueryString({ [key]: value });
+    saveFiltersCookie(newParams);
+    router.push(`?${newParams}`);
   };
 
   const hasActiveFilters = Array.from(searchParams.keys()).some(
@@ -104,10 +110,29 @@ export function CertificatesFilters() {
           </Select>
         </div>
         
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <label className="text-xs font-medium text-muted-foreground px-1 hidden md:block whitespace-nowrap">Médico:</label>
+          <Select
+            value={currentPractitionerId === "all" ? "all" : "mine"}
+            onValueChange={(val) => handleFilterChange("practitionerId", val === "all" ? "all" : null)}
+          >
+            <SelectTrigger className="w-full md:w-[180px] h-10 rounded-2xl bg-input/50 border-transparent">
+              <span className="flex flex-1 text-left truncate">
+                {currentPractitionerId === "all" ? "Todos los Médicos" : "Mis Constancias"}
+              </span>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="mine">Mis Constancias</SelectItem>
+              <SelectItem value="all">Todos los Médicos</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
         {hasActiveFilters && (
           <Button 
             variant="ghost" 
             onClick={() => {
+              saveFiltersCookie("");
               router.push("/certificates");
               setShowMobileFilters(false);
             }}

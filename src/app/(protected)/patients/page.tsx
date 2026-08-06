@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { getPatients } from "@/features/patient/queries";
 import { getCatalogs } from "@/features/catalog/queries";
 import { PatientTable } from "@/features/patient/components/patient-table";
@@ -6,6 +7,12 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+
+export const metadata: Metadata = {
+  title: "Pacientes",
+  description: "Directorio y expedientes de pacientes",
+};
 
 export default async function PatientsPage({
   searchParams,
@@ -13,6 +20,15 @@ export default async function PatientsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const resolvedParams = await searchParams;
+  
+  const cookieStore = await cookies();
+  const savedFilters = cookieStore.get('cookie_patients_filters')?.value;
+  const hasNoFilters = Object.keys(resolvedParams).filter(k => k !== 'page').length === 0;
+
+  if (hasNoFilters && savedFilters) {
+    redirect(`/patients?${savedFilters}`);
+  }
+
   const page = Number(resolvedParams.page) || 1;
   const search = typeof resolvedParams.search === "string" ? resolvedParams.search : undefined;
   const companyId = resolvedParams.company ? Number(resolvedParams.company) : undefined;

@@ -1,5 +1,11 @@
 import { getCatalogs } from "@/features/catalog/queries";
 import { CatalogsClient } from "@/features/catalog/components/catalogs-client";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Catálogos",
+  description: "Administración de catálogos del sistema",
+};
 
 export default async function CatalogsPage() {
   // Load all catalogs in parallel. False means we fetch both active and inactive.

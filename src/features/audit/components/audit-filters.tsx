@@ -62,6 +62,10 @@ export function AuditFilters() {
     applyFilters();
   };
 
+  const saveFiltersCookie = (paramsString: string) => {
+    document.cookie = `cookie_audit_filters=${paramsString}; path=/;`;
+  };
+
   const applyFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
     
@@ -83,7 +87,9 @@ export function AuditFilters() {
     if (date.to) params.set("endDate", date.to.toISOString());
     else params.delete("endDate");
 
-    router.push(`${pathname}?${params.toString()}`);
+    const paramsString = params.toString();
+    saveFiltersCookie(paramsString);
+    router.push(`${pathname}?${paramsString}`);
   };
 
   const resetFilters = () => {
@@ -91,6 +97,7 @@ export function AuditFilters() {
     setAction("all");
     setEntityType("all");
     setDate({ from: undefined, to: undefined });
+    saveFiltersCookie("");
     router.push(pathname);
   };
 

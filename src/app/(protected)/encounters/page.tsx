@@ -5,7 +5,17 @@ import Link from "next/link";
 import { Calendar, Clock, MoreHorizontal, Eye } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EncountersHeader } from "@/features/encounter/components/encounters-header";
+import { EncountersFilters } from "@/features/encounter/components/encounters-filters";
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
+import { getAuthSession } from "@/shared/auth/auth-guard";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Consultas",
+  description: "Registro y gestión de consultas médicas",
+};
 
 export default async function GlobalEncountersPage({
   searchParams,
@@ -13,14 +23,44 @@ export default async function GlobalEncountersPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const resolvedParams = await searchParams;
+  
+  const cookieStore = await cookies();
+  const savedFilters = cookieStore.get('cookie_encounters_filters')?.value;
+  const hasNoFilters = Object.keys(resolvedParams).filter(k => k !== 'page').length === 0;
+
+  if (hasNoFilters && savedFilters) {
+    redirect(`/encounters?${savedFilters}`);
+  }
+
   const page = Number(resolvedParams.page) || 1;
   const pageSize = 20;
 
-  const { data: encounters, meta } = await getEncounters({}, { page, pageSize });
+  const session = await getAuthSession();
+
+  let defaultPractitionerId: string | undefined = resolvedParams.practitionerId as string;
+  const currentSearch = resolvedParams.search as string;
+  
+  if (defaultPractitionerId === undefined && session?.user.role === 'DOCTOR') {
+    defaultPractitionerId = session.user.id;
+  } else if (defaultPractitionerId === 'all') {
+    defaultPractitionerId = undefined;
+  }
+
+  const { data: encounters, meta } = await getEncounters(
+    { 
+      practitionerId: defaultPractitionerId,
+      search: currentSearch 
+    }, 
+    { page, pageSize }
+  );
 
   return (
     <div className="flex flex-col gap-6 p-6">
       <EncountersHeader />
+      <EncountersFilters 
+        currentPractitionerId={resolvedParams.practitionerId as string} 
+        currentSearch={currentSearch}
+      />
 
       <div className="bg-background rounded-lg border shadow-sm overflow-hidden">
         {encounters.length === 0 ? (
