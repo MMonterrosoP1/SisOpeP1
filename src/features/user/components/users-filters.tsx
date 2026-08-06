@@ -35,8 +35,14 @@ export function UsersFilters() {
     [searchParams]
   );
 
+  const saveFiltersCookie = (paramsString: string) => {
+    document.cookie = `cookie_users_filters=${paramsString}; path=/;`;
+  };
+
   const debouncedSearch = useDebounce((value: string) => {
-    router.push(`${pathname}?${createQueryString("search", value)}`);
+    const paramsString = createQueryString("search", value);
+    saveFiltersCookie(paramsString);
+    router.push(`${pathname}?${paramsString}`);
   }, 500);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,6 +52,7 @@ export function UsersFilters() {
 
   const clearFilters = () => {
     setSearch("");
+    saveFiltersCookie("");
     router.push(pathname);
   };
 
@@ -67,9 +74,11 @@ export function UsersFilters() {
       <div className="flex gap-4 w-full sm:w-auto">
         <Select
           value={currentRole}
-          onValueChange={(val) => 
-            router.push(`${pathname}?${createQueryString("role", val === "ALL" || !val ? "" : val)}`)
-          }
+          onValueChange={(val) => {
+            const paramsString = createQueryString("role", val === "ALL" || !val ? "" : val);
+            saveFiltersCookie(paramsString);
+            router.push(`${pathname}?${paramsString}`);
+          }}
         >
           <SelectTrigger className="w-[150px]">
             <SelectValue placeholder="Rol" />
@@ -84,9 +93,11 @@ export function UsersFilters() {
 
         <Select
           value={currentStatus}
-          onValueChange={(val) => 
-            router.push(`${pathname}?${createQueryString("status", val === "ALL" || !val ? "" : val)}`)
-          }
+          onValueChange={(val) => {
+            const paramsString = createQueryString("status", val === "ALL" || !val ? "" : val);
+            saveFiltersCookie(paramsString);
+            router.push(`${pathname}?${paramsString}`);
+          }}
         >
           <SelectTrigger className="w-[150px]">
             <SelectValue placeholder="Estado" />

@@ -8,22 +8,33 @@ import { ActionResponse } from "@/shared/schemas/action-response";
 import { handleActionError, AppError } from "@/shared/errors/app-error";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { safeParseAction } from "@/shared/utils/zod-helpers";
-import { 
-  createUserSchema, 
-  setRoleSchema, 
-  banUserSchema, 
-  setPasswordSchema 
-} from "./schemas";
+import { createUserSchema, setRoleSchema, banUserSchema, setPasswordSchema, updateDoctorInfoSchema } from "./schemas";
 import { UserRole } from "@/shared/schemas/enums";
 
 export async function createUser(data: unknown): Promise<ActionResponse<any>> {
   try {
-    await withAuth(["ADMIN"], async (s) => s);
+    const session = await withAuth(["ADMIN"], async (s) => s);
 
     const parseResult = safeParseAction(createUserSchema, data);
     if (!parseResult.success) return parseResult;
 
-    const { name, email, password, role } = parseResult.data;
+    const { name, email, password, role, sex, preamble, givenNames, familyNames } = parseResult.data;
+
+    let personId: number | undefined;
+
+    // If role is DOCTOR, create Person first
+    if (role === "DOCTOR" && sex && givenNames && familyNames) {
+      const newPerson = await prisma.person.create({
+        data: {
+          givenNames,
+          familyNames,
+          sex,
+          createdById: session.user.id,
+          updatedById: session.user.id,
+        }
+      });
+      personId = newPerson.id;
+    }
 
     const newUser = await auth.api.createUser({
       body: {
@@ -34,19 +45,75 @@ export async function createUser(data: unknown): Promise<ActionResponse<any>> {
       },
     });
 
-    // better-auth admin plugin doesn't let us pass extra custom fields (like active) easily in the same call 
-    // unless we use `data`, but we also need to ensure the role case matches our app enum exactly.
-    // Let's update the user to ensure it matches our DB requirements.
     await prisma.user.update({
       where: { id: newUser.user.id },
       data: {
         role: role as UserRole,
         active: true,
+        personId,
+        preamble,
       }
     });
 
     revalidateTag("users", "max");
     return { success: true, data: newUser.user };
+  } catch (error) {
+    return handleActionError(error);
+  }
+}
+
+export async function updateDoctorInfo(data: unknown): Promise<ActionResponse<any>> {
+  try {
+    const session = await withAuth(["ADMIN"], async (s) => s);
+
+    const parseResult = safeParseAction(updateDoctorInfoSchema, data);
+    if (!parseResult.success) return parseResult;
+
+    const { userId, sex, preamble, givenNames, familyNames } = parseResult.data;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { person: true }
+    });
+
+    if (!user) throw new AppError("Usuario no encontrado", "NOT_FOUND", 404);
+    if (user.role !== "DOCTOR") throw new AppError("El usuario no es un doctor", "BAD_REQUEST", 400);
+
+    // Update user preamble
+    await prisma.user.update({
+      where: { id: userId },
+      data: { preamble }
+    });
+
+    // Update or create person
+    if (user.personId) {
+      await prisma.person.update({
+        where: { id: user.personId },
+        data: {
+          sex,
+          givenNames,
+          familyNames,
+          updatedById: session.user.id
+        }
+      });
+    } else {
+      const newPerson = await prisma.person.create({
+        data: {
+          givenNames,
+          familyNames,
+          sex,
+          createdById: session.user.id,
+          updatedById: session.user.id,
+        }
+      });
+      await prisma.user.update({
+        where: { id: userId },
+        data: { personId: newPerson.id }
+      });
+    }
+
+    revalidateTag("users", "max");
+    return { success: true, data: { success: true } };
   } catch (error) {
     return handleActionError(error);
   }

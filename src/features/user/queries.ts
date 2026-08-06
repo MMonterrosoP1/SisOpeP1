@@ -41,7 +41,12 @@ export async function getUsers(filters: UserFilters): Promise<UserListResponse> 
       where,
       skip: offset,
       take: limit,
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
+      include: {
+        person: {
+          select: { sex: true }
+        }
+      }
     }),
     prisma.user.count({ where })
   ]);
@@ -59,6 +64,8 @@ export async function getUsers(filters: UserFilters): Promise<UserListResponse> 
       emailVerified: u.emailVerified,
       createdAt: new Date(u.createdAt),
       image: u.image,
+      preamble: u.preamble,
+      sex: u.person?.sex,
     })),
     total,
     limit,

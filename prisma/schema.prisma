@@ -573,8 +573,8 @@ model Person {
   givenNames       String
   familyNames      String
   documentType     DocumentType @default(DPI)
-  identityDocument String       @unique
-  birthDate        DateTime     @db.Date
+  identityDocument String?      @unique
+  birthDate        DateTime?    @db.Date
   sex              Sex
   phone            String?
   createdAt        DateTime     @default(now())
