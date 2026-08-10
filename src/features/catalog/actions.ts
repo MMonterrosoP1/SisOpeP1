@@ -2,7 +2,7 @@
 
 import { CatalogType } from "./types";
 import { catalogService } from "./service";
-import { createCatalogSchema, updateCatalogSchema, allergenCatalogSchema, exerciseCatalogSchema, maritalStatusSchema, companySchema, companyUpdateSchema } from "./schemas";
+import { createCatalogSchema, updateCatalogSchema, allergenCatalogSchema, exerciseCatalogSchema, maritalStatusSchema, companySchema, companyUpdateSchema, workplaceSchema, workAreaSchema, jobPositionSchema, workplaceUpdateSchema, workAreaUpdateSchema, jobPositionUpdateSchema } from "./schemas";
 import { safeParseAction } from "@/shared/utils/zod-helpers";
 import { handleActionError } from "@/shared/errors/app-error";
 import { withAuth } from "@/shared/auth/auth-guard";
@@ -21,11 +21,14 @@ export async function createCatalogItem(
       type === 'exerciseCatalog' ? exerciseCatalogSchema :
       type === 'maritalStatus'   ? maritalStatusSchema   :
       type === 'company'         ? companySchema         :
+      type === 'workplace'       ? workplaceSchema       :
+      type === 'workArea'        ? workAreaSchema        :
+      type === 'jobPosition'     ? jobPositionSchema     :
       createCatalogSchema;
     const parseResult = safeParseAction(schema, data);
     if (!parseResult.success) return parseResult;
 
-    const created = await catalogService.create(type, parseResult.data, session.user.id);
+    const created = await catalogService.create(type, parseResult.data, { id: session.user.id, email: session.user.email });
     return { success: true, data: created };
   } catch (error) {
     return handleActionError(error);
@@ -40,11 +43,16 @@ export async function updateCatalogItem(
   try {
     const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 
-    const updateSchema = type === 'company' ? companyUpdateSchema : updateCatalogSchema;
+    const updateSchema = 
+      type === 'company' ? companyUpdateSchema :
+      type === 'workplace' ? workplaceUpdateSchema :
+      type === 'workArea' ? workAreaUpdateSchema :
+      type === 'jobPosition' ? jobPositionUpdateSchema :
+      updateCatalogSchema;
     const parseResult = safeParseAction(updateSchema, data);
     if (!parseResult.success) return parseResult;
 
-    const updated = await catalogService.update(type, id, parseResult.data, session.user.id);
+    const updated = await catalogService.update(type, id, parseResult.data, { id: session.user.id, email: session.user.email });
     return { success: true, data: updated };
   } catch (error) {
     return handleActionError(error);
@@ -58,7 +66,7 @@ export async function toggleCatalogActive(
   try {
     const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 
-    const updated = await catalogService.toggleActive(type, id, session.user.id);
+    const updated = await catalogService.toggleActive(type, id, { id: session.user.id, email: session.user.email });
     return { success: true, data: updated };
   } catch (error) {
     return handleActionError(error);

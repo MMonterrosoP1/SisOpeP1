@@ -30,9 +30,40 @@ export function createCatalogRepo(delegate: PrismaDelegate, hasActiveField: bool
 }
 
 export const companyRepo = createCatalogRepo(prisma.company);
-export const workplaceRepo = createCatalogRepo(prisma.workplace);
-export const workAreaRepo = createCatalogRepo(prisma.workArea);
-export const jobPositionRepo = createCatalogRepo(prisma.jobPosition);
+export const workplaceRepo = {
+  ...createCatalogRepo(prisma.workplace),
+  findAll: async (filter?: { active?: boolean; search?: string }) => {
+    const where: any = {};
+    if (filter?.active !== undefined) where.active = filter.active;
+    if (filter?.search) where.name = { contains: filter.search };
+    return prisma.workplace.findMany({ 
+      where, 
+      orderBy: { name: "asc" }
+    });
+  }
+};
+
+export const workAreaRepo = {
+  ...createCatalogRepo(prisma.workArea),
+  findAll: async (filter?: { active?: boolean; search?: string; type?: string }) => {
+    const where: any = {};
+    if (filter?.active !== undefined) where.active = filter.active;
+    if (filter?.search) where.name = { contains: filter.search };
+    if (filter?.type) where.type = filter.type;
+    return prisma.workArea.findMany({ where, orderBy: { name: "asc" } });
+  }
+};
+
+export const jobPositionRepo = {
+  ...createCatalogRepo(prisma.jobPosition),
+  findAll: async (filter?: { active?: boolean; search?: string; type?: string }) => {
+    const where: any = {};
+    if (filter?.active !== undefined) where.active = filter.active;
+    if (filter?.search) where.name = { contains: filter.search };
+    if (filter?.type) where.OR = [{ type: filter.type }, { type: null }];
+    return prisma.jobPosition.findMany({ where, orderBy: { name: "asc" } });
+  }
+};
 export const encounterTypeRepo = createCatalogRepo(prisma.encounterType, false);
 export const occupationalExposureRepo = createCatalogRepo(prisma.occupationalExposure);
 export const workDisabilityRepo = createCatalogRepo(prisma.workDisability);

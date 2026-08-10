@@ -9,6 +9,8 @@ import { AllergenQuickAddDialog } from "./allergen-quick-add-dialog";
 import { MaritalStatusAddDialog } from "./marital-status-add-dialog";
 import { CompanyAddDialog } from "./company-add-dialog";
 import { CompanyEditDialog } from "./company-edit-dialog";
+import { WorkplaceAddDialog, WorkplaceEditDialog } from "./workplace-dialogs";
+import { TypedCatalogAddDialog, TypedCatalogEditDialog } from "./typed-catalog-dialogs";
 
 interface CatalogsData {
   company: CatalogItem[];
@@ -113,18 +115,54 @@ export function CatalogsClient({ initialData }: CatalogsClientProps) {
                   title="Centros de Trabajo"
                   description="Sucursales o sedes"
                   items={filterItems(initialData.workplace)}
+                  renderAddDialog={(open, onClose) => (
+                    <WorkplaceAddDialog
+                      open={open}
+                      onOpenChange={(v) => !v && onClose()}
+                      onSuccess={() => onClose()}
+                    />
+                  )}
+                  renderEditDialog={(item, onClose) => (
+                    <WorkplaceEditDialog item={item} onClose={onClose} />
+                  )}
                 />
                 <CatalogSection
                   type="workArea"
                   title="Áreas de Trabajo"
-                  description=""
+                  description="Áreas operativas o administrativas"
                   items={filterItems(initialData.workArea)}
+                  renderAddDialog={(open, onClose) => (
+                    <TypedCatalogAddDialog
+                      open={open}
+                      onOpenChange={(v) => !v && onClose()}
+                      onSuccess={() => onClose()}
+                      catalogType="workArea"
+                      title="Área de Trabajo"
+                      allowAll
+                    />
+                  )}
+                  renderEditDialog={(item, onClose) => (
+                    <TypedCatalogEditDialog item={item} onClose={onClose} catalogType="workArea" title="Área de Trabajo" allowAll />
+                  )}
                 />
                 <CatalogSection
                   type="jobPosition"
                   title="Puestos de Trabajo"
-                  description=""
+                  description="Cargos que ocupan los pacientes"
                   items={filterItems(initialData.jobPosition)}
+                  renderAddDialog={(open, onClose) => (
+                    <TypedCatalogAddDialog
+                      open={open}
+                      onOpenChange={(v) => !v && onClose()}
+                      onSuccess={() => onClose()}
+                      catalogType="jobPosition"
+                      title="Puesto de Trabajo"
+                      allowAll
+                    />
+                  )}
+                  renderEditDialog={(item, onClose) => (
+                    <TypedCatalogEditDialog item={item} onClose={onClose} catalogType="jobPosition" title="Puesto de Trabajo" allowAll />
+                  )}
                 />
               </div>
             </TabsContent>
