@@ -70,10 +70,16 @@ async function main() {
     const name = lugar["Nombre"];
     if (name) {
       const active = lugar["Estado"] === "ACTIVO";
+      const tipoRaw = lugar["TIPO"]?.toUpperCase()?.trim();
+      let type: any = "OFICINA";
+      if (tipoRaw === "OBRA") type = "OBRA";
+      if (tipoRaw === "PLANTA") type = "PLANTA";
+      if (tipoRaw === "PLANTA_ADMINISTRATIVO" || tipoRaw === "PLANTA ADMINISTRATIVO") type = "PLANTA_ADMINISTRATIVO";
+      
       await prisma.workplace.upsert({
         where: { name },
-        update: { active },
-        create: { name, active },
+        update: { active, type },
+        create: { name, active, type },
       });
     }
   }
@@ -85,10 +91,17 @@ async function main() {
     const name = area["Nombre"];
     if (name) {
       const active = area["Estado"] === "ACTIVO";
+      const tipoRaw = area["TIPO"]?.toUpperCase()?.trim();
+      let type: any = null; // WorkAreas can be universal, so null is allowed
+      if (tipoRaw === "OBRA") type = "OBRA";
+      if (tipoRaw === "OFICINA") type = "OFICINA";
+      if (tipoRaw === "PLANTA") type = "PLANTA";
+      if (tipoRaw === "PLANTA_ADMINISTRATIVO" || tipoRaw === "PLANTA ADMINISTRATIVO") type = "PLANTA_ADMINISTRATIVO";
+
       await prisma.workArea.upsert({
         where: { name },
-        update: { active },
-        create: { name, active },
+        update: { active, type },
+        create: { name, active, type },
       });
     }
   }
@@ -99,10 +112,17 @@ async function main() {
   for (const puesto of puestos) {
     const name = puesto["Nombre"];
     if (name) {
+      const tipoRaw = puesto["TIPO"]?.toUpperCase()?.trim();
+      let type: any = null; // Puestos can be universal, so null is allowed
+      if (tipoRaw === "OBRA") type = "OBRA";
+      if (tipoRaw === "OFICINA") type = "OFICINA";
+      if (tipoRaw === "PLANTA") type = "PLANTA";
+      if (tipoRaw === "PLANTA_ADMINISTRATIVO" || tipoRaw === "PLANTA ADMINISTRATIVO") type = "PLANTA_ADMINISTRATIVO";
+
       await prisma.jobPosition.upsert({
         where: { name },
-        update: {},
-        create: { name },
+        update: { type },
+        create: { name, type },
       });
     }
   }
