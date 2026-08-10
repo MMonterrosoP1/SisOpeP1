@@ -41,7 +41,7 @@ describe("catalogService", () => {
   it("create: throws NotFoundError for unknown repo", async () => {
     getCatalogRepoMock.mockReturnValueOnce(undefined);
 
-    await expect(catalogService.create("company", { name: "ABC" }, "u1")).rejects.toBeInstanceOf(NotFoundError);
+    await expect(catalogService.create("company", { name: "ABC" }, { id: "u1", email: "test@example.com" })).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it("create: uppercases name and throws ConflictError when duplicated", async () => {
@@ -49,7 +49,7 @@ describe("catalogService", () => {
     repo.findByName.mockResolvedValueOnce({ id: 1 });
     getCatalogRepoMock.mockReturnValueOnce(repo);
 
-    await expect(catalogService.create("company", { name: "empresa" }, "u1")).rejects.toBeInstanceOf(ConflictError);
+    await expect(catalogService.create("company", { name: "empresa" }, { id: "u1", email: "test@example.com" })).rejects.toBeInstanceOf(ConflictError);
     expect(repo.findByName).toHaveBeenCalledWith("EMPRESA");
     expect(repo.create).not.toHaveBeenCalled();
   });
@@ -60,10 +60,10 @@ describe("catalogService", () => {
     repo.create.mockResolvedValueOnce({ id: 10, name: "EMPRESA" });
     getCatalogRepoMock.mockReturnValueOnce(repo);
 
-    const result = await catalogService.create("company", { name: "empresa" }, "u1");
+    const result = await catalogService.create("company", { name: "empresa" }, { id: "u1", email: "test@example.com" });
 
     expect(result).toEqual({ id: 10, name: "EMPRESA" });
-    expect(repo.create).toHaveBeenCalledWith({ name: "EMPRESA" });
+    expect(repo.create).toHaveBeenCalledWith({ name: "EMPRESA", createdBy: "test@example.com", updatedBy: "test@example.com" });
     expect(auditLogMock).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "u1",
@@ -72,7 +72,7 @@ describe("catalogService", () => {
         entityId: 10,
       })
     );
-    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company");
+    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company", "max");
   });
 
   it("update: throws NotFoundError when item does not exist", async () => {
@@ -80,7 +80,7 @@ describe("catalogService", () => {
     repo.findById.mockResolvedValueOnce(null);
     getCatalogRepoMock.mockReturnValueOnce(repo);
 
-    await expect(catalogService.update("company", 5, { name: "NUEVO" }, "u1")).rejects.toBeInstanceOf(NotFoundError);
+    await expect(catalogService.update("company", 5, { name: "NUEVO" }, { id: "u1", email: "test@example.com" })).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it("update: checks duplicate name only when changed", async () => {
@@ -89,7 +89,7 @@ describe("catalogService", () => {
     repo.findByName.mockResolvedValueOnce({ id: 6, name: "NEW" });
     getCatalogRepoMock.mockReturnValueOnce(repo);
 
-    await expect(catalogService.update("company", 5, { name: "new" }, "u1")).rejects.toBeInstanceOf(ConflictError);
+    await expect(catalogService.update("company", 5, { name: "new" }, { id: "u1", email: "test@example.com" })).rejects.toBeInstanceOf(ConflictError);
     expect(repo.findByName).toHaveBeenCalledWith("NEW");
   });
 
@@ -100,12 +100,12 @@ describe("catalogService", () => {
     repo.update.mockResolvedValueOnce({ id: 5, name: "NEW", active: true });
     getCatalogRepoMock.mockReturnValueOnce(repo);
 
-    const result = await catalogService.update("company", 5, { name: "new" }, "u1");
+    const result = await catalogService.update("company", 5, { name: "new" }, { id: "u1", email: "test@example.com" });
 
     expect(result).toEqual({ id: 5, name: "NEW", active: true });
-    expect(repo.update).toHaveBeenCalledWith(5, { name: "NEW" });
-    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company");
-    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company-5");
+    expect(repo.update).toHaveBeenCalledWith(5, { name: "NEW", updatedBy: "test@example.com" });
+    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company", "max");
+    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company-5", "max");
   });
 
   it("toggleActive: throws ConflictError for catalogs without active field", async () => {
@@ -113,7 +113,7 @@ describe("catalogService", () => {
     repo.findById.mockResolvedValueOnce({ id: 5, name: "X" });
     getCatalogRepoMock.mockReturnValueOnce(repo);
 
-    await expect(catalogService.toggleActive("company", 5, "u1")).rejects.toBeInstanceOf(ConflictError);
+    await expect(catalogService.toggleActive("company", 5, { id: "u1", email: "test@example.com" })).rejects.toBeInstanceOf(ConflictError);
   });
 
   it("toggleActive: toggles active, audits and revalidates", async () => {
@@ -122,10 +122,10 @@ describe("catalogService", () => {
     repo.update.mockResolvedValueOnce({ id: 5, name: "X", active: false });
     getCatalogRepoMock.mockReturnValueOnce(repo);
 
-    const result = await catalogService.toggleActive("company", 5, "u1");
+    const result = await catalogService.toggleActive("company", 5, { id: "u1", email: "test@example.com" });
 
     expect(result).toEqual({ id: 5, name: "X", active: false });
-    expect(repo.update).toHaveBeenCalledWith(5, { active: false });
+    expect(repo.update).toHaveBeenCalledWith(5, { active: false, updatedBy: "test@example.com" });
     expect(auditLogMock).toHaveBeenCalledWith(
       expect.objectContaining({
         action: "UPDATE",
@@ -134,7 +134,7 @@ describe("catalogService", () => {
         description: "Toggled active status to false",
       })
     );
-    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company");
-    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company-5");
+    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company", "max");
+    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company-5", "max");
   });
 });

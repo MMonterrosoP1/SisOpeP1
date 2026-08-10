@@ -11,7 +11,7 @@ vi.mock("next/headers", () => ({ headers: vi.fn().mockResolvedValue(new Headers(
 
 import { createCatalogItem, updateCatalogItem } from "./actions";
 
-const FAKE_SESSION = { user: { id: "u1", role: "ADMIN" } };
+const FAKE_SESSION = { user: { id: "u1", email: "admin@test.com", role: "ADMIN" } };
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -59,7 +59,7 @@ describe("createCatalogItem — schema routing", () => {
     expect(catalogServiceMock.create).toHaveBeenCalledWith(
       "allergenCatalog",
       { name: "Polen", allergyCategoryId: 2 },
-      FAKE_SESSION.user.id
+      { id: FAKE_SESSION.user.id, email: FAKE_SESSION.user.email }
     );
   });
 
@@ -76,7 +76,7 @@ describe("createCatalogItem — schema routing", () => {
     expect(catalogServiceMock.create).toHaveBeenCalledWith(
       "exerciseCatalog",
       { name: "GYM" },
-      FAKE_SESSION.user.id
+      { id: FAKE_SESSION.user.id, email: FAKE_SESSION.user.email }
     );
   });
 
@@ -92,7 +92,7 @@ describe("createCatalogItem — schema routing", () => {
     expect(catalogServiceMock.create).toHaveBeenCalledWith(
       "maritalStatus",
       { name: "Casada", sex: "FEMALE" },
-      FAKE_SESSION.user.id
+      { id: FAKE_SESSION.user.id, email: FAKE_SESSION.user.email }
     );
   });
 
@@ -123,6 +123,6 @@ describe("updateCatalogItem", () => {
   it("calls service with id and validated data", async () => {
     const res = await updateCatalogItem("company", 5, { name: "Acme" });
     expect(res.success).toBe(true);
-    expect(catalogServiceMock.update).toHaveBeenCalledWith("company", 5, { name: "Acme" }, FAKE_SESSION.user.id);
+    expect(catalogServiceMock.update).toHaveBeenCalledWith("company", 5, { name: "Acme" }, { id: FAKE_SESSION.user.id, email: FAKE_SESSION.user.email });
   });
 });

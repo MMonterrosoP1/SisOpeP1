@@ -40,3 +40,29 @@ export const maritalStatusSchema = z.object({
 export const exerciseCatalogSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(255),
 });
+
+export const WorkplaceTypeSchema = z.enum(["OBRA", "OFICINA", "PLANTA", "PLANTA_ADMINISTRATIVO"]);
+
+export const workplaceSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(255),
+  type: WorkplaceTypeSchema.default("OFICINA"),
+});
+
+export const workplaceUpdateSchema = z.object({
+  name: z.string().trim().min(1).max(255).optional(),
+  type: WorkplaceTypeSchema.optional(),
+  active: z.boolean().optional(),
+});
+
+export const workAreaSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(255),
+  type: WorkplaceTypeSchema.default("OFICINA"),
+});
+
+export const jobPositionSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(255),
+  type: WorkplaceTypeSchema.nullable().optional(),
+});
+
+export const workAreaUpdateSchema = workAreaSchema.partial().extend({ active: z.boolean().optional() });
+export const jobPositionUpdateSchema = jobPositionSchema.partial().extend({ active: z.boolean().optional() });

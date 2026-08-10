@@ -5,7 +5,7 @@ import { auditService } from "@/shared/audit/audit.service";
 import { ConflictError, NotFoundError } from "@/shared/errors/app-error";
 
 export const catalogService = {
-  async create(type: CatalogType, data: any, userId: string) {
+  async create(type: CatalogType, data: Record<string, any>, user: { id: string; email: string }) {
     const repo = getCatalogRepo(type);
     if (!repo) throw new NotFoundError(`Catalog type ${type} not found`);
 
@@ -19,12 +19,12 @@ export const catalogService = {
       }
     }
 
-    const insertData = { ...data, createdById: userId, updatedById: userId };
+    const insertData: any = { ...data, createdBy: user.email, updatedBy: user.email };
 
     const created = await repo.create(insertData);
 
     await auditService.log({
-      userId,
+      userId: user.id,
       action: "CREATE",
       entityType: type,
       entityId: created.id,
@@ -36,7 +36,7 @@ export const catalogService = {
     return created;
   },
 
-  async update(type: CatalogType, id: number, data: any, userId: string) {
+  async update(type: CatalogType, id: number, data: Record<string, any>, user: { id: string; email: string }) {
     const repo = getCatalogRepo(type);
     if (!repo) throw new NotFoundError(`Catalog type ${type} not found`);
 
@@ -55,12 +55,12 @@ export const catalogService = {
       }
     }
 
-    const updateData = { ...data, updatedById: userId };
+    const updateData: any = { ...data, updatedBy: user.email };
 
     const updated = await repo.update(id, updateData);
 
     await auditService.log({
-      userId,
+      userId: user.id,
       action: "UPDATE",
       entityType: type,
       entityId: id,
@@ -74,7 +74,7 @@ export const catalogService = {
     return updated;
   },
 
-  async toggleActive(type: CatalogType, id: number, userId: string) {
+  async toggleActive(type: CatalogType, id: number, user: { id: string; email: string }) {
     const repo = getCatalogRepo(type);
     if (!repo) throw new NotFoundError(`Catalog type ${type} not found`);
 
@@ -87,12 +87,12 @@ export const catalogService = {
       throw new ConflictError(`El tipo de catálogo ${type} no admite borrado lógico (soft delete)`);
     }
 
-    const updateData = { active: !existingItem.active, updatedById: userId };
+    const updateData = { active: !existingItem.active, updatedBy: user.email };
 
     const updated = await repo.update(id, updateData);
 
     await auditService.log({
-      userId,
+      userId: user.id,
       action: "UPDATE",
       entityType: type,
       entityId: id,

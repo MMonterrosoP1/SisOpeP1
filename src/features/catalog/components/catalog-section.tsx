@@ -16,6 +16,7 @@ export interface CatalogItem {
   name: string;
   active?: boolean;
   acronym?: string;
+  type?: string | null;
 }
 
 interface CatalogSectionProps {
@@ -137,6 +138,11 @@ export function CatalogSection({ type, title, description, items, hasActiveField
                   ) : (
                     <>
                       <span className="font-medium text-sm truncate">{item.name}</span>
+                      {(type === "workArea" || type === "jobPosition" || type === "workplace") && (
+                        <Badge variant="outline" className="text-[10px] ml-2 font-normal">
+                          {item.type || "General"}
+                        </Badge>
+                      )}
                     </>
                   )}
                 </div>
