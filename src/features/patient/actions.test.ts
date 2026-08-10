@@ -52,7 +52,7 @@ describe("patient actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     withAuthMock.mockImplementation(async (_roles, handler) =>
-      handler({ user: { id: "user-1" } })
+      handler({ user: { id: "user-1", email: "test@example.com" } })
     );
     handleActionErrorMock.mockReturnValue({
       success: false,
@@ -67,7 +67,7 @@ describe("patient actions", () => {
     const result = await createPatient({ any: "payload" });
 
     expect(withAuthMock).toHaveBeenCalledWith(["ADMIN", "DOCTOR"], expect.any(Function));
-    expect(createMock).toHaveBeenCalledWith({ identityDocument: "123" }, "user-1");
+    expect(createMock).toHaveBeenCalledWith({ identityDocument: "123" }, { id: "user-1", email: "test@example.com" });
     expect(revalidatePathMock).toHaveBeenCalledWith("/patients");
     expect(result).toEqual({ success: true, data: { id: 10 } });
   });
@@ -96,7 +96,7 @@ describe("patient actions", () => {
 
     const result = await updatePatient(25, { givenNames: "Nuevo" });
 
-    expect(updateMock).toHaveBeenCalledWith(25, { givenNames: "Nuevo" }, "user-1");
+    expect(updateMock).toHaveBeenCalledWith(25, { givenNames: "Nuevo" }, { id: "user-1", email: "test@example.com" });
     expect(revalidatePathMock).toHaveBeenCalledWith("/patients");
     expect(revalidatePathMock).toHaveBeenCalledWith("/patients/25");
     expect(result).toEqual({ success: true, data: { id: 25 } });
@@ -107,7 +107,7 @@ describe("patient actions", () => {
 
     const result = await togglePatientActive(25);
 
-    expect(toggleMock).toHaveBeenCalledWith(25, "user-1");
+    expect(toggleMock).toHaveBeenCalledWith(25, { id: "user-1", email: "test@example.com" });
     expect(revalidatePathMock).toHaveBeenCalledWith("/patients");
     expect(result).toEqual({ success: true, data: { id: 25, active: false } });
   });

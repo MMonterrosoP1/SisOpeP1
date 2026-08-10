@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { ComboboxSelect } from "@/components/ui/combobox-select";
 import { Plus, Calendar as CalendarIcon } from "lucide-react";
-import { CatalogQuickAddDialog } from "@/features/catalog/components/catalog-quick-add-dialog";
+import { TypedCatalogAddDialog } from "@/features/catalog/components/typed-catalog-dialogs";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -35,6 +35,7 @@ type CatalogItem = {
   name: string;
   acronym?: string | null;
   sex?: "MALE" | "FEMALE" | null;
+  type?: string | null;
 };
 
 type SelectOption = {
@@ -273,6 +274,9 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
       if (catalogKey === "company" && item.acronym) {
         label = item.acronym; // The user requested to show the acronym for companies
       }
+      if ((catalogKey === "workArea" || catalogKey === "jobPosition") && !item.type) {
+        label = `${label} (General)`;
+      }
       return {
         key: String(item.id),
         label,
@@ -289,6 +293,13 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
         if (currentMaritalStatus && currentMaritalStatus.sex && currentMaritalStatus.sex !== value) {
            next.maritalStatusId = "";
         }
+      }
+
+      if (field === "companyId") {
+        // Only company changes, nothing else cascades to it anymore
+      } else if (field === "workplaceId") {
+        next.workAreaId = "";
+        next.jobPositionId = "";
       }
       
       return next;
@@ -596,9 +607,14 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
                 name="workAreaId"
                 label="Área de trabajo"
                 value={formData.workAreaId}
-                options={getCatalogOptions("workArea")}
+                options={getCatalogOptions("workArea").filter(opt => {
+                  const selectedWorkplace = localCatalogs.workplace?.find(w => String(w.id) === formData.workplaceId);
+                  const workplaceType = selectedWorkplace?.type;
+                  if (!workplaceType) return false;
+                  const item = localCatalogs.workArea?.find(w => String(w.id) === opt.key);
+                  return !item?.type || item?.type === workplaceType;
+                })}
                 placeholder="Seleccione área"
-                isRequired
                 error={getFieldError("workAreaId")}
                 onChange={(value) => handleChange("workAreaId", value)}
                 onAddClick={() => setQuickAddDialog({
@@ -615,7 +631,13 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
                 name="jobPositionId"
                 label="Puesto laboral"
                 value={formData.jobPositionId}
-                options={getCatalogOptions("jobPosition")}
+                options={getCatalogOptions("jobPosition").filter(opt => {
+                  const selectedWorkplace = localCatalogs.workplace?.find(w => String(w.id) === formData.workplaceId);
+                  const workplaceType = selectedWorkplace?.type;
+                  if (!workplaceType) return false;
+                  const item = localCatalogs.jobPosition?.find(j => String(j.id) === opt.key);
+                  return !item?.type || item?.type === workplaceType;
+                })}
                 placeholder="Seleccione puesto"
                 isRequired
                 error={getFieldError("jobPositionId")}
@@ -734,10 +756,11 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
         </Button>
       </div>
 
-      <CatalogQuickAddDialog
-        type={quickAddDialog.type}
+      <TypedCatalogAddDialog
+        catalogType={quickAddDialog.type}
         title={quickAddDialog.title}
         open={quickAddDialog.open}
+        allowAll={quickAddDialog.type === "jobPosition" || quickAddDialog.type === "workArea"}
         onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}
         onSuccess={(item) => {
           // Actualizar el catálogo local
