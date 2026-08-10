@@ -43,14 +43,14 @@ describe("encounterService", () => {
   it("create: throws NotFoundError when patient does not exist", async () => {
     patientRepositoryMock.findById.mockResolvedValueOnce(null);
 
-    await expect(encounterService.create({ ...basePayload } as never, "user-1")).rejects.toBeInstanceOf(NotFoundError);
+    await expect(encounterService.create({ ...basePayload } as never, { id: "user-1", email: "test@example.com" })).rejects.toBeInstanceOf(NotFoundError);
     expect(encounterRepositoryMock.create).not.toHaveBeenCalled();
   });
 
   it("create: throws ValidationError when patient is inactive", async () => {
     patientRepositoryMock.findById.mockResolvedValueOnce({ id: 1, active: false, person: { sex: "FEMALE" } });
 
-    await expect(encounterService.create({ ...basePayload } as never, "user-1")).rejects.toBeInstanceOf(ValidationError);
+    await expect(encounterService.create({ ...basePayload } as never, { id: "user-1", email: "test@example.com" })).rejects.toBeInstanceOf(ValidationError);
     expect(encounterRepositoryMock.create).not.toHaveBeenCalled();
   });
 
@@ -58,7 +58,7 @@ describe("encounterService", () => {
     patientRepositoryMock.findById.mockResolvedValueOnce({ id: 1, active: true, person: { sex: "MALE" } });
 
     await expect(
-      encounterService.create({ ...basePayload, pregnancyStatus: "PREGNANT" } as never, "user-1")
+      encounterService.create({ ...basePayload, pregnancyStatus: "PREGNANT" } as never, { id: "user-1", email: "test@example.com" })
     ).rejects.toMatchObject({ message: "Pregnancy status is only applicable to female patients" });
   });
 
@@ -66,7 +66,7 @@ describe("encounterService", () => {
     patientRepositoryMock.findById.mockResolvedValueOnce({ id: 1, active: true, person: { sex: "MALE" } });
 
     await expect(
-      encounterService.create({ ...basePayload, gynecologicalHistory: "detail" } as never, "user-1")
+      encounterService.create({ ...basePayload, gynecologicalHistory: "detail" } as never, { id: "user-1", email: "test@example.com" })
     ).rejects.toMatchObject({ message: "Gynecological history is only applicable to female patients" });
   });
 
@@ -82,12 +82,14 @@ describe("encounterService", () => {
       pregnancyStatus: "NOT_APPLICABLE",
     };
 
-    const result = await encounterService.create(payload as never, "user-99");
+    const result = await encounterService.create(payload as never, { id: "user-99", email: "test@example.com" });
 
     expect(result).toBe(created);
     expect(encounterRepositoryMock.create).toHaveBeenCalledWith(
       expect.objectContaining({
         practitionerId: "user-99",
+        createdBy: "test@example.com",
+        updatedBy: "test@example.com",
         isFirstVisit: true,
         anthropometry: expect.objectContaining({
           weight: 154,
@@ -112,7 +114,7 @@ describe("encounterService", () => {
     encounterRepositoryMock.findAll.mockResolvedValueOnce({ items: [{ id: 1 }], totalCount: 1 });
     encounterRepositoryMock.create.mockResolvedValueOnce({ id: 44 });
 
-    await encounterService.create({ ...basePayload } as never, "user-1");
+    await encounterService.create({ ...basePayload } as never, { id: "user-1", email: "test@example.com" });
 
     expect(encounterRepositoryMock.create).toHaveBeenCalledWith(
       expect.objectContaining({

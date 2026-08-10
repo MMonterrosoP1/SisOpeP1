@@ -89,6 +89,7 @@ export default async function NewEncounterPage({
         patientSummary={{
           fullName: `${patient.person.givenNames} ${patient.person.familyNames}`,
           age: (() => {
+            if (!patient.person.birthDate) return 0;
             const today = new Date();
             const birth = new Date(patient.person.birthDate);
             let age = today.getFullYear() - birth.getFullYear();
@@ -98,8 +99,8 @@ export default async function NewEncounterPage({
             }
             return age >= 0 ? age : 0;
           })(),
-          identityDocument: patient.person.identityDocument,
-          phone: patient.person.phone,
+          identityDocument: patient.person.identityDocument ?? "",
+          phone: patient.person.phone ?? "",
           jobPosition: patient.jobPosition?.name,
           workplace: patient.workplace?.name,
         }}

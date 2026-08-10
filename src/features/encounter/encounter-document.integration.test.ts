@@ -173,6 +173,10 @@ vi.mock("@/features/document/templates", () => ({
   },
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 import { createEncounter } from "./actions";
 import { generateDocumentAction } from "@/features/document/actions";
 import { GET as getDocumentRoute } from "@/app/api/encounters/[encounterId]/documents/[documentTypeCode]/route";
@@ -185,7 +189,7 @@ describe("critical flow integration: encounter -> document -> route", () => {
     state.encounters = [];
     state.documents = [];
 
-    withAuthMock.mockImplementation(async (_roles, handler) => handler({ user: { id: "user-cuid-1" } }));
+    withAuthMock.mockImplementation(async (_roles, handler) => handler({ user: { id: "user-cuid-1", email: "test@example.com" } }));
     mapDataMock.mockReturnValue({ patient: "Ana" });
     renderToBufferMock.mockResolvedValue(Buffer.from("pdf-binary"));
     putMock.mockResolvedValue({ url: "https://blob.test/generated.pdf" });

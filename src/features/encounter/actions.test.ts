@@ -1,14 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { withAuthMock, safeParseActionMock, createMock, handleActionErrorMock } = vi.hoisted(() => ({
+const { withAuthMock, safeParseActionMock, createMock, handleActionErrorMock, revalidatePathMock } = vi.hoisted(() => ({
   withAuthMock: vi.fn(),
   safeParseActionMock: vi.fn(),
   createMock: vi.fn(),
   handleActionErrorMock: vi.fn(),
+  revalidatePathMock: vi.fn(),
 }));
 
 vi.mock("@/shared/auth/auth-guard", () => ({
   withAuth: withAuthMock,
+}));
+
+vi.mock("next/cache", () => ({
+  revalidatePath: revalidatePathMock,
 }));
 
 vi.mock("@/shared/utils/zod-helpers", async (importOriginal) => {
@@ -38,7 +43,7 @@ import { createEncounter } from "./actions";
 describe("encounter actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    withAuthMock.mockImplementation(async (_roles, handler) => handler({ user: { id: "user-1" } }));
+    withAuthMock.mockImplementation(async (_roles, handler) => handler({ user: { id: "user-1", email: "test@example.com" } }));
     handleActionErrorMock.mockReturnValue({ success: false, error: "handled" });
   });
 
@@ -49,7 +54,7 @@ describe("encounter actions", () => {
     const result = await createEncounter({ any: "payload" });
 
     expect(withAuthMock).toHaveBeenCalledWith(["ADMIN", "DOCTOR"], expect.any(Function));
-    expect(createMock).toHaveBeenCalledWith({ patientId: 1 }, "user-1");
+    expect(createMock).toHaveBeenCalledWith({ patientId: 1 }, { id: "user-1", email: "test@example.com" });
     expect(result).toEqual({ success: true, data: { id: 50 } });
   });
 

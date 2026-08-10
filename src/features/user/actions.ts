@@ -29,8 +29,8 @@ export async function createUser(data: unknown): Promise<ActionResponse<any>> {
           givenNames,
           familyNames,
           sex,
-          createdById: session.user.id,
-          updatedById: session.user.id,
+          createdBy: session.user.email,
+          updatedBy: session.user.email,
         }
       });
       personId = newPerson.id;
@@ -93,7 +93,7 @@ export async function updateDoctorInfo(data: unknown): Promise<ActionResponse<an
           sex,
           givenNames,
           familyNames,
-          updatedById: session.user.id
+          updatedBy: session.user.email
         }
       });
     } else {
@@ -102,8 +102,8 @@ export async function updateDoctorInfo(data: unknown): Promise<ActionResponse<an
           givenNames,
           familyNames,
           sex,
-          createdById: session.user.id,
-          updatedById: session.user.id,
+          createdBy: session.user.email,
+          updatedBy: session.user.email,
         }
       });
       await prisma.user.update({

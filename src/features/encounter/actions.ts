@@ -15,7 +15,7 @@ export async function createEncounter(data: unknown): Promise<ActionResponse<unk
     const parseResult = safeParseAction(createEncounterSchema, data);
     if (!parseResult.success) return parseResult;
 
-    const created = await encounterService.create(parseResult.data, session.user.id);
+    const created = await encounterService.create(parseResult.data, { id: session.user.id, email: session.user.email });
     
     // Invalidar caché del paciente
     revalidatePath(`/patients/${parseResult.data.patientId}`);

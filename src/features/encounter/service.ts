@@ -6,7 +6,7 @@ import { calculateBmi, classifyBmi } from "./domain/bmi-calculator";
 import { CreateEncounterInput } from "./schemas";
 
 export const encounterService = {
-  async create(data: CreateEncounterInput, userId: string) {
+  async create(data: CreateEncounterInput, user: { id: string; email: string }) {
     const patient = await patientRepository.findById(data.patientId);
     if (!patient) {
       throw new NotFoundError("Patient not found", "patient", data.patientId);
@@ -43,16 +43,16 @@ export const encounterService = {
     );
     data.isFirstVisit = previousTypeEncounters.totalCount === 0;
 
-    data.practitionerId = userId;
+    data.practitionerId = user.id;
 
     const created = await encounterRepository.create({
       ...data,
-      createdById: userId,
-      updatedById: userId,
+      createdBy: user.email,
+      updatedBy: user.email,
     });
 
     await auditService.log({
-      userId,
+      userId: user.id,
       action: "CREATE",
       entityType: "encounter",
       entityId: created.id,
