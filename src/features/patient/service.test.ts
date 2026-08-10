@@ -33,7 +33,7 @@ describe("patientService", () => {
     repositoryMock.findByDocument.mockResolvedValueOnce({ id: 10 });
 
     await expect(
-      patientService.create({ identityDocument: "1234567890123" } as never, "user-1")
+      patientService.create({ identityDocument: "1234567890123" } as never, { id: "user-1", email: "test@example.com" })
     ).rejects.toBeInstanceOf(ConflictError);
 
     expect(repositoryMock.create).not.toHaveBeenCalled();
@@ -45,7 +45,7 @@ describe("patientService", () => {
     repositoryMock.findByDocument.mockResolvedValueOnce(null);
     repositoryMock.create.mockResolvedValueOnce(created);
 
-    const result = await patientService.create({ identityDocument: "1234567890123" } as never, "user-1");
+    const result = await patientService.create({ identityDocument: "1234567890123" } as never, { id: "user-1", email: "test@example.com" });
 
     expect(result).toBe(created);
     expect(auditServiceMock.log).toHaveBeenCalledWith(
@@ -62,7 +62,7 @@ describe("patientService", () => {
   it("update: lanza NotFoundError si el paciente no existe", async () => {
     repositoryMock.findById.mockResolvedValueOnce(null);
 
-    await expect(patientService.update(999, {}, "user-1")).rejects.toBeInstanceOf(NotFoundError);
+    await expect(patientService.update(999, {}, { id: "user-1", email: "test@example.com" })).rejects.toBeInstanceOf(NotFoundError);
 
     expect(repositoryMock.update).not.toHaveBeenCalled();
     expect(auditServiceMock.log).not.toHaveBeenCalled();
@@ -73,7 +73,7 @@ describe("patientService", () => {
     repositoryMock.findByDocument.mockResolvedValueOnce({ id: 88 });
 
     await expect(
-      patientService.update(10, { identityDocument: "222" } as never, "user-1")
+      patientService.update(10, { identityDocument: "222" } as never, { id: "user-1", email: "test@example.com" })
     ).rejects.toBeInstanceOf(ConflictError);
 
     expect(repositoryMock.update).not.toHaveBeenCalled();
@@ -88,7 +88,7 @@ describe("patientService", () => {
     repositoryMock.findByDocument.mockResolvedValueOnce(null);
     repositoryMock.update.mockResolvedValueOnce(updated);
 
-    const result = await patientService.update(10, { identityDocument: "222" } as never, "user-1");
+    const result = await patientService.update(10, { identityDocument: "222" } as never, { id: "user-1", email: "test@example.com" });
 
     expect(result).toBe(updated);
     expect(auditServiceMock.log).toHaveBeenCalledWith(
@@ -106,7 +106,7 @@ describe("patientService", () => {
   it("toggleActive: lanza NotFoundError si no existe", async () => {
     repositoryMock.findById.mockResolvedValueOnce(null);
 
-    await expect(patientService.toggleActive(10, "user-1")).rejects.toBeInstanceOf(NotFoundError);
+    await expect(patientService.toggleActive(10, { id: "user-1", email: "test@example.com" })).rejects.toBeInstanceOf(NotFoundError);
 
     expect(repositoryMock.toggleActive).not.toHaveBeenCalled();
   });
@@ -116,9 +116,9 @@ describe("patientService", () => {
     const updated = { id: 10, active: false };
 
     repositoryMock.findById.mockResolvedValueOnce(previous);
-    repositoryMock.toggleActive.mockResolvedValueOnce(updated);
+    repositoryMock.update.mockResolvedValueOnce(updated);
 
-    const result = await patientService.toggleActive(10, "user-1");
+    const result = await patientService.toggleActive(10, { id: "user-1", email: "test@example.com" });
 
     expect(result).toBe(updated);
     expect(auditServiceMock.log).toHaveBeenCalledWith(

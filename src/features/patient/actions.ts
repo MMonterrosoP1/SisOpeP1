@@ -15,7 +15,7 @@ export async function createPatient(data: unknown): Promise<ActionResponse<unkno
     const parseResult = safeParseAction(createPatientSchema, data);
     if (!parseResult.success) return parseResult;
 
-    const created = await patientService.create(parseResult.data, session.user.id);
+    const created = await patientService.create(parseResult.data, { id: session.user.id, email: session.user.email });
     revalidatePath("/patients");
     return { success: true, data: created };
   } catch (error) {
@@ -30,7 +30,7 @@ export async function updatePatient(id: number, data: unknown): Promise<ActionRe
     const parseResult = safeParseAction(updatePatientSchema, data);
     if (!parseResult.success) return parseResult;
 
-    const updated = await patientService.update(id, parseResult.data, session.user.id);
+    const updated = await patientService.update(id, parseResult.data, { id: session.user.id, email: session.user.email });
     revalidatePath("/patients");
     revalidatePath(`/patients/${id}`);
     return { success: true, data: updated };
@@ -43,7 +43,7 @@ export async function togglePatientActive(id: number): Promise<ActionResponse<un
   try {
     const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 
-    const updated = await patientService.toggleActive(id, session.user.id);
+    const updated = await patientService.toggleActive(id, { id: session.user.id, email: session.user.email });
     revalidatePath("/patients");
     return { success: true, data: updated };
   } catch (error) {

@@ -24,7 +24,7 @@ export const basePatientSchema = z.object({
   maritalStatusId: idParamSchema,
   companyId: idParamSchema,
   workplaceId: idParamSchema,
-  workAreaId: idParamSchema,
+  workAreaId: idParamSchema.optional(),
   jobPositionId: idParamSchema,
   bloodTypeId: idParamSchema.optional(),
   emergencyContacts: z.array(emergencyContactSchema).optional(),

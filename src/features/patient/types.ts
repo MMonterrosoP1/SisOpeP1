@@ -31,7 +31,7 @@ export type PatientListItem = {
   familyNames: string;
   identityDocument: string;
   documentType: string;
-  birthDate: Date;
+  birthDate: Date | null;
   sex: string;
   active: boolean;
   phone?: string | null;

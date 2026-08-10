@@ -45,7 +45,7 @@ export const patientRepository = {
       id: p.id,
       givenNames: p.person.givenNames,
       familyNames: p.person.familyNames,
-      identityDocument: p.person.identityDocument,
+      identityDocument: p.person.identityDocument ?? "",
       documentType: p.person.documentType,
       birthDate: p.person.birthDate,
       sex: p.person.sex,
@@ -88,7 +88,7 @@ export const patientRepository = {
     });
   },
 
-  async create(data: PatientCreateInput, auditFields?: { createdById?: string; updatedById?: string }) {
+  async create(data: PatientCreateInput, auditFields?: { createdBy?: string; updatedBy?: string }) {
     const { emergencyContacts, givenNames, familyNames, documentType, identityDocument, birthDate, sex, phone, ...patientData } = data;
 
     try {
@@ -107,7 +107,8 @@ export const patientRepository = {
             where: { id: person.id },
             data: { 
               givenNames, familyNames, documentType, birthDate, sex, phone, 
-              ...(auditFields?.updatedById && { updatedBy: { connect: { id: auditFields.updatedById } } }) 
+              ...(auditFields?.createdBy && { createdBy: auditFields.createdBy }),
+              ...(auditFields?.updatedBy && { updatedBy: auditFields.updatedBy }) 
             }
           });
         }
@@ -141,7 +142,7 @@ export const patientRepository = {
     }
   },
 
-  async update(id: number, data: PatientUpdateInput, auditFields?: { updatedById?: string }) {
+  async update(id: number, data: PatientUpdateInput, auditFields?: { updatedBy?: string }) {
     const { emergencyContacts, givenNames, familyNames, documentType, identityDocument, birthDate, sex, phone, ...patientData } = data;
     
     return prisma.$transaction(async (tx) => {
@@ -164,7 +165,7 @@ export const patientRepository = {
       if (birthDate !== undefined) personDataToUpdate.birthDate = birthDate;
       if (sex !== undefined) personDataToUpdate.sex = sex;
       if (phone !== undefined) personDataToUpdate.phone = phone;
-      if (auditFields?.updatedById) personDataToUpdate.updatedBy = { connect: { id: auditFields.updatedById } };
+      if (auditFields?.updatedBy) personDataToUpdate.updatedBy = auditFields.updatedBy;
 
       if (Object.keys(personDataToUpdate).length > 0) {
         await tx.person.update({
@@ -177,7 +178,7 @@ export const patientRepository = {
         where: { id },
         data: {
           ...patientData,
-          updatedById: auditFields?.updatedById,
+          updatedBy: auditFields?.updatedBy,
           emergencyContacts: emergencyContacts ? {
             create: emergencyContacts.map((c) => ({
               fullName: c.fullName,
