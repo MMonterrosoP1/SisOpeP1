@@ -174,6 +174,10 @@ vi.mock("@/features/document/templates", () => ({
   },
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 import { createEncounter } from "@/features/encounter/actions";
 import { generateDocumentAction } from "@/features/document/actions";
 import { GET as getDocumentRoute } from "@/app/api/encounters/[encounterId]/documents/[documentTypeCode]/route";

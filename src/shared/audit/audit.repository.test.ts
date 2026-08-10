@@ -42,6 +42,7 @@ describe("auditRepository", () => {
     expect(prismaMock.auditLog.findMany).toHaveBeenCalledWith({
       where: { entityType: "patient", entityId: "10" },
       orderBy: { createdAt: "desc" },
+      include: { user: { select: { name: true, email: true, image: true } } },
     });
   });
 
@@ -58,7 +59,7 @@ describe("auditRepository", () => {
         createdAt: { gte: from, lte: to },
       },
       orderBy: { createdAt: "desc" },
-      include: { user: { select: { name: true, email: true } } },
+      include: { user: { select: { name: true, email: true, image: true } } },
     });
   });
 
@@ -70,7 +71,7 @@ describe("auditRepository", () => {
     expect(prismaMock.auditLog.findMany).toHaveBeenCalledWith({
       where: { userId: "u1" },
       orderBy: { createdAt: "desc" },
-      include: { user: { select: { name: true, email: true } } },
+      include: { user: { select: { name: true, email: true, image: true } } },
     });
   });
 });

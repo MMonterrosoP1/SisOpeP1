@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-const { withAuthMock, getDocumentByEncounterAndTypeMock, blobGetMock } = vi.hoisted(() => ({
+const { withAuthMock, getDocumentByEncounterAndTypeMock, blobGetMock, prismaMock } = vi.hoisted(() => ({
   withAuthMock: vi.fn(),
   getDocumentByEncounterAndTypeMock: vi.fn(),
   blobGetMock: vi.fn(),
+  prismaMock: {
+    encounter: { findUnique: vi.fn() }
+  }
 }));
 
 vi.mock("@/shared/auth/auth-guard", () => ({
@@ -19,12 +22,17 @@ vi.mock("@vercel/blob", () => ({
   get: blobGetMock,
 }));
 
+vi.mock("@/lib/prisma", () => ({
+  prisma: prismaMock,
+}));
+
 import { GET } from "./route";
 
 describe("GET /api/encounters/[encounterId]/documents/[documentTypeCode]", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    withAuthMock.mockImplementation(async (_roles, handler) => handler({ user: { id: "user-1" } }));
+    withAuthMock.mockImplementation(async (_roles, handler) => handler({ user: { id: "user-1", email: "test@example.com" } }));
+    prismaMock.encounter.findUnique.mockResolvedValue({ id: 10 });
   });
 
   it("returns 400 when params are invalid", async () => {
