@@ -97,7 +97,7 @@ export const encounterRepository = {
     });
   },
 
-  async create(data: CreateEncounterInput & { createdById?: string; updatedById?: string }) {
+  async create(data: CreateEncounterInput & { createdBy?: string; updatedBy?: string }) {
     const {
       practitionerId,
       vitalSign,
@@ -112,8 +112,8 @@ export const encounterRepository = {
       familyHistory,
       occupationalExposures,
       workDisabilities,
-      createdById,
-      updatedById,
+      createdBy,
+      updatedBy,
       ...encounterData
     } = data;
 
@@ -207,8 +207,8 @@ export const encounterRepository = {
       data: {
         ...encounterData,
         practitionerId,
-        createdById,
-        updatedById,
+        createdBy,
+        updatedBy,
         vitalSign: vitalSign ? { create: vitalSign } : undefined,
         anthropometry: anthropometry ? { create: anthropometry } : undefined,
         diagnoses: diagnosisCreates ? { create: diagnosisCreates } : undefined,
