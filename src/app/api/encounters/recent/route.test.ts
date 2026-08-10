@@ -1,10 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-const { withAuthMock, getEncountersByPatientMock, handleActionErrorMock } = vi.hoisted(() => ({
+const { withAuthMock, getEncountersMock } = vi.hoisted(() => ({
   withAuthMock: vi.fn(),
-  getEncountersByPatientMock: vi.fn(),
-  handleActionErrorMock: vi.fn(),
+  getEncountersMock: vi.fn(),
 }));
 
 vi.mock("@/shared/auth/auth-guard", () => ({
@@ -12,24 +11,15 @@ vi.mock("@/shared/auth/auth-guard", () => ({
 }));
 
 vi.mock("@/features/encounter/queries", () => ({
-  getEncountersByPatient: getEncountersByPatientMock,
+  getEncounters: getEncountersMock,
 }));
-
-vi.mock("@/shared/errors/app-error", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/shared/errors/app-error")>();
-  return {
-    ...actual,
-    handleActionError: handleActionErrorMock,
-  };
-});
 
 import { GET } from "./route";
 
 describe("GET /api/encounters/recent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    withAuthMock.mockImplementation(async (_roles, handler) => handler({ user: { id: "user-1" } }));
-    handleActionErrorMock.mockReturnValue({ success: false, error: "handled" });
+    withAuthMock.mockImplementation(async (_roles, handler) => handler({ user: { id: "user-1", email: "test@test.com" } }));
   });
 
   it("returns 400 when patientId is missing", async () => {
@@ -40,7 +30,7 @@ describe("GET /api/encounters/recent", () => {
 
     expect(response.status).toBe(400);
     expect(body).toEqual({ success: false, error: "Valid patientId is required" });
-    expect(getEncountersByPatientMock).not.toHaveBeenCalled();
+    expect(getEncountersMock).not.toHaveBeenCalled();
   });
 
   it("returns 400 when patientId is invalid", async () => {
@@ -51,31 +41,30 @@ describe("GET /api/encounters/recent", () => {
 
     expect(response.status).toBe(400);
     expect(body).toEqual({ success: false, error: "Valid patientId is required" });
-    expect(getEncountersByPatientMock).not.toHaveBeenCalled();
+    expect(getEncountersMock).not.toHaveBeenCalled();
   });
 
   it("returns success response with encounter data", async () => {
-    getEncountersByPatientMock.mockResolvedValueOnce({ data: [{ id: 1 }, { id: 2 }] });
+    getEncountersMock.mockResolvedValueOnce({ data: [{ id: 1 }, { id: 2 }] });
     const request = new NextRequest("http://localhost/api/encounters/recent?patientId=9");
 
     const response = await GET(request);
     const body = await response.json();
 
     expect(withAuthMock).toHaveBeenCalledWith(["ADMIN", "DOCTOR"], expect.any(Function));
-    expect(getEncountersByPatientMock).toHaveBeenCalledWith(9, { page: 1, pageSize: 15 });
+    expect(getEncountersMock).toHaveBeenCalledWith({ patientId: 9 }, { page: 1, pageSize: 15 });
     expect(response.status).toBe(200);
     expect(body).toEqual({ success: true, data: [{ id: 1 }, { id: 2 }] });
   });
 
-  it("maps unexpected errors with handleActionError", async () => {
+  it("returns 500 for unexpected errors", async () => {
     withAuthMock.mockRejectedValueOnce(new Error("boom"));
     const request = new NextRequest("http://localhost/api/encounters/recent?patientId=9");
 
     const response = await GET(request);
     const body = await response.json();
 
-    expect(handleActionErrorMock).toHaveBeenCalled();
-    expect(response.status).toBe(400);
-    expect(body).toEqual({ success: false, error: "handled" });
+    expect(response.status).toBe(500);
+    expect(body).toEqual({ error: "Internal Server Error" });
   });
 });
