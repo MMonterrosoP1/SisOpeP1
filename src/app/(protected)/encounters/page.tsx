@@ -9,6 +9,7 @@ import { EncountersFilters } from "@/features/encounter/components/encounters-fi
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
 import { getAuthSession } from "@/shared/auth/auth-guard";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Consultas",
@@ -16,6 +17,21 @@ export const metadata: Metadata = {
 };
 
 export default async function GlobalEncountersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  return (
+    <div className="flex flex-col gap-6 p-6">
+      <EncountersHeader />
+      <Suspense fallback={<div className="h-96 flex items-center justify-center text-muted-foreground">Cargando consultas...</div>}>
+        <EncountersContent searchParams={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function EncountersContent({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -45,8 +61,7 @@ export default async function GlobalEncountersPage({
   );
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <EncountersHeader />
+    <>
       <EncountersFilters 
         currentPractitionerId={resolvedParams.practitionerId as string} 
         currentSearch={currentSearch}
@@ -177,6 +192,6 @@ export default async function GlobalEncountersPage({
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

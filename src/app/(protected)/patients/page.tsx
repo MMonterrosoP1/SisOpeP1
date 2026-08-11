@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Pacientes",
@@ -14,6 +15,33 @@ export const metadata: Metadata = {
 };
 
 export default async function PatientsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  return (
+    <div className="flex flex-col gap-6 p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Pacientes</h1>
+          <p className="text-muted-foreground text-sm">Gestiona el directorio de pacientes y sus expedientes.</p>
+        </div>
+        <Link href="/patients/new">
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Nuevo Paciente
+          </Button>
+        </Link>
+      </div>
+
+      <Suspense fallback={<div className="h-96 flex items-center justify-center text-muted-foreground">Cargando pacientes...</div>}>
+        <PatientsContent searchParams={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function PatientsContent({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -36,20 +64,7 @@ export default async function PatientsPage({
   ]);
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Pacientes</h1>
-          <p className="text-muted-foreground text-sm">Gestiona el directorio de pacientes y sus expedientes.</p>
-        </div>
-        <Link href="/patients/new">
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo Paciente
-          </Button>
-        </Link>
-      </div>
-
+    <>
       <PatientFilters
         companies={companies.map((c: any) => ({ key: String(c.id), label: c.name }))}
         workplaces={workplaces.map((w: any) => ({ key: String(w.id), label: w.name }))}
@@ -83,6 +98,6 @@ export default async function PatientsPage({
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
