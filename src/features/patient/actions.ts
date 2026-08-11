@@ -16,7 +16,7 @@ export async function createPatient(data: unknown): Promise<ActionResponse<unkno
     if (!parseResult.success) return parseResult;
 
     const created = await patientService.create(parseResult.data, { id: session.user.id, email: session.user.email });
-    revalidateTag("patients");
+    revalidateTag("patients", "max");
     return { success: true, data: created };
   } catch (error) {
     return handleActionError(error);
@@ -31,8 +31,8 @@ export async function updatePatient(id: number, data: unknown): Promise<ActionRe
     if (!parseResult.success) return parseResult;
 
     const updated = await patientService.update(id, parseResult.data, { id: session.user.id, email: session.user.email });
-    revalidateTag("patients");
-    revalidateTag(`patient-${id}`);
+    revalidateTag("patients", "max");
+    revalidateTag(`patient-${id}`, "max");
     return { success: true, data: updated };
   } catch (error) {
     return handleActionError(error);
@@ -44,8 +44,8 @@ export async function togglePatientActive(id: number): Promise<ActionResponse<un
     const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 
     const updated = await patientService.toggleActive(id, { id: session.user.id, email: session.user.email });
-    revalidateTag("patients");
-    revalidateTag(`patient-${id}`);
+    revalidateTag("patients", "max");
+    revalidateTag(`patient-${id}`, "max");
     return { success: true, data: updated };
   } catch (error) {
     return handleActionError(error);

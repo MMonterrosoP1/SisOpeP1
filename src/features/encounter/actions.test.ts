@@ -54,8 +54,8 @@ describe("encounter actions", () => {
     const result = await createEncounter({ any: "payload" });
 
     expect(withAuthMock).toHaveBeenCalledWith(["ADMIN", "DOCTOR"], expect.any(Function));
-    expect(revalidateTagMock).toHaveBeenCalledWith("encounters");
-    expect(revalidateTagMock).toHaveBeenCalledWith("patient-1");
+    expect(revalidateTagMock).toHaveBeenCalledWith("encounters", "max");
+    expect(revalidateTagMock).toHaveBeenCalledWith("patient-1", "max");
     expect(createMock).toHaveBeenCalledWith({ patientId: 1 }, { id: "user-1", email: "test@example.com" });
     expect(result).toEqual({ success: true, data: { id: 50 } });
   });
