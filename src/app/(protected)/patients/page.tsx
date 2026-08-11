@@ -23,10 +23,26 @@ export default async function PatientsPage({
   
   const cookieStore = await cookies();
   const savedFilters = cookieStore.get('cookie_patients_filters')?.value;
-  const hasNoFilters = Object.keys(resolvedParams).filter(k => k !== 'page').length === 0;
+  const filterKeys = Object.keys(resolvedParams).filter(k => k !== 'page');
+  const hasNoFiltersInUrl = filterKeys.length === 0;
 
-  if (hasNoFilters && savedFilters) {
-    redirect(`/patients?${savedFilters}`);
+  if (hasNoFiltersInUrl && savedFilters) {
+    const savedParams = new URLSearchParams(savedFilters);
+    const hasRealFilters = Array.from(savedParams.keys()).some(k => k !== 'page');
+    
+    if (hasRealFilters) {
+      if (resolvedParams.page) {
+        savedParams.set('page', String(resolvedParams.page));
+      }
+      const targetQuery = savedParams.toString();
+      const currentQuery = new URLSearchParams(
+        Object.entries(resolvedParams).map(([k, v]) => [k, String(v)])
+      ).toString();
+      
+      if (targetQuery !== currentQuery) {
+        redirect(`/patients?${targetQuery}`);
+      }
+    }
   }
 
   const page = Number(resolvedParams.page) || 1;

@@ -18,10 +18,26 @@ export default async function AuditPage({ searchParams }: Props) {
 
   const cookieStore = await cookies();
   const savedFilters = cookieStore.get('cookie_audit_filters')?.value;
-  const hasNoFilters = Object.keys(params).filter(k => k !== 'page').length === 0;
+  const filterKeys = Object.keys(params).filter(k => k !== 'page');
+  const hasNoFiltersInUrl = filterKeys.length === 0;
 
-  if (hasNoFilters && savedFilters) {
-    redirect(`/audit?${savedFilters}`);
+  if (hasNoFiltersInUrl && savedFilters) {
+    const savedParams = new URLSearchParams(savedFilters);
+    const hasRealFilters = Array.from(savedParams.keys()).some(k => k !== 'page');
+    
+    if (hasRealFilters) {
+      if (params.page) {
+        savedParams.set('page', String(params.page));
+      }
+      const targetQuery = savedParams.toString();
+      const currentQuery = new URLSearchParams(
+        Object.entries(params).map(([k, v]) => [k, String(v)])
+      ).toString();
+      
+      if (targetQuery !== currentQuery) {
+        redirect(`/audit?${targetQuery}`);
+      }
+    }
   }
 
   const filters: AuditFilters = {
