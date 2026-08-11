@@ -1,14 +1,20 @@
-import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 import { documentRepository } from "./repository";
 
-export const getDocumentByEncounterAndType = cache(async (encounterId: number, documentTypeCode: string) => {
+export async function getDocumentByEncounterAndType(encounterId: number, documentTypeCode: string) {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("documents", `encounter-${encounterId}`);
   return documentRepository.findByEncounterAndType(encounterId, documentTypeCode);
-});
+}
 
-export const getDocumentStatusByEncounterIdsAndType = cache(async (encounterIds: number[], documentTypeCode: string) => {
+export async function getDocumentStatusByEncounterIdsAndType(encounterIds: number[], documentTypeCode: string) {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("documents");
   if (!encounterIds.length) return [];
   return documentRepository.findByEncounterIdsAndType(encounterIds, documentTypeCode);
-});
+}
 
 import { paginationSchema, PaginatedResponse } from "@/shared/schemas/pagination";
 import { z } from "zod";
@@ -19,11 +25,13 @@ const documentFilterSchema = z.object({
   practitionerId: z.string().optional(),
 });
 
-export const getDocuments = cache(
-  async (
-    filtersData: unknown,
-    paginationData: unknown
-  ): Promise<PaginatedResponse<any>> => {
+export async function getDocuments(
+  filtersData: unknown,
+  paginationData: unknown
+): Promise<PaginatedResponse<any>> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("documents");
     const filters = documentFilterSchema.parse(filtersData || {});
     const pagination = paginationSchema.parse(paginationData || {});
 
@@ -42,5 +50,4 @@ export const getDocuments = cache(
         totalPages: Math.ceil(totalCount / pagination.pageSize),
       },
     };
-  }
-);
+}
