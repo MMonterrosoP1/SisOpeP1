@@ -143,7 +143,7 @@
       "computedHash": "724c150fb303279768abde163de33c4b3c9629ffaaca98b6414ae11c9e8c1ec0"
     },
     "security-bounty-hunter": {
-      "source": "affaan-m/everything-claude-code",
+      "source": "affaan-m/ecc",
       "sourceType": "github",
       "skillPath": "skills/security-bounty-hunter/SKILL.md",
       "computedHash": "d7b3ad7c505025a3835a87b44823f8baa78eaf2b4295255a4f5642cbfe9bcd6d"
@@ -158,6 +158,12 @@
       "source": "addyosmani/web-quality-skills",
       "sourceType": "autoskills-registry",
       "computedHash": "c184da724d1c61ad077f27418ea8e7e88fd54bcdf98165e18be7e4681cbd5e20"
+    },
+    "seo-audit": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/seo-audit/SKILL.md",
+      "computedHash": "606da61224d9d5687020816292c88152a7fcb27ce375b22f92f429e074f07f34"
     },
     "shadcn": {
       "source": "shadcn/ui",
