@@ -1,4 +1,4 @@
-import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 import { encounterRepository } from "./repository";
 import { encounterService } from "./service";
 import { paginationSchema, PaginatedResponse } from "@/shared/schemas/pagination";
@@ -12,11 +12,13 @@ const encounterFilterSchema = z.object({
   search: z.string().optional(),
 });
 
-export const getEncounters = cache(
-  async (
-    filtersData: unknown,
-    paginationData: unknown
-  ): Promise<PaginatedResponse<unknown>> => {
+export async function getEncounters(
+  filtersData: unknown,
+  paginationData: unknown
+): Promise<PaginatedResponse<unknown>> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("encounters");
     const filters = encounterFilterSchema.parse(filtersData || {});
     const pagination = paginationSchema.parse(paginationData || {});
 
@@ -35,17 +37,25 @@ export const getEncounters = cache(
         totalPages: Math.ceil(totalCount / pagination.pageSize),
       },
     };
-  }
-);
+}
 
-export const getEncounterById = cache(async (id: number) => {
+export async function getEncounterById(id: number) {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("encounters", `encounter-${id}`);
   return encounterService.getDetail(id);
-});
+}
 
-export const getEncountersByPatient = cache(async (patientId: number, paginationData: unknown) => {
+export async function getEncountersByPatient(patientId: number, paginationData: unknown) {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("encounters", `patient-${patientId}`);
   return getEncounters({ patientId }, paginationData);
-});
+}
 
-export const getLatestEncounterByPatient = cache(async (patientId: number) => {
+export async function getLatestEncounterByPatient(patientId: number) {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("encounters", `patient-${patientId}`);
   return encounterRepository.findLatestByPatient(patientId);
-});
+}
