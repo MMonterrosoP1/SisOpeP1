@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Pacientes",
@@ -19,31 +19,34 @@ export default async function PatientsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const resolvedParams = await searchParams;
-  
-  const cookieStore = await cookies();
-  const savedFilters = cookieStore.get('cookie_patients_filters')?.value;
-  const filterKeys = Object.keys(resolvedParams).filter(k => k !== 'page');
-  const hasNoFiltersInUrl = filterKeys.length === 0;
+  return (
+    <div className="flex flex-col gap-6 p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Pacientes</h1>
+          <p className="text-muted-foreground text-sm">Gestiona el directorio de pacientes y sus expedientes.</p>
+        </div>
+        <Link href="/patients/new">
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Nuevo Paciente
+          </Button>
+        </Link>
+      </div>
 
-  if (hasNoFiltersInUrl && savedFilters) {
-    const savedParams = new URLSearchParams(savedFilters);
-    const hasRealFilters = Array.from(savedParams.keys()).some(k => k !== 'page');
-    
-    if (hasRealFilters) {
-      if (resolvedParams.page) {
-        savedParams.set('page', String(resolvedParams.page));
-      }
-      const targetQuery = savedParams.toString();
-      const currentQuery = new URLSearchParams(
-        Object.entries(resolvedParams).map(([k, v]) => [k, String(v)])
-      ).toString();
-      
-      if (targetQuery !== currentQuery) {
-        redirect(`/patients?${targetQuery}`);
-      }
-    }
-  }
+      <Suspense fallback={<div className="h-96 flex items-center justify-center text-muted-foreground">Cargando pacientes...</div>}>
+        <PatientsContent searchParams={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function PatientsContent({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const resolvedParams = await searchParams;
 
   const page = Number(resolvedParams.page) || 1;
   const search = typeof resolvedParams.search === "string" ? resolvedParams.search : undefined;
@@ -61,20 +64,7 @@ export default async function PatientsPage({
   ]);
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Pacientes</h1>
-          <p className="text-muted-foreground text-sm">Gestiona el directorio de pacientes y sus expedientes.</p>
-        </div>
-        <Link href="/patients/new">
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo Paciente
-          </Button>
-        </Link>
-      </div>
-
+    <>
       <PatientFilters
         companies={companies.map((c: any) => ({ key: String(c.id), label: c.name }))}
         workplaces={workplaces.map((w: any) => ({ key: String(w.id), label: w.name }))}
@@ -108,6 +98,6 @@ export default async function PatientsPage({
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -83,6 +83,12 @@ export const allergenCatalogRepo = {
       orderBy: { name: "asc" },
       include: { allergyCategory: true }
     });
+  },
+  create: async (data: any) => {
+    return prisma.allergenCatalog.create({
+      data,
+      include: { allergyCategory: true }
+    });
   }
 };
 export const diseaseTypeRepo = createCatalogRepo(prisma.diseaseTypeCatalog);

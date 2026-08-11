@@ -8,9 +8,8 @@ import { EncountersHeader } from "@/features/encounter/components/encounters-hea
 import { EncountersFilters } from "@/features/encounter/components/encounters-filters";
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
 import { getAuthSession } from "@/shared/auth/auth-guard";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Consultas",
@@ -22,31 +21,22 @@ export default async function GlobalEncountersPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const resolvedParams = await searchParams;
-  
-  const cookieStore = await cookies();
-  const savedFilters = cookieStore.get('cookie_encounters_filters')?.value;
-  const filterKeys = Object.keys(resolvedParams).filter(k => k !== 'page');
-  const hasNoFiltersInUrl = filterKeys.length === 0;
+  return (
+    <div className="flex flex-col gap-6 p-6">
+      <EncountersHeader />
+      <Suspense fallback={<div className="h-96 flex items-center justify-center text-muted-foreground">Cargando consultas...</div>}>
+        <EncountersContent searchParams={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
 
-  if (hasNoFiltersInUrl && savedFilters) {
-    const savedParams = new URLSearchParams(savedFilters);
-    const hasRealFilters = Array.from(savedParams.keys()).some(k => k !== 'page');
-    
-    if (hasRealFilters) {
-      if (resolvedParams.page) {
-        savedParams.set('page', String(resolvedParams.page));
-      }
-      const targetQuery = savedParams.toString();
-      const currentQuery = new URLSearchParams(
-        Object.entries(resolvedParams).map(([k, v]) => [k, String(v)])
-      ).toString();
-      
-      if (targetQuery !== currentQuery) {
-        redirect(`/encounters?${targetQuery}`);
-      }
-    }
-  }
+async function EncountersContent({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const resolvedParams = await searchParams;
 
   const page = Number(resolvedParams.page) || 1;
   const pageSize = 20;
@@ -71,8 +61,7 @@ export default async function GlobalEncountersPage({
   );
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <EncountersHeader />
+    <>
       <EncountersFilters 
         currentPractitionerId={resolvedParams.practitionerId as string} 
         currentSearch={currentSearch}
@@ -203,6 +192,6 @@ export default async function GlobalEncountersPage({
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
