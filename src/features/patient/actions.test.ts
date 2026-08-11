@@ -68,7 +68,7 @@ describe("patient actions", () => {
 
     expect(withAuthMock).toHaveBeenCalledWith(["ADMIN", "DOCTOR"], expect.any(Function));
     expect(createMock).toHaveBeenCalledWith({ identityDocument: "123" }, { id: "user-1", email: "test@example.com" });
-    expect(revalidateTagMock).toHaveBeenCalledWith("patients");
+    expect(revalidateTagMock).toHaveBeenCalledWith("patients", "max");
     expect(result).toEqual({ success: true, data: { id: 10 } });
   });
 
@@ -97,8 +97,8 @@ describe("patient actions", () => {
     const result = await updatePatient(25, { givenNames: "Nuevo" });
 
     expect(updateMock).toHaveBeenCalledWith(25, { givenNames: "Nuevo" }, { id: "user-1", email: "test@example.com" });
-    expect(revalidateTagMock).toHaveBeenCalledWith("patients");
-    expect(revalidateTagMock).toHaveBeenCalledWith("patient-25");
+    expect(revalidateTagMock).toHaveBeenCalledWith("patients", "max");
+    expect(revalidateTagMock).toHaveBeenCalledWith("patient-25", "max");
     expect(result).toEqual({ success: true, data: { id: 25 } });
   });
 
@@ -108,8 +108,8 @@ describe("patient actions", () => {
     const result = await togglePatientActive(25);
 
     expect(toggleMock).toHaveBeenCalledWith(25, { id: "user-1", email: "test@example.com" });
-    expect(revalidateTagMock).toHaveBeenCalledWith("patients");
-    expect(revalidateTagMock).toHaveBeenCalledWith("patient-25");
+    expect(revalidateTagMock).toHaveBeenCalledWith("patients", "max");
+    expect(revalidateTagMock).toHaveBeenCalledWith("patient-25", "max");
     expect(result).toEqual({ success: true, data: { id: 25, active: false } });
   });
 

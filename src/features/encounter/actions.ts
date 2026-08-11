@@ -18,8 +18,8 @@ export async function createEncounter(data: unknown): Promise<ActionResponse<unk
     const created = await encounterService.create(parseResult.data, { id: session.user.id, email: session.user.email });
     
     // Invalidar caché del paciente
-    revalidateTag("encounters");
-    revalidateTag(`patient-${parseResult.data.patientId}`);
+    revalidateTag("encounters", "max");
+    revalidateTag(`patient-${parseResult.data.patientId}`, "max");
     
     return { success: true, data: created };
   } catch (error) {
