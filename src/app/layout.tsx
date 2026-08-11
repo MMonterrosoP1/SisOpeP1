@@ -19,7 +19,42 @@ export const metadata: Metadata = {
     template: "%s | PREMED",
     default: "PREMED | Gestión Clínica Médica",
   },
-  description: "Sistema de gestión clínica médica PREMED",
+  description: "Sistema de gestión clínica médica para control de pacientes y expedientes electrónicos.",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+  openGraph: {
+    title: 'PREMED | Gestión Clínica Médica',
+    description: 'Sistema de gestión clínica médica y control de expedientes.',
+    siteName: 'PREMED',
+    images: [
+      {
+        url: '/premed-dark.png',
+        width: 1200,
+        height: 630,
+        alt: 'PREMED - Gestión Clínica',
+      },
+    ],
+    locale: 'es_GT',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PREMED | Gestión Clínica Médica',
+    description: 'Sistema de gestión clínica médica y control de expedientes.',
+    images: ['/premed-dark.png'],
+  },
+  icons: {
+    icon: '/premed-dark-logo.svg',
+    shortcut: '/premed-dark-logo.svg',
+    apple: '/premed-dark-logo.svg',
+  }
 };
 
 export default function RootLayout({
