@@ -17,14 +17,8 @@ export function UsersClient({ data }: UsersClientProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto pb-10">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Gestión de Usuarios</h1>
-          <p className="text-muted-foreground mt-1">
-            Administración de cuentas, roles y acceso al sistema.
-          </p>
-        </div>
+    <>
+      <div className="flex justify-end">
         <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
           <Plus className="w-4 h-4" />
           Nuevo Usuario
@@ -38,6 +32,6 @@ export function UsersClient({ data }: UsersClientProps) {
       <UsersTable data={data} />
 
       <CreateUserDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
-    </div>
+    </>
   );
 }

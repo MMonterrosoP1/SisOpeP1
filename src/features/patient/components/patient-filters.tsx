@@ -13,6 +13,7 @@ import {
 export type FilterSelectOption = { key: string; label: string; };
 import { Button } from "@/components/ui/button";
 import { useDebounce } from "@/shared/hooks/use-debounce";
+import { useSavedFilters } from "@/shared/hooks/use-saved-filters";
 
 interface PatientFiltersProps {
   companies: FilterSelectOption[];
@@ -29,6 +30,9 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
   const [searchValue, setSearchValue] = useState(searchParamValue);
   const [prevSearchParam, setPrevSearchParam] = useState(searchParamValue);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  useSavedFilters("cookie_patients_filters");
+
 
   if (searchParamValue !== prevSearchParam) {
     setPrevSearchParam(searchParamValue);

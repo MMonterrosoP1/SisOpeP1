@@ -175,7 +175,7 @@ vi.mock("@/features/document/templates", () => ({
 }));
 
 vi.mock("next/cache", () => ({
-  revalidatePath: vi.fn(),
+  revalidateTag: vi.fn(),
 }));
 
 import { createEncounter } from "@/features/encounter/actions";

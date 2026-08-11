@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDebounce } from "@/shared/hooks/use-debounce";
+import { useSavedFilters } from "@/shared/hooks/use-saved-filters";
 
 export function UsersFilters() {
   const router = useRouter();
@@ -20,6 +21,9 @@ export function UsersFilters() {
   const searchParams = useSearchParams();
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
+
+  useSavedFilters("cookie_users_filters");
+
 
   const createQueryString = useCallback(
     (name: string, value: string) => {

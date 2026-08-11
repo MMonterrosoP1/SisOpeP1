@@ -7,6 +7,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useDebounce } from "@/shared/hooks/use-debounce";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useSavedFilters } from "@/shared/hooks/use-saved-filters";
 
 interface EncountersFiltersProps {
   currentPractitionerId?: string;
@@ -20,6 +21,9 @@ export function EncountersFilters({ currentPractitionerId, currentSearch = "" }:
 
   const [searchTerm, setSearchTerm] = useState(currentSearch);
   const [prevSearchParam, setPrevSearchParam] = useState(currentSearch);
+
+  useSavedFilters("cookie_encounters_filters");
+
 
   if (currentSearch !== prevSearchParam) {
     setPrevSearchParam(currentSearch);

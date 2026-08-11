@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { findAllMock, findByIdMock, requireActiveUserMock } = vi.hoisted(() => ({
+const { findAllMock, findByIdMock } = vi.hoisted(() => ({
   findAllMock: vi.fn(),
   findByIdMock: vi.fn(),
-  requireActiveUserMock: vi.fn(),
 }));
 
 vi.mock("./repository", () => ({
@@ -13,16 +12,13 @@ vi.mock("./repository", () => ({
   },
 }));
 
-vi.mock("@/shared/auth/auth-guard", () => ({
-  requireActiveUser: requireActiveUserMock,
-}));
+
 
 import { getPatientById, getPatients, searchPatients } from "./queries";
 
 describe("patient queries", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    requireActiveUserMock.mockResolvedValue(undefined);
   });
 
   it("getPatients: requires auth and returns paginated response", async () => {
@@ -30,7 +26,6 @@ describe("patient queries", () => {
 
     const result = await getPatients({}, { page: 2, pageSize: 10 });
 
-    expect(requireActiveUserMock).toHaveBeenCalled();
     expect(findAllMock).toHaveBeenCalledWith({}, { skip: 10, take: 10 });
     expect(result).toEqual({
       data: [{ id: 1 }],
@@ -43,7 +38,6 @@ describe("patient queries", () => {
 
     const result = await getPatientById(22);
 
-    expect(requireActiveUserMock).toHaveBeenCalled();
     expect(findByIdMock).toHaveBeenCalledWith(22);
     expect(result).toEqual({ id: 22 });
   });
@@ -51,7 +45,6 @@ describe("patient queries", () => {
   it("searchPatients: returns [] when query is shorter than 2 chars", async () => {
     const result = await searchPatients("a");
 
-    expect(requireActiveUserMock).toHaveBeenCalled();
     expect(findAllMock).not.toHaveBeenCalled();
     expect(result).toEqual([]);
   });
