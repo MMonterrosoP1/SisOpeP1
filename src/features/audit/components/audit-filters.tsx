@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useSavedFilters } from "@/shared/hooks/use-saved-filters";
 
 const AUDIT_ACTIONS = [
   "CREATE",
@@ -56,6 +57,8 @@ export function AuditFilters() {
     from: searchParams.get("startDate") ? new Date(searchParams.get("startDate") as string) : undefined,
     to: searchParams.get("endDate") ? new Date(searchParams.get("endDate") as string) : undefined,
   });
+
+  useSavedFilters("cookie_audit_filters");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
