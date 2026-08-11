@@ -91,18 +91,19 @@ export function Sidebar({ user, defaultCollapsed = false, isMobileOpen, onMobile
             onClick={() => onMobileClose()}
             className={`flex items-center gap-3 px-3 mx-1 rounded-xl cursor-pointer transition-all duration-200 ${isMobile ? "py-3.5" : "py-2.5"
               } ${isActive
-                ? "bg-primary/10 text-primary font-medium"
+                ? "bg-primary/15 text-foreground font-semibold shadow-sm"
                 : "hover:bg-muted text-muted-foreground hover:text-foreground"
               } ${collapsed ? "justify-center" : ""}`}
           >
             <item.icon
-              className={`shrink-0 ${isMobile ? "w-5 h-5" : "w-4 h-4"} stroke-[1.5] ${isActive ? "text-primary" : "text-muted-foreground"
+              className={`shrink-0 ${isMobile ? "w-5 h-5" : "w-4 h-4"} stroke-[2] ${isActive ? "text-foreground" : "text-muted-foreground"
                 }`}
+              aria-hidden="true"
             />
 
             {!collapsed && (
               <span
-                className={`${isMobile ? "text-base" : "text-sm"} ${isActive ? "font-semibold text-primary" : "font-medium"
+                className={`${isMobile ? "text-base" : "text-sm"} ${isActive ? "font-bold text-foreground" : "font-medium"
                   }`}
               >
                 {item.name}
