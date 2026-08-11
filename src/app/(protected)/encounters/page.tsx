@@ -8,8 +8,6 @@ import { EncountersHeader } from "@/features/encounter/components/encounters-hea
 import { EncountersFilters } from "@/features/encounter/components/encounters-filters";
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
 import { getAuthSession } from "@/shared/auth/auth-guard";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,30 +21,6 @@ export default async function GlobalEncountersPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const resolvedParams = await searchParams;
-  
-  const cookieStore = await cookies();
-  const savedFilters = cookieStore.get('cookie_encounters_filters')?.value;
-  const filterKeys = Object.keys(resolvedParams).filter(k => k !== 'page');
-  const hasNoFiltersInUrl = filterKeys.length === 0;
-
-  if (hasNoFiltersInUrl && savedFilters) {
-    const savedParams = new URLSearchParams(savedFilters);
-    const hasRealFilters = Array.from(savedParams.keys()).some(k => k !== 'page');
-    
-    if (hasRealFilters) {
-      if (resolvedParams.page) {
-        savedParams.set('page', String(resolvedParams.page));
-      }
-      const targetQuery = savedParams.toString();
-      const currentQuery = new URLSearchParams(
-        Object.entries(resolvedParams).map(([k, v]) => [k, String(v)])
-      ).toString();
-      
-      if (targetQuery !== currentQuery) {
-        redirect(`/encounters?${targetQuery}`);
-      }
-    }
-  }
 
   const page = Number(resolvedParams.page) || 1;
   const pageSize = 20;

@@ -11,6 +11,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { useSavedFilters } from "@/shared/hooks/use-saved-filters";
 
 export function CertificatesFilters({ currentPractitionerId }: { currentPractitionerId?: string }) {
   const router = useRouter();
@@ -19,6 +20,9 @@ export function CertificatesFilters({ currentPractitionerId }: { currentPractiti
   const [searchValue, setSearchValue] = useState(searchParamValue);
   const [prevSearchParam, setPrevSearchParam] = useState(searchParamValue);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  useSavedFilters("cookie_certificates_filters");
+
 
   if (searchParamValue !== prevSearchParam) {
     setPrevSearchParam(searchParamValue);

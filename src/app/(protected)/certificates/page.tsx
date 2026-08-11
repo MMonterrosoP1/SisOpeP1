@@ -6,7 +6,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getAuthSession } from "@/shared/auth/auth-guard";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 interface CertificatesPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
@@ -21,29 +20,6 @@ export const metadata: Metadata = {
 export default async function CertificatesPage({ searchParams }: CertificatesPageProps) {
   const resolvedParams = await searchParams;
   
-  const cookieStore = await cookies();
-  const savedFilters = cookieStore.get('cookie_certificates_filters')?.value;
-  const filterKeys = Object.keys(resolvedParams).filter(k => k !== 'page');
-  const hasNoFiltersInUrl = filterKeys.length === 0;
-
-  if (hasNoFiltersInUrl && savedFilters) {
-    const savedParams = new URLSearchParams(savedFilters);
-    const hasRealFilters = Array.from(savedParams.keys()).some(k => k !== 'page');
-    
-    if (hasRealFilters) {
-      if (resolvedParams.page) {
-        savedParams.set('page', String(resolvedParams.page));
-      }
-      const targetQuery = savedParams.toString();
-      const currentQuery = new URLSearchParams(
-        Object.entries(resolvedParams).map(([k, v]) => [k, String(v)])
-      ).toString();
-      
-      if (targetQuery !== currentQuery) {
-        redirect(`/certificates?${targetQuery}`);
-      }
-    }
-  }
   const page = typeof resolvedParams.page === "string" ? parseInt(resolvedParams.page) : 1;
   const pageSize = typeof resolvedParams.pageSize === "string" ? parseInt(resolvedParams.pageSize) : 10;
   const search = typeof resolvedParams.search === "string" ? resolvedParams.search : undefined;

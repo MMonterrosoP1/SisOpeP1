@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Pacientes",
@@ -20,30 +19,6 @@ export default async function PatientsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const resolvedParams = await searchParams;
-  
-  const cookieStore = await cookies();
-  const savedFilters = cookieStore.get('cookie_patients_filters')?.value;
-  const filterKeys = Object.keys(resolvedParams).filter(k => k !== 'page');
-  const hasNoFiltersInUrl = filterKeys.length === 0;
-
-  if (hasNoFiltersInUrl && savedFilters) {
-    const savedParams = new URLSearchParams(savedFilters);
-    const hasRealFilters = Array.from(savedParams.keys()).some(k => k !== 'page');
-    
-    if (hasRealFilters) {
-      if (resolvedParams.page) {
-        savedParams.set('page', String(resolvedParams.page));
-      }
-      const targetQuery = savedParams.toString();
-      const currentQuery = new URLSearchParams(
-        Object.entries(resolvedParams).map(([k, v]) => [k, String(v)])
-      ).toString();
-      
-      if (targetQuery !== currentQuery) {
-        redirect(`/patients?${targetQuery}`);
-      }
-    }
-  }
 
   const page = Number(resolvedParams.page) || 1;
   const search = typeof resolvedParams.search === "string" ? resolvedParams.search : undefined;
