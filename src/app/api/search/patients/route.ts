@@ -6,13 +6,12 @@ import { rateLimit } from "@/shared/utils/rate-limiter";
 
 export async function GET(request: NextRequest) {
   try {
-    await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
+    const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get("q") || "";
     
-    // Rate Limiting: Max 20 requests per minute per IP
-    const ip = request.headers.get("x-forwarded-for") || "unknown";
-    if (!rateLimit(`search-patients:${ip}`, 20, 60000)) {
+    // Rate Limiting: Max 20 requests per minute per User
+    if (!rateLimit(`search-patients:${session.user.id}`, 20, 60000)) {
       return NextResponse.json({ error: "Demasiadas peticiones. Intente más tarde." }, { status: 429 });
     }
     

@@ -44,24 +44,6 @@ export default function SignInPage() {
     }
   };
 
-  const handleForgotPassword = async () => {
-    if (!email) {
-      toast.error("Ingresa tu correo para restablecer la contraseña");
-      return;
-    }
-    setLoading(true);
-    const { error } = await authClient.requestPasswordReset({
-      email,
-      redirectTo: "/reset-password",
-    });
-    if (error) {
-      toast.error(error.message || "Error al solicitar restablecimiento");
-    } else {
-      toast.success("Revisa tu correo para restablecer tu contraseña");
-    }
-    setLoading(false);
-  };
-
   return (
     <div className="flex min-h-screen bg-background items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -112,17 +94,7 @@ export default function SignInPage() {
                     )}
                   </button>
                 </div>
-                <div className="flex justify-end">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="px-0 h-auto"
-                    onClick={handleForgotPassword}
-                    type="button"
-                  >
-                    ¿Olvidaste tu contraseña?
-                  </Button>
-                </div>
+
               </div>
 
               <Button
