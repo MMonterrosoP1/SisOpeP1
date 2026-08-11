@@ -11,6 +11,7 @@ interface CertificatesPageProps {
 }
 
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Constancias",
@@ -18,6 +19,24 @@ export const metadata: Metadata = {
 };
 
 export default async function CertificatesPage({ searchParams }: CertificatesPageProps) {
+  return (
+    <div className="flex flex-col gap-6 p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Constancias</h1>
+          <p className="text-muted-foreground text-sm">Administra y genera las constancias médicas y de enfermedad.</p>
+        </div>
+        <NewCertificateModal />
+      </div>
+
+      <Suspense fallback={<div className="h-96 flex items-center justify-center text-muted-foreground">Cargando constancias...</div>}>
+        <CertificatesContent searchParams={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function CertificatesContent({ searchParams }: CertificatesPageProps) {
   const resolvedParams = await searchParams;
   
   const page = typeof resolvedParams.page === "string" ? parseInt(resolvedParams.page) : 1;
@@ -40,15 +59,7 @@ export default async function CertificatesPage({ searchParams }: CertificatesPag
   );
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Constancias</h1>
-          <p className="text-muted-foreground text-sm">Administra y genera las constancias médicas y de enfermedad.</p>
-        </div>
-        <NewCertificateModal />
-      </div>
-
+    <>
       <CertificatesFilters currentPractitionerId={resolvedParams.practitionerId as string} />
 
       <div className="bg-background rounded-lg border shadow-sm overflow-hidden">
@@ -76,6 +87,6 @@ export default async function CertificatesPage({ searchParams }: CertificatesPag
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
