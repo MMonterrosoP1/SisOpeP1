@@ -381,8 +381,11 @@ async function main() {
   // 18. Seed Admin User
   console.log("Creando usuario administrador...");
 
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@clinica.com";
+  const adminPassword = process.env.ADMIN_PASSWORD || "AdminPassword123!";
+
   const existingAdmin = await prisma.user.findUnique({
-    where: { email: "admin@clinica.com" }
+    where: { email: adminEmail }
   });
 
   const personAdmin = await prisma.person.upsert({
@@ -404,14 +407,14 @@ async function main() {
 
     await auth.api.signUpEmail({
       body: {
-        email: "admin@clinica.com",
-        password: "AdminPassword123!",
+        email: adminEmail,
+        password: adminPassword,
         name: "Administrador del Sistema"
       }
     });
 
     await prisma.user.update({
-      where: { email: "admin@clinica.com" },
+      where: { email: adminEmail },
       data: {
         role: "ADMIN",
         personId: personAdmin.id,
@@ -419,18 +422,18 @@ async function main() {
       }
     });
 
-    console.log("✅ Usuario administrador creado: admin@clinica.com / AdminPassword123!");
+    console.log(`✅ Usuario administrador creado: ${adminEmail}`);
   } else {
     // Si ya existe, nos aseguramos que tenga rol de ADMIN y personId
     await prisma.user.update({
-      where: { email: "admin@clinica.com" },
+      where: { email: adminEmail },
       data: {
         role: "ADMIN",
         personId: personAdmin.id,
         preamble: "La infrascrita Médica y Cirujana egresada de la Facultad de Ciencias Médicas de la Universidad de San Carlos de Guatemala, colegiada activa número veintiún mil ochocientos treinta y tres."
       }
     });
-    console.log("✅ El usuario administrador ya existe y tiene rol ADMIN y Person vinculado.");
+    console.log(`✅ El usuario administrador ${adminEmail} ya existe y tiene rol ADMIN y Person vinculado.`);
   }
 
   console.log("🚀 Seeding completado con éxito!");

@@ -2,29 +2,37 @@ import "dotenv/config";
 import { prisma } from "./src/lib/prisma";
 
 async function main() {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (!adminEmail || !adminPassword) {
+    console.error("❌ Faltan las variables de entorno ADMIN_EMAIL y ADMIN_PASSWORD.");
+    process.exit(1);
+  }
+
   const existingAdmin = await prisma.user.findUnique({
-    where: { email: "admin@clinica.com" }
+    where: { email: adminEmail }
   });
 
   if (!existingAdmin) {
     const { auth } = require("./src/lib/auth");
-    
+
     await auth.api.signUpEmail({
       body: {
-        email: "admin@clinica.com",
-        password: "AdminPassword123!",
+        email: adminEmail,
+        password: adminPassword,
         name: "Administrador del Sistema"
       }
     });
 
     await prisma.user.update({
-      where: { email: "admin@clinica.com" },
+      where: { email: adminEmail },
       data: { role: "ADMIN" }
     });
 
-    console.log("✅ Usuario administrador creado: admin@clinica.com / AdminPassword123!");
+    console.log(`✅ Usuario administrador creado: ${adminEmail}`);
   } else {
-    console.log("✅ El usuario administrador ya existe.");
+    console.log(`✅ El usuario administrador (${adminEmail}) ya existe.`);
   }
 }
 
