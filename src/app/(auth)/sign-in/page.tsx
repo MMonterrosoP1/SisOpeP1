@@ -36,8 +36,9 @@ export default function SignInPage() {
           "User not found": "Usuario no encontrado",
           "USER_NOT_FOUND": "Usuario no encontrado",
         };
-        
-        const translatedError = errorTranslations[error.message] || errorTranslations[error.code as string] || "Error al iniciar sesión. Verifica tus credenciales.";
+        const messageKey = error.message || "";
+        const codeKey = error.code || "";
+        const translatedError = errorTranslations[messageKey] || errorTranslations[codeKey] || "Error al iniciar sesión. Verifica tus credenciales.";
         
         toast.error(translatedError);
         return;
