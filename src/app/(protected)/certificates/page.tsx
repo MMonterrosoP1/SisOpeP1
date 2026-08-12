@@ -62,10 +62,13 @@ async function CertificatesContent({ searchParams }: CertificatesPageProps) {
     <>
       <CertificatesFilters currentPractitionerId={resolvedParams.practitionerId as string} />
 
-      <div className="bg-background rounded-lg border shadow-sm overflow-hidden">
+      <div className="bg-background rounded-lg border shadow-sm flex flex-col max-h-[calc(100vh-16rem)]">
+        <div className="flex-1 flex flex-col min-h-0 relative rounded-t-lg">
         <CertificatesTable data={data} meta={meta} />
 
-        <div className="flex justify-between items-center p-4 border-t">
+        </div>
+
+        <div className="flex justify-between items-center p-4 border-t bg-background shrink-0 rounded-b-lg">
           <span className="text-sm text-muted-foreground">
             Mostrando {data.length} de {meta.totalCount} resultados
           </span>
