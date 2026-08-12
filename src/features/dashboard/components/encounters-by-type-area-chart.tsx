@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { EncountersByTypeChartData } from "../types";
 import { useMemo } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface EncountersByTypeAreaChartProps {
   data: EncountersByTypeChartData[];
@@ -39,15 +38,6 @@ export function EncountersByTypeAreaChart({ data, types }: EncountersByTypeAreaC
           <CardTitle>Consultas por tipo</CardTitle>
           <CardDescription>Evolución de los últimos 6 meses</CardDescription>
         </div>
-        <Select defaultValue="6m">
-          <SelectTrigger className="w-[100px] h-8 text-xs">
-            <SelectValue placeholder="Periodo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="6m">6 Meses</SelectItem>
-            <SelectItem value="1y">1 Año</SelectItem>
-          </SelectContent>
-        </Select>
       </CardHeader>
       <CardContent>
         <div className="h-[300px] w-full mt-4">
