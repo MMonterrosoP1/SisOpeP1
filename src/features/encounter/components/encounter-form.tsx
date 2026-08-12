@@ -690,11 +690,11 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
               <div className="col-span-1 md:col-span-3 mt-2 p-3 bg-muted/50 rounded-lg flex flex-col md:flex-row gap-2 md:gap-6 text-sm">
                 <div>
                   <span className="text-muted-foreground">IMC Estimado: </span>
-                  <span className="font-semibold text-primary">{bmi}</span>
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">{bmi}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Clasificación: </span>
-                  <span className="font-semibold text-primary">{bmiCategoryEs[category]}</span>
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">{bmiCategoryEs[category]}</span>
                 </div>
               </div>
             );

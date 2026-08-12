@@ -110,13 +110,13 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
         <div className="flex flex-col md:flex-row items-center gap-3 w-full">
           <div className="flex items-center gap-2 w-full flex-1">
             <div className="relative flex-1 w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/70" />
               <Input
                 value={searchValue}
                 onChange={handleSearchChange}
                 placeholder="Buscar por DPI, nombres o apellidos del paciente..."
                 aria-label="Buscar por DPI, nombres o apellidos del paciente"
-                className="w-full pl-9 h-10 bg-transparent border-transparent focus-visible:ring-0 focus-visible:border-transparent rounded-xl shadow-none"
+                className="w-full pl-9 h-10 bg-transparent border-transparent focus-visible:ring-0 focus-visible:border-transparent rounded-xl shadow-none placeholder:text-foreground/60"
               />
             </div>
             <Button 
@@ -142,13 +142,13 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
 
         <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 px-2 pb-2 ${showMobileFilters ? "grid" : "hidden md:grid"}`}>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="filter-company" className="text-xs font-medium text-muted-foreground px-1">Empresa</label>
+            <label htmlFor="filter-company" className="text-xs font-medium text-foreground/80 px-1">Empresa</label>
             <Select
-              value={searchParams.get("company") || undefined}
+              value={searchParams.get("company") || "all"}
               onValueChange={(val) => handleFilterChange("company", val === "all" ? null : val)}
             >
               <SelectTrigger id="filter-company" className="w-full h-10 rounded-2xl bg-input/50 border-transparent">
-                <span className="flex flex-1 text-left truncate">
+                <span className="flex flex-1 text-left truncate text-foreground/90">
                   {getLabel(searchParams.get("company"), companies, "Todas las Empresas")}
                 </span>
               </SelectTrigger>
@@ -164,13 +164,13 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
           </div>
           
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="filter-workplace" className="text-xs font-medium text-muted-foreground px-1">Sede</label>
+            <label htmlFor="filter-workplace" className="text-xs font-medium text-foreground/80 px-1">Sede</label>
             <Select
-              value={searchParams.get("workplace") || undefined}
+              value={searchParams.get("workplace") || "all"}
               onValueChange={(val) => handleFilterChange("workplace", val === "all" ? null : val)}
             >
               <SelectTrigger id="filter-workplace" className="w-full h-10 rounded-2xl bg-input/50 border-transparent">
-                <span className="flex flex-1 text-left truncate">
+                <span className="flex flex-1 text-left truncate text-foreground/90">
                   {getLabel(searchParams.get("workplace"), workplaces, "Todas las Sedes")}
                 </span>
               </SelectTrigger>
@@ -186,13 +186,13 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
           </div>
           
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="filter-workarea" className="text-xs font-medium text-muted-foreground px-1">Área de Trabajo</label>
+            <label htmlFor="filter-workarea" className="text-xs font-medium text-foreground/80 px-1">Área de Trabajo</label>
             <Select
-              value={searchParams.get("workArea") || undefined}
+              value={searchParams.get("workArea") || "all"}
               onValueChange={(val) => handleFilterChange("workArea", val === "all" ? null : val)}
             >
               <SelectTrigger id="filter-workarea" className="w-full h-10 rounded-2xl bg-input/50 border-transparent">
-                <span className="flex flex-1 text-left truncate">
+                <span className="flex flex-1 text-left truncate text-foreground/90">
                   {getLabel(searchParams.get("workArea"), workAreas, "Todas las Áreas")}
                 </span>
               </SelectTrigger>
@@ -208,13 +208,13 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="filter-jobposition" className="text-xs font-medium text-muted-foreground px-1">Puesto Laboral</label>
+            <label htmlFor="filter-jobposition" className="text-xs font-medium text-foreground/80 px-1">Puesto Laboral</label>
             <Select
-              value={searchParams.get("jobPosition") || undefined}
+              value={searchParams.get("jobPosition") || "all"}
               onValueChange={(val) => handleFilterChange("jobPosition", val === "all" ? null : val)}
             >
               <SelectTrigger id="filter-jobposition" className="w-full h-10 rounded-2xl bg-input/50 border-transparent">
-                <span className="flex flex-1 text-left truncate">
+                <span className="flex flex-1 text-left truncate text-foreground/90">
                   {getLabel(searchParams.get("jobPosition"), jobPositions, "Todos los Puestos")}
                 </span>
               </SelectTrigger>
