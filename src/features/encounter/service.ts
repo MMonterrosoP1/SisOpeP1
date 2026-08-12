@@ -26,6 +26,11 @@ export const encounterService = {
     }
 
     let anthropometryToSave = data.anthropometry;
+    
+    if (anthropometryToSave?.height && anthropometryToSave.height < 3) {
+      // Normalize meters to centimeters
+      anthropometryToSave.height = anthropometryToSave.height * 100;
+    }
     if (anthropometryToSave?.weight && anthropometryToSave?.height) {
       const bmi = calculateBmi(anthropometryToSave.weight, anthropometryToSave.height);
       const bmiCategory = classifyBmi(bmi);
