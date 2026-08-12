@@ -29,14 +29,18 @@ export function safeParseAction<T>(
   return { success: true, data: result.data };
 }
 
-export const idParamSchema = z.coerce.number().int().positive();
-export const cuidSchema = z.string().cuid();
+export const idParamSchema = z.coerce.number({
+  message: "El ID es requerido y debe ser un número",
+}).int("El ID debe ser un número entero").positive("El ID debe ser positivo");
+export const cuidSchema = z.string({
+  message: "El ID es requerido y debe ser texto",
+}).cuid("ID inválido");
 export const dateRangeSchema = z
   .object({
-    from: z.coerce.date(),
-    to: z.coerce.date(),
+    from: z.coerce.date({ message: "La fecha inicial es inválida o requerida" }),
+    to: z.coerce.date({ message: "La fecha final es inválida o requerida" }),
   })
   .refine((data) => data.from <= data.to, {
-    message: "The 'from' date must be before or equal to the 'to' date",
+    message: "La fecha inicial debe ser anterior o igual a la fecha final",
     path: ["from"],
   });

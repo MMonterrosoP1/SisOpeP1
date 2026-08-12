@@ -4,20 +4,20 @@ import { idParamSchema } from "@/shared/utils/zod-helpers";
 import { VITAL_SIGN_RANGES } from "./domain/vital-sign-ranges";
 
 export const vitalSignSchema = z.object({
-  systolicBP: z.number().min(VITAL_SIGN_RANGES.systolicBP.min, `Debe ser al menos ${VITAL_SIGN_RANGES.systolicBP.min}`).max(VITAL_SIGN_RANGES.systolicBP.max, `Debe ser máximo ${VITAL_SIGN_RANGES.systolicBP.max}`).optional().nullable(),
-  diastolicBP: z.number().min(VITAL_SIGN_RANGES.diastolicBP.min, `Debe ser al menos ${VITAL_SIGN_RANGES.diastolicBP.min}`).max(VITAL_SIGN_RANGES.diastolicBP.max, `Debe ser máximo ${VITAL_SIGN_RANGES.diastolicBP.max}`).optional().nullable(),
-  heartRate: z.number().min(VITAL_SIGN_RANGES.heartRate.min, `Debe ser al menos ${VITAL_SIGN_RANGES.heartRate.min}`).max(VITAL_SIGN_RANGES.heartRate.max, `Debe ser máximo ${VITAL_SIGN_RANGES.heartRate.max}`).optional().nullable(),
-  respiratoryRate: z.number().min(VITAL_SIGN_RANGES.respiratoryRate.min, `Debe ser al menos ${VITAL_SIGN_RANGES.respiratoryRate.min}`).max(VITAL_SIGN_RANGES.respiratoryRate.max, `Debe ser máximo ${VITAL_SIGN_RANGES.respiratoryRate.max}`).optional().nullable(),
-  oxygenSaturation: z.number().min(VITAL_SIGN_RANGES.oxygenSaturation.min, `Debe ser al menos ${VITAL_SIGN_RANGES.oxygenSaturation.min}`).max(VITAL_SIGN_RANGES.oxygenSaturation.max, `Debe ser máximo ${VITAL_SIGN_RANGES.oxygenSaturation.max}`).optional().nullable(),
-  glucose: z.number().min(VITAL_SIGN_RANGES.glucose.min, `Debe ser al menos ${VITAL_SIGN_RANGES.glucose.min}`).max(VITAL_SIGN_RANGES.glucose.max, `Debe ser máximo ${VITAL_SIGN_RANGES.glucose.max}`).optional().nullable(),
-  temperature: z.number().min(VITAL_SIGN_RANGES.temperature.min, `Debe ser al menos ${VITAL_SIGN_RANGES.temperature.min}`).max(VITAL_SIGN_RANGES.temperature.max, `Debe ser máximo ${VITAL_SIGN_RANGES.temperature.max}`).optional().nullable(),
+  systolicBP: z.number({ message: "Debe ser un número" }).min(VITAL_SIGN_RANGES.systolicBP.min, `Debe ser al menos ${VITAL_SIGN_RANGES.systolicBP.min}`).max(VITAL_SIGN_RANGES.systolicBP.max, `Debe ser máximo ${VITAL_SIGN_RANGES.systolicBP.max}`).optional().nullable(),
+  diastolicBP: z.number({ message: "Debe ser un número" }).min(VITAL_SIGN_RANGES.diastolicBP.min, `Debe ser al menos ${VITAL_SIGN_RANGES.diastolicBP.min}`).max(VITAL_SIGN_RANGES.diastolicBP.max, `Debe ser máximo ${VITAL_SIGN_RANGES.diastolicBP.max}`).optional().nullable(),
+  heartRate: z.number({ message: "Debe ser un número" }).min(VITAL_SIGN_RANGES.heartRate.min, `Debe ser al menos ${VITAL_SIGN_RANGES.heartRate.min}`).max(VITAL_SIGN_RANGES.heartRate.max, `Debe ser máximo ${VITAL_SIGN_RANGES.heartRate.max}`).optional().nullable(),
+  respiratoryRate: z.number({ message: "Debe ser un número" }).min(VITAL_SIGN_RANGES.respiratoryRate.min, `Debe ser al menos ${VITAL_SIGN_RANGES.respiratoryRate.min}`).max(VITAL_SIGN_RANGES.respiratoryRate.max, `Debe ser máximo ${VITAL_SIGN_RANGES.respiratoryRate.max}`).optional().nullable(),
+  oxygenSaturation: z.number({ message: "Debe ser un número" }).min(VITAL_SIGN_RANGES.oxygenSaturation.min, `Debe ser al menos ${VITAL_SIGN_RANGES.oxygenSaturation.min}`).max(VITAL_SIGN_RANGES.oxygenSaturation.max, `Debe ser máximo ${VITAL_SIGN_RANGES.oxygenSaturation.max}`).optional().nullable(),
+  glucose: z.number({ message: "Debe ser un número" }).min(VITAL_SIGN_RANGES.glucose.min, `Debe ser al menos ${VITAL_SIGN_RANGES.glucose.min}`).max(VITAL_SIGN_RANGES.glucose.max, `Debe ser máximo ${VITAL_SIGN_RANGES.glucose.max}`).optional().nullable(),
+  temperature: z.number({ message: "Debe ser un número" }).min(VITAL_SIGN_RANGES.temperature.min, `Debe ser al menos ${VITAL_SIGN_RANGES.temperature.min}`).max(VITAL_SIGN_RANGES.temperature.max, `Debe ser máximo ${VITAL_SIGN_RANGES.temperature.max}`).optional().nullable(),
 });
 
 export const anthropometrySchema = z.object({
-  weight: z.number().min(0.5, "Debe ser al menos 0.5").max(500, "Debe ser máximo 500").optional().nullable(),
-  height: z.number().min(20, "Debe ser al menos 20").max(300, "Debe ser máximo 300").optional().nullable(),
-  abdominalCircumference: z.number().min(10, "Debe ser al menos 10").max(300, "Debe ser máximo 300").optional().nullable(),
-  bmi: z.number().optional().nullable(),
+  weight: z.number({ message: "Debe ser un número" }).min(0.5, "Debe ser al menos 0.5").max(500, "Debe ser máximo 500").optional().nullable(),
+  height: z.number({ message: "Debe ser un número" }).min(20, "Debe ser al menos 20").max(300, "Debe ser máximo 300").optional().nullable(),
+  abdominalCircumference: z.number({ message: "Debe ser un número" }).min(10, "Debe ser al menos 10").max(300, "Debe ser máximo 300").optional().nullable(),
+  bmi: z.number({ message: "Debe ser un número" }).optional().nullable(),
   bmiCategory: BmiCategorySchema.optional().nullable(),
 });
 
@@ -83,7 +83,7 @@ export const createEncounterSchema = z.object({
   medicalAptitudeId: idParamSchema.optional().nullable(),
   internalObservation: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
   employerObservation: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
-  followUpDate: z.coerce.date().optional().nullable(),
+  followUpDate: z.coerce.date({ message: "Fecha inválida" }).optional().nullable(),
 
   vitalSign: vitalSignSchema.optional().nullable(),
   anthropometry: anthropometrySchema.optional().nullable(),

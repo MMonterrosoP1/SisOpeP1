@@ -17,11 +17,14 @@ export const patientRepository = {
     if (filters.jobPositionId) where.jobPositionId = filters.jobPositionId;
     
     if (filters.search) {
-      where.OR = [
-        { person: { givenNames: { contains: filters.search } } },
-        { person: { familyNames: { contains: filters.search } } },
-        { person: { identityDocument: { contains: filters.search } } },
-      ];
+      const searchTerms = filters.search.trim().split(/\s+/);
+      where.AND = searchTerms.map((term) => ({
+        OR: [
+          { person: { givenNames: { contains: term } } },
+          { person: { familyNames: { contains: term } } },
+          { person: { identityDocument: { contains: term } } },
+        ],
+      }));
     }
 
     const [data, totalCount] = await Promise.all([
