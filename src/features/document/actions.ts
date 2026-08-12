@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { safeParseAction } from "@/shared/utils/zod-helpers";
 import { generateDocumentSchema } from "./schemas";
 import { documentService } from "./service";
@@ -19,6 +21,10 @@ export async function generateDocumentAction(data: unknown): Promise<ActionRespo
       session.user.id,
       parseResult.data.documentTypeCode
     );
+
+    revalidatePath("/certificates");
+    revalidatePath("/encounters");
+    revalidatePath(`/patients/${documentRecord.patientId}`);
 
     return { success: true, data: documentRecord };
   } catch (error) {

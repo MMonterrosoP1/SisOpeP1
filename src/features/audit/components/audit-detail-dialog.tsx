@@ -35,7 +35,7 @@ export function AuditDetailDialog({ log, open, onOpenChange }: AuditDetailDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl w-[95vw] h-[85vh] flex flex-col p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-5xl w-[95vw] h-[85vh] flex flex-col p-0 overflow-hidden">
         <DialogHeader className="px-6 py-4 border-b border-border bg-muted/30">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl flex items-center gap-3">
@@ -54,23 +54,23 @@ export function AuditDetailDialog({ log, open, onOpenChange }: AuditDetailDialog
           <div className="p-6 space-y-6">
             
             {/* Meta Info Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-muted/30 p-4 rounded-lg border border-border">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 bg-muted/30 p-4 rounded-lg border border-border">
+              <div className="min-w-0">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Entidad</p>
-                <p className="font-medium capitalize">{log.entityType}</p>
+                <p className="font-medium capitalize truncate">{log.entityType}</p>
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">ID Entidad</p>
-                <p className="font-medium">{log.entityId}</p>
+                <p className="font-medium break-all text-xs font-mono" title={String(log.entityId)}>{log.entityId}</p>
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Usuario</p>
-                <p className="font-medium">{log.user.name}</p>
+                <p className="font-medium truncate" title={log.user.name}>{log.user.name}</p>
                 <p className="text-xs text-muted-foreground truncate" title={log.user.email}>{log.user.email}</p>
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">IP / Origen</p>
-                <p className="font-medium">{log.ipAddress || "N/A"}</p>
+                <p className="font-medium break-all text-xs font-mono">{log.ipAddress || "N/A"}</p>
               </div>
             </div>
 
