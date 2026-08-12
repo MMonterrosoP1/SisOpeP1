@@ -51,17 +51,17 @@ export function TogglePatientModal({ isOpen, onOpenChange, patient }: TogglePati
             {patient.active ? "Desactivar Paciente" : "Activar Paciente"}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            <div className="flex flex-col gap-2">
-              <p>
+            <span className="flex flex-col gap-2">
+              <span>
                 ¿Estás seguro de que deseas {patient.active ? "desactivar" : "activar"} al
                 paciente <strong>{patient.givenNames} {patient.familyNames}</strong>?
-              </p>
+              </span>
               {patient.active && (
-                <p className="text-sm text-muted-foreground">
+                <span className="text-sm text-muted-foreground block">
                   Al desactivarlo, el paciente no aparecerá en los listados activos.
-                </p>
+                </span>
               )}
-            </div>
+            </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="flex gap-2 justify-end">

@@ -80,23 +80,23 @@ export function EncountersFilters({ currentPractitionerId, currentSearch = "" }:
     <div className="flex flex-col gap-4">
       <div className="flex flex-col md:flex-row items-center gap-3 bg-card p-2 rounded-2xl border shadow-sm">
         <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/70" />
           <Input
             placeholder="Buscar por DPI, nombres o apellidos del paciente..."
             value={searchTerm}
             onChange={handleSearchChange}
-            className="w-full pl-9 h-10 bg-transparent border-transparent focus-visible:ring-0 focus-visible:border-transparent rounded-xl shadow-none"
+            className="w-full pl-9 h-10 bg-transparent border-transparent focus-visible:ring-0 focus-visible:border-transparent rounded-xl shadow-none placeholder:text-foreground/60"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto">
-          <label className="text-xs font-medium text-muted-foreground px-1 hidden md:block whitespace-nowrap">Médico:</label>
+          <label className="text-xs font-medium text-foreground/80 px-1 hidden md:block whitespace-nowrap">Médico:</label>
           <Select
             value={currentPractitionerId === "all" ? "all" : "mine"}
             onValueChange={(val) => handleFilterChange("practitionerId", val === "all" ? "all" : null)}
           >
             <SelectTrigger className="w-full md:w-[180px] h-10 rounded-2xl bg-input/50 border-transparent">
-              <span className="flex flex-1 text-left truncate">
+              <span className="flex flex-1 text-left truncate text-foreground/90">
                 {currentPractitionerId === "all" ? "Todos los médicos" : "Mis consultas"}
               </span>
             </SelectTrigger>
