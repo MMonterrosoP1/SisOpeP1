@@ -62,6 +62,14 @@ describe("createEncounterSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("accepts an encounter payload without diagnoses", () => {
+    const result = createEncounterSchema.safeParse({
+      patientId: 1,
+      encounterTypeId: 1,
+    });
+    expect(result.success).toBe(true);
+  });
+
   it("requires at least one primary diagnosis", () => {
     const result = createEncounterSchema.safeParse({
       ...validEncounterPayload,
