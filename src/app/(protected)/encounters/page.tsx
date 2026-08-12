@@ -9,7 +9,6 @@ import { EncountersFilters } from "@/features/encounter/components/encounters-fi
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
 import { getAuthSession } from "@/shared/auth/auth-guard";
 import { Metadata } from "next";
-import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Consultas",
@@ -24,9 +23,7 @@ export default async function GlobalEncountersPage({
   return (
     <div className="flex flex-col gap-6 p-6">
       <EncountersHeader />
-      <Suspense fallback={<div className="h-96 flex items-center justify-center text-muted-foreground">Cargando consultas...</div>}>
-        <EncountersContent searchParams={searchParams} />
-      </Suspense>
+      <EncountersContent searchParams={searchParams} />
     </div>
   );
 }
@@ -45,7 +42,7 @@ async function EncountersContent({
 
   let defaultPractitionerId: string | undefined = resolvedParams.practitionerId as string;
   const currentSearch = resolvedParams.search as string;
-  
+
   if (defaultPractitionerId === undefined && session?.user.role === 'DOCTOR') {
     defaultPractitionerId = session.user.id;
   } else if (defaultPractitionerId === 'all') {
@@ -53,17 +50,17 @@ async function EncountersContent({
   }
 
   const { data: encounters, meta } = await getEncounters(
-    { 
+    {
       practitionerId: defaultPractitionerId,
-      search: currentSearch 
-    }, 
+      search: currentSearch
+    },
     { page, pageSize }
   );
 
   return (
     <>
-      <EncountersFilters 
-        currentPractitionerId={resolvedParams.practitionerId as string} 
+      <EncountersFilters
+        currentPractitionerId={resolvedParams.practitionerId as string}
         currentSearch={currentSearch}
       />
 
@@ -106,7 +103,7 @@ async function EncountersContent({
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-0.5">
-                        <Link prefetch={false} href={`/patients/${encounter.patientId}`} className="font-medium hover:underline text-primary">
+                        <Link prefetch={false} href={`/patients/${encounter.patientId}`} className="font-medium hover:underline text-blue-600 dark:text-blue-400">
                           {encounter.patient?.person?.givenNames} {encounter.patient?.person?.familyNames}
                         </Link>
                         <span className="text-xs text-muted-foreground">{encounter.patient?.person?.identityDocument || "Sin DPI"}</span>
@@ -145,14 +142,14 @@ async function EncountersContent({
                             </DropdownMenuItem>
                           </Link>
                           <DropdownMenuSeparator />
-                          <DocumentActionMenuItem 
-                            encounterId={encounter.id} 
+                          <DocumentActionMenuItem
+                            encounterId={encounter.id}
                             documentTypeCode="MEDICAL_CERTIFICATE"
                             label="Constancia Médica"
                             initialPdfUrl={medCert?.pdfUrl}
                           />
-                          <DocumentActionMenuItem 
-                            encounterId={encounter.id} 
+                          <DocumentActionMenuItem
+                            encounterId={encounter.id}
                             documentTypeCode="ILLNESS_CERTIFICATE"
                             label="Constancia de Enf."
                             initialPdfUrl={illnessCert?.pdfUrl}
