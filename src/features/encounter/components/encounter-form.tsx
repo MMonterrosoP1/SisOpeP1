@@ -387,8 +387,8 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
       clientErrors["encounterTypeId"] = ["Seleccione el tipo de consulta"];
     }
     const validDiagnoses = formData.diagnoses.filter((d) => d.icd10CodeId);
-    if (validDiagnoses.length === 0) {
-      clientErrors["diagnoses"] = ["Debe agregar al menos un diagnóstico con código ICD-10"];
+    if (validDiagnoses.length > 0 && !validDiagnoses.some((d) => d.isPrimary)) {
+      clientErrors["diagnoses"] = ["Al menos un diagnóstico debe estar marcado como principal"];
     }
     if (Object.keys(clientErrors).length > 0) {
       setFieldErrors(clientErrors);
