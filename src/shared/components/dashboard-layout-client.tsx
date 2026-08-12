@@ -43,7 +43,7 @@ export function DashboardLayoutClient({ user, defaultCollapsed = false, children
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-          <div className="mx-auto max-w-7xl h-full">{children}</div>
+          <div className="mx-auto w-full max-w-[1600px] h-full">{children}</div>
         </main>
       </div>
     </div>

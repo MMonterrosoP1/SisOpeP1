@@ -69,11 +69,14 @@ async function PatientsContent({
         jobPositions={jobPositions.map((p: any) => ({ key: String(p.id), label: p.name }))}
       />
 
-      <div className="bg-background rounded-lg border shadow-sm overflow-hidden">
+      <div className="bg-background rounded-lg border shadow-sm flex flex-col max-h-[calc(100vh-16rem)]">
+        <div className="flex-1 flex flex-col min-h-0 relative rounded-t-lg">
         <PatientTable data={patientsRes.data} totalCount={patientsRes.meta.totalCount} />
 
+        </div>
+
         {/* Simple pagination controls */}
-        <div className="flex justify-between items-center p-4 border-t">
+        <div className="flex justify-between items-center p-4 border-t bg-background shrink-0 rounded-b-lg">
           <span className="text-sm text-muted-foreground">
             Mostrando {patientsRes.data.length} de {patientsRes.meta.totalCount} resultados
           </span>
