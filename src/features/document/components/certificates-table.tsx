@@ -14,8 +14,7 @@ interface CertificatesTableProps {
 
 export function CertificatesTable({ data, meta }: CertificatesTableProps) {
   return (
-    <div className="overflow-x-auto">
-      <div className="rounded-md">
+    <div className="h-full">
         <Table>
           <TableHeader>
             <TableRow>
@@ -108,7 +107,6 @@ export function CertificatesTable({ data, meta }: CertificatesTableProps) {
             )}
           </TableBody>
         </Table>
-      </div>
     </div>
   );
 }

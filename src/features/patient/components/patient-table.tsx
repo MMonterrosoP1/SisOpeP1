@@ -158,7 +158,7 @@ export function PatientTable({ data }: PatientTableProps) {
 
   return (
     <>
-      <div className="border rounded-lg overflow-x-auto">
+      <div className="h-full">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
