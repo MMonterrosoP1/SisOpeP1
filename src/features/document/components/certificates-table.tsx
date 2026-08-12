@@ -2,8 +2,8 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Calendar, Clock, MoreHorizontal, Download, ExternalLink } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FileText, Calendar, Clock, Download, ExternalLink } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { PaginatedResponse } from "@/shared/schemas/pagination";
 
@@ -72,31 +72,36 @@ export function CertificatesTable({ data, meta }: CertificatesTableProps) {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger className="h-8 w-8 p-0 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
-                        <span className="sr-only">Abrir menú</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {doc.pdfUrl ? (
-                          <>
-                            <DropdownMenuItem render={<a href={`/api/encounters/${doc.encounterId}/documents/${doc.documentType.code}`} target="_blank" rel="noreferrer" />}>
-                              <FileText className="mr-2 h-4 w-4" />
-                              <span>Ver PDF</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem render={<a href={`/api/encounters/${doc.encounterId}/documents/${doc.documentType.code}`} download />}>
-                              <Download className="mr-2 h-4 w-4" />
-                              <span>Descargar</span>
-                            </DropdownMenuItem>
-                          </>
-                        ) : (
-                          <DropdownMenuItem disabled>
-                            <FileText className="mr-2 h-4 w-4" />
-                            <span>Generando PDF...</span>
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex justify-end items-center gap-1">
+                      {doc.pdfUrl ? (
+                        <>
+                          <a 
+                            href={`/api/encounters/${doc.encounterId}/documents/${doc.documentType.code}`} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className={buttonVariants({ variant: "ghost", size: "icon" })}
+                            title="Ver PDF"
+                          >
+                            <FileText className="w-4 h-4" />
+                            <span className="sr-only">Ver PDF</span>
+                          </a>
+                          <a 
+                            href={`/api/encounters/${doc.encounterId}/documents/${doc.documentType.code}`} 
+                            download
+                            className={buttonVariants({ variant: "ghost", size: "icon" })}
+                            title="Descargar PDF"
+                          >
+                            <Download className="w-4 h-4" />
+                            <span className="sr-only">Descargar</span>
+                          </a>
+                        </>
+                      ) : (
+                        <span className="text-xs text-muted-foreground flex items-center gap-1 px-2">
+                          <FileText className="w-3 h-3" />
+                          Generando...
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

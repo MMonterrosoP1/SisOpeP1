@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Pacientes",
@@ -34,9 +33,7 @@ export default async function PatientsPage({
         </Link>
       </div>
 
-      <Suspense fallback={<div className="h-96 flex items-center justify-center text-muted-foreground">Cargando pacientes...</div>}>
-        <PatientsContent searchParams={searchParams} />
-      </Suspense>
+      <PatientsContent searchParams={searchParams} />
     </div>
   );
 }
@@ -66,7 +63,7 @@ async function PatientsContent({
   return (
     <>
       <PatientFilters
-        companies={companies.map((c: any) => ({ key: String(c.id), label: c.name }))}
+        companies={companies.map((c: any) => ({ key: String(c.id), label: c.acronym || c.name }))}
         workplaces={workplaces.map((w: any) => ({ key: String(w.id), label: w.name }))}
         workAreas={workAreas.map((a: any) => ({ key: String(a.id), label: a.name }))}
         jobPositions={jobPositions.map((p: any) => ({ key: String(p.id), label: p.name }))}

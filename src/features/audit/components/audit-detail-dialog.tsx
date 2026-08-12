@@ -35,7 +35,7 @@ export function AuditDetailDialog({ log, open, onOpenChange }: AuditDetailDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl h-[85vh] flex flex-col p-0 overflow-hidden">
+      <DialogContent className="max-w-6xl w-[95vw] h-[85vh] flex flex-col p-0 overflow-hidden">
         <DialogHeader className="px-6 py-4 border-b border-border bg-muted/30">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl flex items-center gap-3">

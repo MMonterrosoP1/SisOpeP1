@@ -15,7 +15,9 @@ export const basePatientSchema = z.object({
   familyNames: z.string().trim().min(1, "Los apellidos son obligatorios").max(255),
   documentType: DocumentTypeSchema,
   identityDocument: z.string().trim().min(1, "El documento de identidad es obligatorio").max(50),
-  birthDate: z.coerce.date().refine((date) => date <= new Date(), {
+  birthDate: z.coerce.date({
+    message: "La fecha de nacimiento es inválida o requerida",
+  }).refine((date) => date <= new Date(), {
     message: "La fecha de nacimiento no puede estar en el futuro",
   }),
   sex: SexSchema,

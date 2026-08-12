@@ -9,13 +9,16 @@ export const encounterRepository = {
     if (filters.practitionerId) where.practitionerId = filters.practitionerId;
     if (filters.encounterTypeId) where.encounterTypeId = filters.encounterTypeId;
     if (filters.search) {
+      const searchTerms = filters.search.trim().split(/\s+/);
       where.patient = {
         person: {
-          OR: [
-            { identityDocument: { contains: filters.search } },
-            { givenNames: { contains: filters.search } },
-            { familyNames: { contains: filters.search } },
-          ],
+          AND: searchTerms.map(term => ({
+            OR: [
+              { identityDocument: { contains: term } },
+              { givenNames: { contains: term } },
+              { familyNames: { contains: term } },
+            ]
+          }))
         },
       };
     }

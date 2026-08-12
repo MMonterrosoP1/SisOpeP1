@@ -46,24 +46,24 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Basic validation
     const newErrors: Record<string, string> = {};
     if (!formData.name) newErrors.name = "El nombre es obligatorio";
     if (!formData.email) newErrors.email = "Correo electrónico inválido";
     if (formData.password.length < 8) newErrors.password = "La contraseña debe tener al menos 8 caracteres";
-    
+
     if (formData.role === "DOCTOR") {
       if (!formData.givenNames) newErrors.givenNames = "Los nombres son obligatorios";
       if (!formData.familyNames) newErrors.familyNames = "Los apellidos son obligatorios";
       if (!formData.sex) newErrors.sex = "El sexo es obligatorio";
     }
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    
+
     setErrors({});
     setLoading(true);
     try {
@@ -72,7 +72,7 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
         sex: formData.sex || undefined,
         preamble: formData.preamble || undefined,
       });
-      
+
       if (res.success) {
         toast.success("Usuario creado exitosamente");
         setFormData({
@@ -177,10 +177,10 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
           {formData.role === "DOCTOR" && (
             <div className="space-y-4 p-4 border rounded-md bg-muted/50 mt-4">
               <h4 className="text-sm font-medium">Información Clínica (Requerida para Doctores)</h4>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="givenNames">Nombres Reales</Label>
+                  <Label htmlFor="givenNames">Nombres</Label>
                   <Input
                     id="givenNames"
                     value={formData.givenNames}
@@ -190,9 +190,9 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                     <p className="text-sm text-destructive">{errors.givenNames}</p>
                   )}
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label htmlFor="familyNames">Apellidos Reales</Label>
+                  <Label htmlFor="familyNames">Apellidos</Label>
                   <Input
                     id="familyNames"
                     value={formData.familyNames}
