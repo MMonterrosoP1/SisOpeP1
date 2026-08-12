@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 12, fontFamily: 'Helvetica-Bold', textAlign: 'center', marginVertical: 15 },
   textStandard: { fontSize: 10, textAlign: 'center', lineHeight: 1.5, marginBottom: 15 },
   textLeft: { fontSize: 10, textAlign: 'left', lineHeight: 1.5, marginBottom: 15 },
-  
+
   // --- Tablas y Celdas (Flexbox) ---
   table: {
     width: '100%',
@@ -69,12 +69,12 @@ const styles = StyleSheet.create({
   headerCode: { width: '25%', justifyContent: 'center' },
   headerCodeTop: { borderBottomWidth: 1, borderColor: '#000', padding: 5, alignItems: 'center' },
   headerCodeBot: { padding: 5, alignItems: 'center' },
-  
+
   signatureBox: {
     marginTop: 50,
     alignItems: 'center',
   },
-  
+
   logoImage: {
     height: 35,
     objectFit: 'contain',
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
 export const MedicalCertificatePDF = ({ data }: { data: CertificateData }) => (
   <Document>
     <Page size="LETTER" style={styles.page}>
-      
+
       {/* --- ENCABEZADO --- */}
       <View style={styles.table}>
         <View style={styles.lastRow}>
@@ -107,13 +107,13 @@ export const MedicalCertificatePDF = ({ data }: { data: CertificateData }) => (
       </View>
 
       <Text style={[styles.title, { marginTop: 20 }]}>A QUIEN CORRESPONDA</Text>
-      
+
       <Text style={styles.textStandard}>
         {data.practitionerPreamble || "El/La infrascrito/a Médico/a y Cirujano/a hace constar:"}
       </Text>
-      
+
       <Text style={styles.title}>HACE CONSTAR</Text>
-      
+
       <Text style={styles.textLeft}>
         Que en cumplimiento de los artículos 302 y 303 del Acuerdo Gubernativo 229-2014 y sus reformas 33-2016 y
       </Text>
@@ -129,7 +129,7 @@ export const MedicalCertificatePDF = ({ data }: { data: CertificateData }) => (
         </View>
         {/* Fila 2 */}
         <View style={styles.row}>
-          <View style={[styles.cellHeader, { width: '30%' }]}><Text style={styles.bold}>APELLIDOS Y NOMBRES</Text></View>
+          <View style={[styles.cellHeader, { width: '30%' }]}><Text style={styles.bold}>NOMBRES y APELLIDOS</Text></View>
           <View style={[styles.cellData, { width: '50%' }]}><Text>{data.fullName}</Text></View>
           <View style={[styles.cellHeader, { width: '10%' }]}><Text style={styles.bold}>EDAD</Text></View>
           <View style={[styles.cellNoBorder, { width: '10%' }]}><Text>{data.age}</Text></View>
@@ -159,21 +159,21 @@ export const MedicalCertificatePDF = ({ data }: { data: CertificateData }) => (
         <View style={styles.row}>
           <View style={[styles.cellHeader, { width: '15%' }]}><Text style={styles.bold}>APTO</Text></View>
           <View style={[styles.cellData, { width: '5%', alignItems: 'center' }]}><Text>{data.aptitude === 'APTO' ? 'X' : ''}</Text></View>
-          
+
           <View style={[styles.cellHeader, { width: '35%' }]}><Text style={styles.bold}>APTO CON RECOMENDACIÓN</Text></View>
           <View style={[styles.cellData, { width: '5%', alignItems: 'center' }]}><Text>{data.aptitude === 'APTO_REC' ? 'X' : ''}</Text></View>
-          
+
           <View style={[styles.cellHeader, { width: '35%' }]}><Text style={styles.bold}>APTO CON RESTRICCIÓN</Text></View>
           <View style={[styles.cellNoBorder, { width: '5%', alignItems: 'center' }]}><Text>{data.aptitude === 'APTO_RES' ? 'X' : ''}</Text></View>
         </View>
-        
+
         <View style={styles.lastRow}>
           <View style={[styles.cellHeader, { width: '15%' }]}><Text style={styles.bold}>NO APTO</Text></View>
           <View style={[styles.cellData, { width: '5%', alignItems: 'center' }]}><Text>{data.aptitude === 'NO_APTO' ? 'X' : ''}</Text></View>
-          
+
           <View style={[styles.cellHeader, { width: '35%' }]}><Text style={styles.bold}>NO APTO TEMPORAL</Text></View>
           <View style={[styles.cellData, { width: '5%', alignItems: 'center' }]}><Text>{data.aptitude === 'NO_APTO_TEMP' ? 'X' : ''}</Text></View>
-          
+
           <View style={[styles.cellData, { width: '35%', backgroundColor: '#f8fafc' }]}></View>
           <View style={[styles.cellNoBorder, { width: '5%', backgroundColor: '#f8fafc' }]}></View>
         </View>
