@@ -30,7 +30,7 @@ export function RecentEncountersList({ encounters }: RecentEncountersListProps) 
                   <Link 
                     href={`/patients/${encounter.patientId}/encounters/${encounter.id}`}
                     target="_blank"
-                    className="font-medium text-sm hover:underline"
+                    className="font-medium text-sm hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
                   >
                     {encounter.patientName}
                   </Link>
