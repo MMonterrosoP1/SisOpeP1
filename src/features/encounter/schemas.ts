@@ -87,7 +87,7 @@ export const createEncounterSchema = z.object({
 
   vitalSign: vitalSignSchema.optional().nullable(),
   anthropometry: anthropometrySchema.optional().nullable(),
-  diagnoses: z.array(diagnosisSchema).min(1, "Debe agregar al menos un diagnóstico"),
+  diagnoses: z.array(diagnosisSchema).optional().default([]),
   
   allergies: z.array(allergySchema).optional(),
   habits: z.array(habitSchema).optional(),
@@ -99,13 +99,15 @@ export const createEncounterSchema = z.object({
   occupationalExposures: z.array(occupationalExposureSchema).optional(),
   workDisabilities: z.array(workDisabilitySchema).optional(),
 }).superRefine((data, ctx) => {
-  const hasPrimaryDiagnosis = data.diagnoses.some(d => d.isPrimary);
-  if (!hasPrimaryDiagnosis) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Al menos un diagnóstico debe estar marcado como principal",
-      path: ["diagnoses"],
-    });
+  if (data.diagnoses && data.diagnoses.length > 0) {
+    const hasPrimaryDiagnosis = data.diagnoses.some(d => d.isPrimary);
+    if (!hasPrimaryDiagnosis) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Al menos un diagnóstico debe estar marcado como principal",
+        path: ["diagnoses"],
+      });
+    }
   }
 
   if (data.exercises && data.exercises.some(e => e.doesExercise && (!e.exerciseCatalogId || e.timesPerWeek === undefined || e.timesPerWeek === null))) {
