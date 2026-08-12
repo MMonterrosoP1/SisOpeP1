@@ -15,7 +15,7 @@ export const vitalSignSchema = z.object({
 
 export const anthropometrySchema = z.object({
   weight: z.number({ message: "Debe ser un número" }).min(0.5, "Debe ser al menos 0.5").max(500, "Debe ser máximo 500").optional().nullable(),
-  height: z.number({ message: "Debe ser un número" }).min(20, "Debe ser al menos 20").max(300, "Debe ser máximo 300").optional().nullable(),
+  height: z.number({ message: "Debe ser un número" }).min(0.5, "Debe ser al menos 0.5").max(300, "Debe ser máximo 300").optional().nullable(),
   abdominalCircumference: z.number({ message: "Debe ser un número" }).min(10, "Debe ser al menos 10").max(300, "Debe ser máximo 300").optional().nullable(),
   bmi: z.number({ message: "Debe ser un número" }).optional().nullable(),
   bmiCategory: BmiCategorySchema.optional().nullable(),
