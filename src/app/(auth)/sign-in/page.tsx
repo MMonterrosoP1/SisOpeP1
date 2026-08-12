@@ -30,7 +30,16 @@ export default function SignInPage() {
       });
 
       if (error) {
-        toast.error(error.message || "Error al iniciar sesión");
+        const errorTranslations: Record<string, string> = {
+          "Invalid email or password": "Correo electrónico o contraseña incorrectos",
+          "INVALID_EMAIL_OR_PASSWORD": "Correo electrónico o contraseña incorrectos",
+          "User not found": "Usuario no encontrado",
+          "USER_NOT_FOUND": "Usuario no encontrado",
+        };
+        
+        const translatedError = errorTranslations[error.message] || errorTranslations[error.code as string] || "Error al iniciar sesión. Verifica tus credenciales.";
+        
+        toast.error(translatedError);
         return;
       }
 
