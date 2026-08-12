@@ -50,12 +50,14 @@ export default async function PatientDetailPage({
               Editar Paciente
             </Button>
           </Link>
-          <Link href={`/patients/${patient.id}/encounters/new`}>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Nueva Consulta
-            </Button>
-          </Link>
+          {patient.active && (
+            <Link href={`/patients/${patient.id}/encounters/new`}>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Nueva Consulta
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 

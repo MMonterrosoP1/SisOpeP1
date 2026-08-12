@@ -18,7 +18,17 @@ export default async function NewEncounterPage({
   if (isNaN(patientId)) notFound();
 
   const patient = await getPatientById(patientId);
-  if (!patient || !patient.active) notFound();
+  if (!patient) notFound();
+
+  if (!patient.active) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 gap-4">
+        <h2 className="text-2xl font-bold text-destructive">Paciente Inactivo</h2>
+        <p className="text-muted-foreground text-center">No se pueden crear nuevas consultas para pacientes inactivos.<br />Por favor, active al paciente primero desde su perfil.</p>
+        <BackButton />
+      </div>
+    );
+  }
 
   const [
     encounterType,
