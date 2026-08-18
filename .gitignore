@@ -41,12 +41,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-#agents
-.agents
 /src/generated/prisma
+
+#agents and assistants
+.agents
+AGENTS.md
+CLAUDE.md
+skills-lock.json
+
+# package manager
+package-lock.json
 
 #miscelaneous
 /input_Catalog
+create-admin.ts
+update-schema.js
 get_inventory.js
 inventory.json
 skill_output*.txt
