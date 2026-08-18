@@ -6,6 +6,7 @@ import { Calendar, Clock, MoreHorizontal, Eye } from "lucide-react";
 import Link from "next/link";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
+import { Button } from "@/components/ui/button";
 
 export function EncounterTableRow({ encounter }: { encounter: any }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -69,33 +70,40 @@ export function EncounterTableRow({ encounter }: { encounter: any }) {
         <span className="text-sm">{encounter.medicalAptitude?.name || "-"}</span>
       </TableCell>
       <TableCell className="text-right sticky right-0 z-10 bg-background group-hover:bg-muted/40 transition-colors shadow-[-1px_0_0_0_hsl(var(--border))]">
-        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-          <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0">
-            <span className="sr-only">Abrir menú</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <Link prefetch={false} href={`/patients/${encounter.patientId}/encounters/${encounter.id}`}>
-              <DropdownMenuItem className="cursor-pointer">
-                <Eye className="w-4 h-4 mr-2 text-muted-foreground" />
-                <span>Ver Detalle</span>
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuSeparator />
-            <DocumentActionMenuItem
-              encounterId={encounter.id}
-              documentTypeCode="MEDICAL_CERTIFICATE"
-              label="Constancia Médica"
-              initialPdfUrl={medCert?.pdfUrl}
-            />
-            <DocumentActionMenuItem
-              encounterId={encounter.id}
-              documentTypeCode="ILLNESS_CERTIFICATE"
-              label="Constancia de Enf."
-              initialPdfUrl={illnessCert?.pdfUrl}
-            />
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center justify-end gap-1">
+          <Link 
+            prefetch={false} 
+            href={`/patients/${encounter.patientId}/encounters/${encounter.id}`}
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0"
+            title="Ver Detalle"
+          >
+            <Eye className="h-4 w-4 text-muted-foreground" />
+            <span className="sr-only">Ver Detalle</span>
+          </Link>
+          <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+            <DropdownMenuTrigger 
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0"
+              title="Documentos"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+              <span className="sr-only">Abrir menú</span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DocumentActionMenuItem
+                encounterId={encounter.id}
+                documentTypeCode="MEDICAL_CERTIFICATE"
+                label="Constancia Médica"
+                initialPdfUrl={medCert?.pdfUrl}
+              />
+              <DocumentActionMenuItem
+                encounterId={encounter.id}
+                documentTypeCode="ILLNESS_CERTIFICATE"
+                label="Constancia de Enf."
+                initialPdfUrl={illnessCert?.pdfUrl}
+              />
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </TableCell>
     </TableRow>
   );
