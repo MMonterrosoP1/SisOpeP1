@@ -229,7 +229,7 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [localCatalogs, setLocalCatalogs] = useState<Record<string, CatalogItem[]>>(catalogs);
-  
+
   const [quickAddDialog, setQuickAddDialog] = useState<{
     open: boolean;
     type: "workplace" | "workArea" | "jobPosition";
@@ -287,11 +287,11 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
   const handleChange = (field: keyof PatientFormData, value: any) => {
     setFormData((prev) => {
       const next = { ...prev, [field]: value };
-      
+
       if (field === "sex" && next.maritalStatusId) {
         const currentMaritalStatus = localCatalogs.maritalStatus?.find(ms => String(ms.id) === next.maritalStatusId);
         if (currentMaritalStatus && currentMaritalStatus.sex && currentMaritalStatus.sex !== value) {
-           next.maritalStatusId = "";
+          next.maritalStatusId = "";
         }
       }
 
@@ -301,7 +301,7 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
         next.workAreaId = "";
         next.jobPositionId = "";
       }
-      
+
       return next;
     });
     if (fieldErrors[field]) {
@@ -385,7 +385,26 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
         : await createPatient(payload);
 
       if (res.success) {
-        toast.success(`Paciente ${initialData ? "actualizado" : "creado"} correctamente`);
+        if (!initialData && res.data && typeof res.data === "object" && "id" in res.data) {
+          const newPatientId = (res.data as { id: string | number }).id;
+          toast.success("Paciente registrado exitosamente", {
+            description: "¿Deseas iniciar su primera consulta médica ahora?",
+            position: "bottom-right",
+            action: {
+              label: "Iniciar consulta",
+              onClick: () => router.push(`/patients/${newPatientId}/encounters/new`),
+            },
+            actionButtonStyle: {
+              backgroundColor: "#16a34a",
+              color: "white",
+              border: "none",
+            },
+
+            duration: 5000,
+          });
+        } else {
+          toast.success(`Paciente ${initialData ? "actualizado" : "creado"} correctamente`);
+        }
         router.push("/patients");
       } else {
         if (res.fieldErrors) {
