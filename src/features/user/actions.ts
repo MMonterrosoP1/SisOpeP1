@@ -29,6 +29,7 @@ export async function createUser(data: unknown): Promise<ActionResponse<any>> {
           givenNames,
           familyNames,
           sex,
+          identityDocument: email, // Usamos el email como DPI temporal para médicos
           createdBy: session.user.email,
           updatedBy: session.user.email,
         }
@@ -102,6 +103,7 @@ export async function updateDoctorInfo(data: unknown): Promise<ActionResponse<an
           givenNames,
           familyNames,
           sex,
+          identityDocument: user.email, // Usamos el email como DPI temporal para médicos
           createdBy: session.user.email,
           updatedBy: session.user.email,
         }

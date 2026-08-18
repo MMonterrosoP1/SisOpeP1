@@ -1,6 +1,7 @@
 import { getPatientById } from "@/features/patient/queries";
 import { getCatalogs } from "@/features/catalog/queries";
 import { getLatestEncounterByPatient } from "@/features/encounter/queries";
+import { getPatientHistory } from "@/features/patient-history/queries";
 import { mapEncounterToFormDefaults } from "@/features/encounter/domain/encounter-snapshot";
 import { EncounterForm } from "@/features/encounter/components/encounter-form";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ export default async function NewEncounterPage({
     suspensionHour,
     exerciseCatalog,
     latestEncounter,
+    patientHistory,
   ] = await Promise.all([
     getCatalogs("encounterType"),
     getCatalogs("allergenCatalog"),
@@ -58,6 +60,7 @@ export default async function NewEncounterPage({
     getCatalogs("suspensionHour"),
     getCatalogs("exerciseCatalog"),
     getLatestEncounterByPatient(patientId),
+    getPatientHistory(patientId),
   ]);
 
   const catalogs = {
@@ -94,6 +97,7 @@ export default async function NewEncounterPage({
         patientSex={patient.person.sex as any} 
         catalogs={catalogs}
         previousDefaults={previousDefaults}
+        patientHistory={patientHistory}
         isFollowUp={isFollowUp}
         previousEncounterDate={previousEncounterDate}
         patientSummary={{

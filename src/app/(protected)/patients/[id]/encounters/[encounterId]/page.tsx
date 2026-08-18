@@ -1,5 +1,6 @@
 import { getPatientById } from "@/features/patient/queries";
 import { getEncounterById } from "@/features/encounter/queries";
+import { getPatientHistory } from "@/features/patient-history/queries";
 import { notFound } from "next/navigation";
 import { EncounterDetailView } from "@/features/encounter/components/encounter-detail-view";
 
@@ -21,10 +22,11 @@ export default async function EncounterDetailPage({ params }: EncounterPageProps
     notFound();
   }
 
-  const [patient, encounter] = await Promise.all([
+  const [patient, encounter, patientHistory] = await Promise.all([
     getPatientById(patientId),
     getEncounterById(encounterId),
-  ]).catch(() => [null, null]);
+    getPatientHistory(patientId),
+  ]).catch(() => [null, null, null]);
 
   if (!patient || !encounter) {
     notFound();
@@ -37,7 +39,7 @@ export default async function EncounterDetailPage({ params }: EncounterPageProps
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-8">
-      <EncounterDetailView patient={patient} encounter={encounter} />
+      <EncounterDetailView patient={patient} encounter={encounter} patientHistory={patientHistory} />
     </div>
   );
 }

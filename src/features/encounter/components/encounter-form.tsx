@@ -42,8 +42,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { RefreshCw, RotateCcw } from "lucide-react";
+import { RefreshCw, RotateCcw, History, Stethoscope } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
+function SectionDivider({ title, icon: Icon }: { title: string, icon?: any }) {
+  return (
+    <div className="flex items-center gap-4 py-2 mt-2 mb-0 w-full">
+      <div className="h-px bg-border flex-1" />
+      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+        {Icon && <Icon className="h-4 w-4" />}
+        {title}
+      </h2>
+      <div className="h-px bg-border flex-1" />
+    </div>
+  );
+}
 
 const bmiCategoryEs: Record<string, string> = {
   UNDERWEIGHT: "Bajo peso",
@@ -218,6 +231,7 @@ interface EncounterFormProps {
   previousDefaults?: Partial<EncounterFormState>;
   isFollowUp?: boolean;
   previousEncounterDate?: string;
+  patientHistory?: any;
 }
 
 type EncounterFormState = {
@@ -241,7 +255,7 @@ type EncounterFormState = {
   diagnoses: { icd10CodeId: number | null; diseaseTypeId: string; observations: string; isPrimary: boolean; }[];
   allergies: { allergenCatalogId: string; detail: string; }[];
   habits: { habitCatalogId: string; duration: string; quantity: string; frequency: string; observations: string; }[];
-  exercises: { doesExercise: boolean; exerciseCatalogId: string; timesPerWeek: string; }[];
+  exercises: { exerciseCatalogId: string; timesPerWeek: string; }[];
   medicalHistory: { icd10CodeId: number | null; observations: string; }[];
   surgicalHistory: { surgicalProcedureId: string; observations: string; }[];
   traumaHistory: { icd10CodeId: number | null; observations: string; }[];
@@ -250,11 +264,13 @@ type EncounterFormState = {
   workDisabilities: { workDisabilityId: string; observations: string; }[];
 };
 
-export function EncounterForm({ patientId, patientSex, catalogs, patientSummary, previousDefaults, isFollowUp, previousEncounterDate }: EncounterFormProps) {
+import { PatientHistoryFormSection } from "@/features/patient-history/components/patient-history-form-section";
+
+export function EncounterForm({ patientId, patientSex, catalogs, patientSummary, previousDefaults, isFollowUp, previousEncounterDate, patientHistory }: EncounterFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
-  
+
   const [localCatalogs, setLocalCatalogs] = useState<Record<string, CatalogItem[]>>(catalogs);
   const [quickAddDialog, setQuickAddDialog] = useState<{
     open: boolean;
@@ -269,7 +285,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
     title: "",
     field: "",
   });
-  
+
   const [allergenDialog, setAllergenDialog] = useState<{
     open: boolean;
     arrayIndex: number;
@@ -311,18 +327,35 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
     },
     anthropometry: { weight: "", height: "", abdominalCircumference: "" },
     diagnoses: [{ icd10CodeId: null, diseaseTypeId: "", observations: "", isPrimary: true }],
-    allergies: [],
-    habits: [],
-    exercises: [{ doesExercise: false, exerciseCatalogId: "", timesPerWeek: "" }],
-    medicalHistory: [],
-    surgicalHistory: [],
-    traumaHistory: [],
-    familyHistory: [],
+    allergies: patientHistory?.allergies?.map((a: any) => ({ allergenCatalogId: String(a.allergenCatalogId), detail: a.detail || "" })) || [],
+    habits: patientHistory?.habits?.map((h: any) => ({ habitCatalogId: String(h.habitCatalogId), duration: h.duration || "", quantity: String(h.quantity || ""), frequency: h.frequency || "", observations: h.observations || "" })) || [],
+    exercises: patientHistory?.exercises?.map((e: any) => ({ exerciseCatalogId: String(e.exerciseCatalogId), timesPerWeek: String(e.timesPerWeek || "") })) || [],
+    medicalHistory: patientHistory?.medicalHistory?.map((h: any) => ({ icd10CodeId: h.icd10CodeId, observations: h.observations || "" })) || [],
+    surgicalHistory: patientHistory?.surgicalHistory?.map((h: any) => ({ surgicalProcedureId: String(h.surgicalProcedureId), observations: h.observations || "" })) || [],
+    traumaHistory: patientHistory?.traumaHistory?.map((h: any) => ({ icd10CodeId: h.icd10CodeId, observations: h.observations || "" })) || [],
+    familyHistory: patientHistory?.familyHistory?.map((h: any) => ({ icd10CodeId: h.icd10CodeId, observations: h.observations || "" })) || [],
     occupationalExposures: [],
     workDisabilities: []
   };
 
-  const [formData, setFormData] = useState<EncounterFormState>(previousDefaults ? { ...defaultFormData, ...previousDefaults } as EncounterFormState : defaultFormData);
+  const [formData, setFormData] = useState<EncounterFormState>(() => {
+    if (!previousDefaults) return defaultFormData;
+    // En modo reconsulta: los campos clínicos de la consulta vienen de previousDefaults,
+    // pero los antecedentes (allergies, habits, exercises, historial médico/quirúrgico/traumático/familiar)
+    // siempre se toman del historial actualizado del paciente (defaultFormData).
+    return {
+      ...defaultFormData,          // base con antecedentes de patientHistory
+      ...previousDefaults,         // sobreescribe con datos de la consulta anterior
+      // Antecedentes: forzar los del historial del paciente (no los de la consulta previa)
+      allergies: defaultFormData.allergies,
+      habits: defaultFormData.habits,
+      exercises: defaultFormData.exercises,
+      medicalHistory: defaultFormData.medicalHistory,
+      surgicalHistory: defaultFormData.surgicalHistory,
+      traumaHistory: defaultFormData.traumaHistory,
+      familyHistory: defaultFormData.familyHistory,
+    } as EncounterFormState;
+  });
 
   const handleClearData = () => {
     setFormData(defaultFormData);
@@ -459,11 +492,10 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
           observations: h.observations || undefined
         })).filter((h) => h.habitCatalogId),
 
-        exercises: formData.exercises.map((e) => ({
-          doesExercise: e.doesExercise,
+        exercises: formData.exercises.map((e: any) => ({
           exerciseCatalogId: toOptionalNumber(e.exerciseCatalogId),
           timesPerWeek: toOptionalNumber(e.timesPerWeek)
-        })).filter((e) => e.exerciseCatalogId || e.doesExercise),
+        })).filter((e: any) => e.exerciseCatalogId),
 
         medicalHistory: formData.medicalHistory.map((h) => ({
           icd10CodeId: toOptionalNumber(h.icd10CodeId),
@@ -518,8 +550,8 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
   };
 
   return (
-    <form 
-      onSubmit={handleSubmit} 
+    <form
+      onSubmit={handleSubmit}
       className="w-full flex flex-col gap-6"
       onKeyDown={(e) => {
         if (
@@ -531,64 +563,66 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
         }
       }}
     >
-      <Card>
-        <CardHeader className="flex flex-row justify-between items-start space-y-0">
-          <div>
-            <CardTitle>Datos Generales</CardTitle>
-            <CardDescription>Información principal de la consulta.</CardDescription>
-          </div>
-          {patientSummary && (
-            <Button 
-              type="button" 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setPatientSearchOpen(true)}
-              className="hidden sm:flex"
-            >
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Cambiar Paciente
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {patientSummary && (
-            <div className="col-span-1 md:col-span-2 mb-2 p-4 bg-muted/30 border rounded-lg flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-semibold text-lg leading-none">{patientSummary.fullName}</h3>
-                  {isFollowUp && (
-                    <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200">
-                      Reconsulta
-                    </Badge>
-                  )}
-                  <Button 
-                    type="button" 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => setPatientSearchOpen(true)}
-                    className="sm:hidden h-6 w-6"
-                    title="Cambiar Paciente"
-                  >
-                    <RefreshCw className="h-3 w-3" />
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {patientSummary.identityDocument} • {patientSummary.age} años {patientSummary.phone ? `• Tel: ${patientSummary.phone}` : ''}
-                </p>
-                {isFollowUp && previousEncounterDate && (
-                  <p className="text-xs text-muted-foreground mt-1 text-blue-600">
-                    Datos precargados de la consulta del {new Intl.DateTimeFormat('es-ES', { 
-                      day: '2-digit', month: 'long', year: 'numeric' 
-                    }).format(new Date(previousEncounterDate))}
-                  </p>
+      {/* 1. Contexto del Paciente */}
+      {patientSummary && (
+        <Card className="bg-muted/10">
+          <CardContent className="p-4 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-semibold text-lg leading-none">{patientSummary.fullName}</h3>
+                {isFollowUp && (
+                  <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200">
+                    Reconsulta
+                  </Badge>
                 )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPatientSearchOpen(true)}
+                  className="sm:hidden h-6 w-6"
+                  title="Cambiar Paciente"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                </Button>
               </div>
-              <div className="text-left md:text-right text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
+                {patientSummary.identityDocument} • {patientSummary.age} años {patientSummary.phone ? `• Tel: ${patientSummary.phone}` : ''}
+              </p>
+              {isFollowUp && previousEncounterDate && (
+                <p className="text-xs text-muted-foreground mt-1 text-blue-600">
+                  Datos precargados de la consulta del {new Intl.DateTimeFormat('es-ES', {
+                    day: '2-digit', month: 'long', year: 'numeric'
+                  }).format(new Date(previousEncounterDate))}
+                </p>
+              )}
+            </div>
+            <div className="text-left md:text-right text-sm text-muted-foreground flex flex-col items-start md:items-end gap-2">
+              <div>
                 {patientSummary.jobPosition && <p>Puesto: <span className="font-medium text-foreground">{patientSummary.jobPosition}</span></p>}
                 {patientSummary.workplace && <p>Lugar: <span className="font-medium text-foreground">{patientSummary.workplace}</span></p>}
               </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setPatientSearchOpen(true)}
+                className="hidden sm:flex"
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Cambiar Paciente
+              </Button>
             </div>
-          )}
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Motivo de Consulta</CardTitle>
+          <CardDescription>Información principal de la consulta.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <CatalogSelectFieldWithAdd
             name="encounterTypeId"
             label="Tipo de Consulta"
@@ -630,6 +664,21 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
           </div>
         </CardContent>
       </Card>
+
+      {/* 3. Antecedentes  */}
+      <SectionDivider title="Antecedentes" />
+
+      <PatientHistoryFormSection
+        formData={formData}
+        handleArrayChange={handleArrayChange}
+        addArrayItem={addArrayItem}
+        removeArrayItem={removeArrayItem}
+        catalogs={localCatalogs}
+        patientHistory={patientHistory}
+      />
+
+      {/* 4. Exploración y Diagnósticos */}
+      <SectionDivider title="Datos de la Consulta" />
 
       <CollapsibleSection
         title="Signos Vitales"
@@ -701,6 +750,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
           })()}
         </div>
       </CollapsibleSection>
+
 
       <CollapsibleSection title="Diagnósticos (Obligatorio)" defaultExpanded>
         {getFieldError("diagnoses") && <FieldError error={getFieldError("diagnoses")} />}
@@ -775,277 +825,6 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
         </div>
       </CollapsibleSection>
 
-      <CollapsibleSection
-        title="Alergias"
-        defaultExpanded
-        hasError={Object.keys(fieldErrors).some(k => k.startsWith("allergies."))}
-      >
-        <div className="flex flex-col gap-4">
-          {formData.allergies.map((a, index: number) => (
-            <div key={index} className="flex flex-col gap-4 p-4 border rounded-lg relative">
-              <Button type="button" variant="ghost" size="icon" className="absolute right-2 top-2 text-destructive" onClick={() => removeArrayItem("allergies", index)}>
-                <Trash2 className="h-4 w-4" />
-              </Button>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full md:w-[95%]">
-                <div className="flex flex-col gap-2 w-full">
-                  <Label>Alérgeno <span className="text-destructive">*</span></Label>
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <AllergenSearchModal
-                        id={`allergy-${index}`}
-                        value={a.allergenCatalogId ? Number(a.allergenCatalogId) : null}
-                        options={(localCatalogs["allergenCatalog"] || []) as AllergenOption[]}
-                        onValueChange={(val) => handleArrayChange("allergies", index, "allergenCatalogId", val)}
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="shrink-0"
-                      onClick={() => setAllergenDialog({ open: true, arrayIndex: index })}
-                      title="Agregar nueva alergia"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Detalle</Label>
-                  <Input
-                    className={getFieldError(`allergies.${index}.detail`) ? "border-destructive ring-1 ring-destructive" : ""}
-                    aria-invalid={!!getFieldError(`allergies.${index}.detail`)}
-                    value={a.detail}
-                    onChange={(e) => handleArrayChange("allergies", index, "detail", e.target.value)}
-                  />
-                  <FieldError error={getFieldError(`allergies.${index}.detail`)} />
-                </div>
-              </div>
-            </div>
-          ))}
-          <Button type="button" variant="outline" onClick={() => addArrayItem("allergies", { allergenCatalogId: "", detail: "" })}>
-            <Plus className="h-4 w-4 mr-2" /> Agregar Alergia
-          </Button>
-        </div>
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Hábitos y Estilo de Vida"
-        defaultExpanded
-        hasError={Object.keys(fieldErrors).some(k => k.startsWith("exercises.") || k.startsWith("habits."))}
-      >
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2 border p-4 rounded-lg">
-            <h4 className="font-semibold text-sm">Ejercicio</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center space-x-2 mt-8">
-                <Checkbox
-                  checked={formData.exercises[0]?.doesExercise ?? false}
-                  onCheckedChange={(c) => {
-                    handleArrayChange("exercises", 0, "doesExercise", !!c);
-                    if (!c) {
-                      handleArrayChange("exercises", 0, "exerciseCatalogId", "");
-                      handleArrayChange("exercises", 0, "timesPerWeek", "");
-                    }
-                  }}
-                />
-                <Label>¿Realiza Ejercicio?</Label>
-              </div>
-              <FieldError error={getFieldError("exercises")} />
-              {formData.exercises[0]?.doesExercise && (
-                <>
-                  <CatalogSelectFieldWithAdd
-                    name="exercises.0.exerciseCatalogId"
-                    label="Tipo de Deporte"
-                    placeholder="Seleccione un deporte"
-                    value={String(formData.exercises[0]?.exerciseCatalogId || "")}
-                    options={getCatalogOptions("exerciseCatalog")}
-                    error={getFieldError("exercises.0.exerciseCatalogId")}
-                    onChange={(val) => handleArrayChange("exercises", 0, "exerciseCatalogId", val)}
-                    onAddClick={() => setQuickAddDialog({
-                      open: true,
-                      type: "exerciseCatalog",
-                      title: "Tipo de Deporte",
-                      field: "exerciseCatalogId",
-                      arrayName: "exercises",
-                      arrayIndex: 0
-                    })}
-                  />
-                  <div className="flex flex-col gap-2">
-                    <Label>Veces por Semana</Label>
-                    <Input
-                      type="number"
-                      className={getFieldError("exercises.0.timesPerWeek") ? "border-destructive ring-1 ring-destructive" : ""}
-                      aria-invalid={!!getFieldError("exercises.0.timesPerWeek")}
-                      value={formData.exercises[0]?.timesPerWeek || ""}
-                      onChange={(e) => handleArrayChange("exercises", 0, "timesPerWeek", e.target.value)}
-                    />
-                    <FieldError error={getFieldError("exercises.0.timesPerWeek")} />
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-
-          <h4 className="font-semibold text-sm mt-2">Otros Hábitos (Fumar, Beber, etc.)</h4>
-          {formData.habits.map((h, index: number) => (
-            <div key={index} className="flex flex-col gap-4 p-4 border rounded-lg relative">
-              <Button type="button" variant="ghost" size="icon" className="absolute right-2 top-2 text-destructive" onClick={() => removeArrayItem("habits", index)}>
-                <Trash2 className="h-4 w-4" />
-              </Button>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:w-[95%]">
-                <CatalogSelectFieldWithAdd
-                  name={`habits.${index}.habitCatalogId`}
-                  label="Hábito"
-                  value={String(h.habitCatalogId || "")}
-                  options={getCatalogOptions("habitCatalog")}
-                  placeholder="Seleccione el hábito"
-                  error={getFieldError(`habits.${index}.habitCatalogId`)}
-                  onChange={(val) => handleArrayChange("habits", index, "habitCatalogId", val)}
-                  onAddClick={() => setQuickAddDialog({
-                    open: true,
-                    type: "habitCatalog",
-                    title: "Hábito",
-                    field: "habitCatalogId",
-                    arrayName: "habits",
-                    arrayIndex: index
-                  })}
-                />
-                <div className="flex flex-col gap-2">
-                  <Label>Cantidad</Label>
-                  <Input
-                    type="number"
-                    className={getFieldError(`habits.${index}.quantity`) ? "border-destructive ring-1 ring-destructive" : ""}
-                    aria-invalid={!!getFieldError(`habits.${index}.quantity`)}
-                    value={h.quantity}
-                    onChange={(e) => handleArrayChange("habits", index, "quantity", e.target.value)}
-                  />
-                  <FieldError error={getFieldError(`habits.${index}.quantity`)} />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Frecuencia</Label>
-                  <Select value={h.frequency || ""} onValueChange={(v) => handleArrayChange("habits", index, "frequency", v)}>
-                    <SelectTrigger><SelectValue placeholder="Seleccione..." /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="DAILY">Diario</SelectItem>
-                      <SelectItem value="WEEKLY">Semanal</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Duración</Label>
-                  <Input
-                    className={getFieldError(`habits.${index}.duration`) ? "border-destructive ring-1 ring-destructive" : ""}
-                    aria-invalid={!!getFieldError(`habits.${index}.duration`)}
-                    value={h.duration}
-                    onChange={(e) => handleArrayChange("habits", index, "duration", e.target.value)}
-                    placeholder="Ej. 5 años"
-                  />
-                  <FieldError error={getFieldError(`habits.${index}.duration`)} />
-                </div>
-                <div className="col-span-2 flex flex-col gap-2">
-                  <Label>Observaciones</Label>
-                  <Input
-                    className={getFieldError(`habits.${index}.observations`) ? "border-destructive ring-1 ring-destructive" : ""}
-                    aria-invalid={!!getFieldError(`habits.${index}.observations`)}
-                    value={h.observations}
-                    onChange={(e) => handleArrayChange("habits", index, "observations", e.target.value)}
-                  />
-                  <FieldError error={getFieldError(`habits.${index}.observations`)} />
-                </div>
-              </div>
-            </div>
-          ))}
-          <Button type="button" variant="outline" onClick={() => addArrayItem("habits", { habitCatalogId: "", duration: "", quantity: "", frequency: "", observations: "" })}>
-            <Plus className="h-4 w-4 mr-2" /> Agregar Hábito
-          </Button>
-        </div>
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Antecedentes Personales (Médicos, Trauma, Familiares)"
-        defaultExpanded
-        hasError={Object.keys(fieldErrors).some(k =>
-          k.startsWith("medicalHistory.") ||
-          k.startsWith("traumaHistory.") ||
-          k.startsWith("familyHistory.") ||
-          k.startsWith("surgicalHistory.")
-        )}
-      >
-        <div className="flex flex-col gap-6">
-          {[{ key: "medicalHistory", title: "Médicos" }, { key: "traumaHistory", title: "Traumáticos" }, { key: "familyHistory", title: "Familiares" }].map((section) => (
-            <div key={section.key} className="flex flex-col gap-2">
-              <h4 className="font-semibold text-sm">{section.title}</h4>
-              {((formData as any)[section.key] || []).map((h: any, index: number) => (
-                <div key={index} className="flex gap-4 items-end">
-                  <div className="flex-1 flex flex-col gap-2">
-                    <Label>Código ICD-10</Label>
-                    <Icd10SearchModal id={`${section.key}-icd10-${index}`} value={h.icd10CodeId} onValueChange={(val) => handleArrayChange(section.key, index, "icd10CodeId", val)} />
-                  </div>
-                  <div className="flex-1 flex flex-col gap-2">
-                    <Label>Observaciones</Label>
-                    <Input
-                      className={getFieldError(`${section.key}.${index}.observations`) ? "border-destructive ring-1 ring-destructive" : ""}
-                      aria-invalid={!!getFieldError(`${section.key}.${index}.observations`)}
-                      value={h.observations}
-                      onChange={(e) => handleArrayChange(section.key, index, "observations", e.target.value)}
-                    />
-                    <FieldError error={getFieldError(`${section.key}.${index}.observations`)} />
-                  </div>
-                  <Button type="button" variant="ghost" size="icon" className="text-destructive mb-0.5" onClick={() => removeArrayItem(section.key, index)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              <Button type="button" variant="outline" className="w-fit" onClick={() => addArrayItem(section.key, { icd10CodeId: null, observations: "" })}>
-                <Plus className="h-4 w-4 mr-2" /> Agregar
-              </Button>
-            </div>
-          ))}
-
-          <div className="flex flex-col gap-2">
-            <h4 className="font-semibold text-sm">Quirúrgicos</h4>
-            {formData.surgicalHistory.map((s, index: number) => (
-              <div key={index} className="flex gap-4 items-end">
-                <div className="flex-1">
-                  <CatalogSelectFieldWithAdd 
-                    name={`surg-${index}`} 
-                    label="Procedimiento" 
-                    value={String(s.surgicalProcedureId || "")} 
-                    options={getCatalogOptions("surgicalProcedure")} 
-                    placeholder="Seleccione..." 
-                    onChange={(val) => handleArrayChange("surgicalHistory", index, "surgicalProcedureId", val)} 
-                    onAddClick={() => setQuickAddDialog({
-                      open: true,
-                      type: "surgicalProcedure",
-                      title: "Procedimiento Quirúrgico",
-                      field: "surgicalProcedureId",
-                      arrayName: "surgicalHistory",
-                      arrayIndex: index
-                    })}
-                  />
-                </div>
-                <div className="flex-1 flex flex-col gap-2">
-                  <Label>Observaciones</Label>
-                  <Input
-                    className={getFieldError(`surgicalHistory.${index}.observations`) ? "border-destructive ring-1 ring-destructive" : ""}
-                    aria-invalid={!!getFieldError(`surgicalHistory.${index}.observations`)}
-                    value={s.observations}
-                    onChange={(e) => handleArrayChange("surgicalHistory", index, "observations", e.target.value)}
-                  />
-                  <FieldError error={getFieldError(`surgicalHistory.${index}.observations`)} />
-                </div>
-                <Button type="button" variant="ghost" size="icon" className="text-destructive mb-0.5" onClick={() => removeArrayItem("surgicalHistory", index)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-            <Button type="button" variant="outline" className="w-fit" onClick={() => addArrayItem("surgicalHistory", { surgicalProcedureId: "", observations: "" })}>
-              <Plus className="h-4 w-4 mr-2" /> Agregar
-            </Button>
-          </div>
-        </div>
-      </CollapsibleSection>
 
       {patientSex === "FEMALE" && (
         <CollapsibleSection title="Ginecología" defaultExpanded>
@@ -1102,13 +881,13 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
             {formData.occupationalExposures.map((e, index: number) => (
               <div key={index} className="flex gap-4 items-end">
                 <div className="flex-1">
-                  <CatalogSelectFieldWithAdd 
-                    name={`occ-${index}`} 
-                    label="Exposición" 
-                    value={String(e.occupationalExposureId || "")} 
-                    options={getCatalogOptions("occupationalExposure")} 
-                    placeholder="Seleccione..." 
-                    onChange={(val) => handleArrayChange("occupationalExposures", index, "occupationalExposureId", val)} 
+                  <CatalogSelectFieldWithAdd
+                    name={`occ-${index}`}
+                    label="Exposición"
+                    value={String(e.occupationalExposureId || "")}
+                    options={getCatalogOptions("occupationalExposure")}
+                    placeholder="Seleccione..."
+                    onChange={(val) => handleArrayChange("occupationalExposures", index, "occupationalExposureId", val)}
                     onAddClick={() => setQuickAddDialog({
                       open: true,
                       type: "occupationalExposure",
@@ -1147,13 +926,13 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
             {formData.workDisabilities.map((w, index: number) => (
               <div key={index} className="flex gap-4 items-end">
                 <div className="flex-1">
-                  <CatalogSelectFieldWithAdd 
-                    name={`dis-${index}`} 
-                    label="Discapacidad" 
-                    value={String(w.workDisabilityId || "")} 
-                    options={getCatalogOptions("workDisability")} 
-                    placeholder="Seleccione..." 
-                    onChange={(val) => handleArrayChange("workDisabilities", index, "workDisabilityId", val)} 
+                  <CatalogSelectFieldWithAdd
+                    name={`dis-${index}`}
+                    label="Discapacidad"
+                    value={String(w.workDisabilityId || "")}
+                    options={getCatalogOptions("workDisability")}
+                    placeholder="Seleccione..."
+                    onChange={(val) => handleArrayChange("workDisabilities", index, "workDisabilityId", val)}
                     onAddClick={() => setQuickAddDialog({
                       open: true,
                       type: "workDisability",
@@ -1196,13 +975,13 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
         ].some((f) => !!getFieldError(f))}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <CatalogSelectFieldWithAdd 
-            name="referralLevelId" 
-            label="Nivel de Referencia" 
-            value={String(formData.referralLevelId || "")} 
-            options={getCatalogOptions("referralLevel")} 
-            placeholder="Seleccione..." 
-            onChange={(val) => handleFieldChange("referralLevelId", val)} 
+          <CatalogSelectFieldWithAdd
+            name="referralLevelId"
+            label="Nivel de Referencia"
+            value={String(formData.referralLevelId || "")}
+            options={getCatalogOptions("referralLevel")}
+            placeholder="Seleccione..."
+            onChange={(val) => handleFieldChange("referralLevelId", val)}
             onAddClick={() => setQuickAddDialog({
               open: true,
               type: "referralLevel",
@@ -1210,13 +989,13 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
               field: "referralLevelId"
             })}
           />
-          <CatalogSelectFieldWithAdd 
-            name="medicalAptitudeId" 
-            label="Aptitud Médica" 
-            value={String(formData.medicalAptitudeId || "")} 
-            options={getCatalogOptions("medicalAptitude")} 
-            placeholder="Seleccione..." 
-            onChange={(val) => handleFieldChange("medicalAptitudeId", val)} 
+          <CatalogSelectFieldWithAdd
+            name="medicalAptitudeId"
+            label="Aptitud Médica"
+            value={String(formData.medicalAptitudeId || "")}
+            options={getCatalogOptions("medicalAptitude")}
+            placeholder="Seleccione..."
+            onChange={(val) => handleFieldChange("medicalAptitudeId", val)}
             onAddClick={() => setQuickAddDialog({
               open: true,
               type: "medicalAptitude",
@@ -1235,13 +1014,13 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
             />
             <FieldError error={getFieldError("medicationsAdministered")} />
           </div>
-          <CatalogSelectFieldWithAdd 
-            name="suspensionHourId" 
-            label="Horas de Suspensión (Descanso)" 
-            value={String(formData.suspensionHourId || "")} 
-            options={getCatalogOptions("suspensionHour")} 
-            placeholder="Seleccione..." 
-            onChange={(val) => handleFieldChange("suspensionHourId", val)} 
+          <CatalogSelectFieldWithAdd
+            name="suspensionHourId"
+            label="Horas de Suspensión (Descanso)"
+            value={String(formData.suspensionHourId || "")}
+            options={getCatalogOptions("suspensionHour")}
+            placeholder="Seleccione..."
+            onChange={(val) => handleFieldChange("suspensionHourId", val)}
             onAddClick={() => setQuickAddDialog({
               open: true,
               type: "suspensionHour",
@@ -1263,7 +1042,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
           <div className="flex flex-col gap-2">
             <Label>Fecha de Seguimiento</Label>
             <Popover>
-              <PopoverTrigger 
+              <PopoverTrigger
                 render={
                   <Button
                     variant={"outline"}

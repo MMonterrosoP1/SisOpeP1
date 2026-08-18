@@ -56,7 +56,7 @@ export const workplaceUpdateSchema = z.object({
 
 export const workAreaSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(255),
-  type: WorkplaceTypeSchema.default("OFICINA"),
+  type: WorkplaceTypeSchema.nullable().optional(),
 });
 
 export const jobPositionSchema = z.object({

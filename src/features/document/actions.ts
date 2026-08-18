@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 import { safeParseAction } from "@/shared/utils/zod-helpers";
 import { generateDocumentSchema } from "./schemas";
@@ -22,9 +22,11 @@ export async function generateDocumentAction(data: unknown): Promise<ActionRespo
       parseResult.data.documentTypeCode
     );
 
-    revalidatePath("/certificates");
-    revalidatePath("/encounters");
-    revalidatePath(`/patients/${documentRecord.patientId}`);
+    // Invalidar caché de documentos, la consulta específica y el perfil del paciente
+    revalidateTag("documents", "max");
+    revalidateTag(`encounter-${parseResult.data.encounterId}`, "max");
+    revalidateTag(`patient-${documentRecord.patientId}`, "max");
+    revalidateTag("encounters", "max");
 
     return { success: true, data: documentRecord };
   } catch (error) {

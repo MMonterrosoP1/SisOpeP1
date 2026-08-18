@@ -42,8 +42,7 @@ export const habitSchema = z.object({
 });
 
 export const exerciseSchema = z.object({
-  doesExercise: z.boolean(),
-  exerciseCatalogId: idParamSchema.optional().nullable(),
+  exerciseCatalogId: idParamSchema,
   timesPerWeek: z.number({ message: "Debe ser un número" }).int("Debe ser un número entero").min(0, "Debe ser al menos 0").max(28, "Máximo 28").optional().nullable(),
 });
 
@@ -88,14 +87,13 @@ export const createEncounterSchema = z.object({
   vitalSign: vitalSignSchema.optional().nullable(),
   anthropometry: anthropometrySchema.optional().nullable(),
   diagnoses: z.array(diagnosisSchema).optional().default([]),
-  
-  allergies: z.array(allergySchema).optional(),
-  habits: z.array(habitSchema).optional(),
-  exercises: z.array(exerciseSchema).optional(),
-  medicalHistory: z.array(historyEntrySchema).optional(),
-  surgicalHistory: z.array(surgicalHistorySchema).optional(),
-  traumaHistory: z.array(historyEntrySchema).optional(),
-  familyHistory: z.array(historyEntrySchema).optional(),
+  allergies: z.any().optional(), // Kept temporarily for backwards compatibility with form state, ignored in creation
+  habits: z.any().optional(),
+  exercises: z.any().optional(),
+  medicalHistory: z.any().optional(),
+  surgicalHistory: z.any().optional(),
+  traumaHistory: z.any().optional(),
+  familyHistory: z.any().optional(),
   occupationalExposures: z.array(occupationalExposureSchema).optional(),
   workDisabilities: z.array(workDisabilitySchema).optional(),
 }).superRefine((data, ctx) => {
@@ -108,14 +106,6 @@ export const createEncounterSchema = z.object({
         path: ["diagnoses"],
       });
     }
-  }
-
-  if (data.exercises && data.exercises.some(e => e.doesExercise && (!e.exerciseCatalogId || e.timesPerWeek === undefined || e.timesPerWeek === null))) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Si realiza ejercicio, debe especificar el tipo de deporte y las veces por semana",
-      path: ["exercises"],
-    });
   }
 
   // Validar duplicados en occupationalExposures
