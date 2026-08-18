@@ -217,9 +217,10 @@ async function main() {
   for (const tc of tipoConsulta) {
     const name = tc["Nombre"] || tc["nombre"];
     if (name) {
+      const code = name.toUpperCase().replace(/\s+/g, "_");
       const existing = await prisma.encounterType.findFirst({ where: { name } });
       if (!existing) {
-        await prisma.encounterType.create({ data: { name } });
+        await prisma.encounterType.create({ data: { name, code } });
       }
     }
   }

@@ -58,7 +58,7 @@ export interface EncountersByTypeChartData {
 
 export interface RecentEncounterItem {
   id: number;
-  date: Date;
+  createdAt: Date;
   patientId: number;
   patientName: string;
   encounterTypeName: string;

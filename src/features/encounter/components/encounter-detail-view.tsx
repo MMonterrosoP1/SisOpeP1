@@ -39,19 +39,21 @@ const EmptyState = ({ message = "Sin registros" }: { message?: string }) => (
   <div className="text-sm text-muted-foreground italic py-2">{message}</div>
 );
 
-export function EncounterDetailView({ encounter, patient }: { encounter: any; patient: any }) {
+import { PatientHistorySummary } from "@/features/patient-history/components/patient-history-summary";
+
+export function EncounterDetailView({ encounter, patient, patientHistory }: { encounter: any; patient: any; patientHistory?: any }) {
   const router = useRouter();
-  
+
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full pb-10">
       {/* Header */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-card p-6 rounded-xl border shadow-sm">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-8 px-2 -ml-2 text-muted-foreground hover:text-foreground" 
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 -ml-2 text-muted-foreground hover:text-foreground"
               onClick={() => router.back()}
             >
               <ArrowLeft className="h-4 w-4 mr-1" />
@@ -81,17 +83,17 @@ export function EncounterDetailView({ encounter, patient }: { encounter: any; pa
             </span>
           </div>
         </div>
-        
+
         <div className="flex shrink-0 gap-2">
-          <DocumentActionButton 
-            encounterId={encounter.id} 
+          <DocumentActionButton
+            encounterId={encounter.id}
             documentTypeCode="MEDICAL_CERTIFICATE"
             label="Constancia Médica"
             initialPdfUrl={encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE')?.pdfUrl}
             size="default"
           />
-          <DocumentActionButton 
-            encounterId={encounter.id} 
+          <DocumentActionButton
+            encounterId={encounter.id}
             documentTypeCode="ILLNESS_CERTIFICATE"
             label="Constancia de Enfermedad"
             initialPdfUrl={encounter.documents?.find((d: any) => d.documentType.code === 'ILLNESS_CERTIFICATE')?.pdfUrl}
@@ -100,34 +102,40 @@ export function EncounterDetailView({ encounter, patient }: { encounter: any; pa
         </div>
       </div>
 
+      {/* 1. Motivo de Consulta */}
+
+      <Card>
+        <CardHeader className="pb-3 border-b mb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <FileText className="h-5 w-5 text-primary" />
+            Datos Generales
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <div>
+            <h4 className="font-semibold text-sm mb-1 text-muted-foreground">Motivo de Consulta (Sintomatología)</h4>
+            {encounter.symptomatology ? (
+              <p className="text-sm whitespace-pre-wrap">{encounter.symptomatology}</p>
+            ) : <EmptyState />}
+          </div>
+          <div>
+            <h4 className="font-semibold text-sm mb-1 text-muted-foreground">Historia de Enfermedad </h4>
+            {encounter.illnessHistory ? (
+              <p className="text-sm whitespace-pre-wrap">{encounter.illnessHistory}</p>
+            ) : <EmptyState />}
+          </div>
+        </CardContent>
+      </Card>
+
+      <PatientHistorySummary history={patientHistory} />
+
+
+
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
         {/* Left Column - Main Clinical Info */}
         <div className="xl:col-span-2 flex flex-col gap-6">
-
-          <Card>
-            <CardHeader className="pb-3 border-b mb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <FileText className="h-5 w-5 text-primary" />
-                Datos Generales
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div>
-                <h4 className="font-semibold text-sm mb-1 text-muted-foreground">Motivo de Consulta (Sintomatología)</h4>
-                {encounter.symptomatology ? (
-                  <p className="text-sm whitespace-pre-wrap">{encounter.symptomatology}</p>
-                ) : <EmptyState />}
-              </div>
-              <div>
-                <h4 className="font-semibold text-sm mb-1 text-muted-foreground">Historia de Enfermedad </h4>
-                {encounter.illnessHistory ? (
-                  <p className="text-sm whitespace-pre-wrap">{encounter.illnessHistory}</p>
-                ) : <EmptyState />}
-              </div>
-            </CardContent>
-          </Card>
 
           <Card>
             <CardHeader className="pb-3 border-b mb-3">
@@ -303,116 +311,7 @@ export function EncounterDetailView({ encounter, patient }: { encounter: any; pa
             </Card>
           )}
 
-          <Card>
-            <CardHeader className="pb-3 border-b mb-3">
-              <CardTitle className="text-md flex items-center gap-2">
-                <History className="h-4 w-4" /> Antecedentes
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div>
-                <span className="font-semibold text-xs block mb-1">Médicos</span>
-                {encounter.medicalHistoryEntries?.length ? (
-                  <ul className="list-disc list-inside text-sm flex flex-col gap-1 text-muted-foreground">
-                    {encounter.medicalHistoryEntries.map((e: any) => (
-                      <li key={e.id}><span className="text-foreground">{e.icd10Code?.description}</span> {e.observations && <span className="italic text-xs">({e.observations})</span>}</li>
-                    ))}
-                  </ul>
-                ) : <EmptyState />}
-              </div>
-
-              <div>
-                <span className="font-semibold text-xs block mb-1">Quirúrgicos</span>
-                {encounter.surgicalHistoryEntries?.length ? (
-                  <ul className="list-disc list-inside text-sm flex flex-col gap-1 text-muted-foreground">
-                    {encounter.surgicalHistoryEntries.map((e: any) => (
-                      <li key={e.id}><span className="text-foreground">{e.surgicalProcedure?.name}</span> {e.observations && <span className="italic text-xs">({e.observations})</span>}</li>
-                    ))}
-                  </ul>
-                ) : <EmptyState />}
-              </div>
-
-              <div>
-                <span className="font-semibold text-xs block mb-1">Traumáticos</span>
-                {encounter.traumaHistoryEntries?.length ? (
-                  <ul className="list-disc list-inside text-sm flex flex-col gap-1 text-muted-foreground">
-                    {encounter.traumaHistoryEntries.map((e: any) => (
-                      <li key={e.id}><span className="text-foreground">{e.icd10Code?.description}</span> {e.observations && <span className="italic text-xs">({e.observations})</span>}</li>
-                    ))}
-                  </ul>
-                ) : <EmptyState />}
-              </div>
-
-              <div>
-                <span className="font-semibold text-xs block mb-1">Familiares</span>
-                {encounter.familyHistoryEntries?.length ? (
-                  <ul className="list-disc list-inside text-sm flex flex-col gap-1 text-muted-foreground">
-                    {encounter.familyHistoryEntries.map((e: any) => (
-                      <li key={e.id}><span className="text-foreground">{e.icd10Code?.description}</span> {e.observations && <span className="italic text-xs">({e.observations})</span>}</li>
-                    ))}
-                  </ul>
-                ) : <EmptyState />}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3 border-b mb-3">
-              <CardTitle className="text-md">Alergias, Hábitos y Ejercicio</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div>
-                <span className="font-semibold text-xs block mb-2 ">Alergias</span>
-                {encounter.allergies?.length ? (
-                  <div className="flex flex-col gap-2">
-                    {encounter.allergies.map((a: any) => (
-                      <div key={a.id} className="text-sm bg-muted/30 px-3 py-2 rounded-md border flex items-center justify-between">
-                        <span className="font-medium text-foreground">{a.allergenCatalog?.name}</span>
-                        {a.detail && <span className="text-xs text-muted-foreground italic truncate max-w-[150px]" title={a.detail}>({a.detail})</span>}
-                      </div>
-                    ))}
-                  </div>
-                ) : <EmptyState />}
-              </div>
-
-              <div>
-                <span className="font-semibold text-xs block mb-2 ">Hábitos</span>
-                {encounter.habits?.length ? (
-                  <div className="flex flex-col gap-2">
-                    {encounter.habits.map((h: any) => (
-                      <div key={h.id} className="text-sm bg-muted/30 px-3 py-2 rounded-md border flex flex-col">
-                        <span className="font-medium text-foreground mb-1">{h.habitCatalog?.name}</span>
-                        <div className="text-xs text-muted-foreground flex gap-3 flex-wrap">
-                          {h.frequency && <span><span className="font-medium">Frecuencia:</span> {frequencyEs[h.frequency] || h.frequency}</span>}
-                          {h.quantity && <span><span className="font-medium">Cantidad:</span> {h.quantity}</span>}
-                          {h.duration && <span><span className="font-medium">Duración:</span> {h.duration}</span>}
-                        </div>
-                        {h.observations && <div className="text-xs mt-1 italic opacity-80">{h.observations}</div>}
-                      </div>
-                    ))}
-                  </div>
-                ) : <EmptyState />}
-              </div>
-
-              <div>
-                <span className="font-semibold text-xs block mb-2 ">Ejercicio</span>
-                {encounter.exercises?.length ? (
-                  <div className="flex flex-col gap-2">
-                    {encounter.exercises.map((e: any) => (
-                      <div key={e.id} className="text-sm bg-muted/30 px-3 py-2 rounded-md border flex items-center justify-between">
-                        {e.doesExercise ? (
-                          <>
-                            <span className="font-medium text-foreground">{e.exerciseCatalog?.name}</span>
-                            <span className="text-xs text-muted-foreground">{e.timesPerWeek} veces/sem</span>
-                          </>
-                        ) : <span className="text-muted-foreground italic">No realiza ejercicio</span>}
-                      </div>
-                    ))}
-                  </div>
-                ) : <EmptyState />}
-              </div>
-            </CardContent>
-          </Card>
+          {/* Se eliminaron los Antecedentes Personales y Alergias/Hábitos de aquí según Opción B */}
 
           <Card>
             <CardHeader className="pb-3 border-b mb-3">

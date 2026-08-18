@@ -17,9 +17,11 @@ export async function createEncounter(data: unknown): Promise<ActionResponse<unk
 
     const created = await encounterService.create(parseResult.data, { id: session.user.id, email: session.user.email });
     
-    // Invalidar caché del paciente
+    // Invalidar caché: consultas, paciente específico y lista de pacientes
+    // (el dashboard usa los mismos tags "encounters" y "patients")
     revalidateTag("encounters", "max");
     revalidateTag(`patient-${parseResult.data.patientId}`, "max");
+    revalidateTag("patients", "max");
     
     return { success: true, data: created };
   } catch (error) {

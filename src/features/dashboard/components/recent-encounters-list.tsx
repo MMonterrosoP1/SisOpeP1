@@ -43,7 +43,7 @@ export function RecentEncountersList({ encounters }: RecentEncountersListProps) 
                 <div className="flex flex-col items-end gap-1 shrink-0 mt-2 sm:mt-0">
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    {format(new Date(encounter.date), "dd MMM yyyy, HH:mm", { locale: es })}
+                    {format(new Date(encounter.createdAt), "dd MMM yyyy, HH:mm", { locale: es })}
                   </span>
                 </div>
               </div>
