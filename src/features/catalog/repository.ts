@@ -64,7 +64,13 @@ export const jobPositionRepo = {
     return prisma.jobPosition.findMany({ where, orderBy: { name: "asc" } });
   }
 };
-export const encounterTypeRepo = createCatalogRepo(prisma.encounterType, false);
+export const encounterTypeRepo = {
+  ...createCatalogRepo(prisma.encounterType, false),
+  create: async (data: { name: string; [key: string]: any }) => {
+    const code = data.name.toUpperCase().replace(/\s+/g, "_");
+    return prisma.encounterType.create({ data: { ...data, code } });
+  },
+};
 export const occupationalExposureRepo = createCatalogRepo(prisma.occupationalExposure);
 export const workDisabilityRepo = createCatalogRepo(prisma.workDisability);
 export const surgicalProcedureRepo = createCatalogRepo(prisma.surgicalProcedureCatalog);
