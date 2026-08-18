@@ -1,5 +1,6 @@
 import { encounterRepository } from "./repository";
 import { patientRepository } from "../patient/repository";
+import { patientHistoryRepository } from "../patient-history/repository";
 import { auditService } from "@/shared/audit/audit.service";
 import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
 import { calculateBmi, classifyBmi } from "./domain/bmi-calculator";
@@ -50,11 +51,38 @@ export const encounterService = {
 
     data.practitionerId = user.id;
 
+    // Remove history arrays from data before passing to repository
+    const {
+      allergies,
+      habits,
+      exercises,
+      medicalHistory,
+      surgicalHistory,
+      traumaHistory,
+      familyHistory,
+      ...encounterData
+    } = data;
+
     const created = await encounterRepository.create({
-      ...data,
+      ...encounterData,
       createdBy: user.email,
       updatedBy: user.email,
     });
+
+    // Upsert patient history
+    await patientHistoryRepository.upsert(
+      data.patientId,
+      {
+        allergies,
+        habits,
+        exercises,
+        medicalHistory,
+        surgicalHistory,
+        traumaHistory,
+        familyHistory,
+      } as any, // Cast because we accept z.any() from the form for now
+      { userId: user.email }
+    );
 
     await auditService.log({
       userId: user.id,

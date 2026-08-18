@@ -7,6 +7,7 @@ import { safeParseAction } from "@/shared/utils/zod-helpers";
 import { handleActionError } from "@/shared/errors/app-error";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { ActionResponse } from "@/shared/schemas/action-response";
+import { revalidateTag } from "next/cache";
 
 
 export async function createCatalogItem(
@@ -29,6 +30,7 @@ export async function createCatalogItem(
     if (!parseResult.success) return parseResult;
 
     const created = await catalogService.create(type, parseResult.data, { id: session.user.id, email: session.user.email });
+    revalidateTag(`catalog-${type}`, "max");
     return { success: true, data: created };
   } catch (error) {
     return handleActionError(error);
@@ -53,6 +55,7 @@ export async function updateCatalogItem(
     if (!parseResult.success) return parseResult;
 
     const updated = await catalogService.update(type, id, parseResult.data, { id: session.user.id, email: session.user.email });
+    revalidateTag(`catalog-${type}`, "max");
     return { success: true, data: updated };
   } catch (error) {
     return handleActionError(error);
@@ -67,6 +70,7 @@ export async function toggleCatalogActive(
     const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
 
     const updated = await catalogService.toggleActive(type, id, { id: session.user.id, email: session.user.email });
+    revalidateTag(`catalog-${type}`, "max");
     return { success: true, data: updated };
   } catch (error) {
     return handleActionError(error);

@@ -30,6 +30,7 @@ export function TypedCatalogAddDialog({
   catalogType,
   title,
   allowAll = false,
+  initialType,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -37,6 +38,7 @@ export function TypedCatalogAddDialog({
   catalogType: CatalogType;
   title: string;
   allowAll?: boolean;
+  initialType?: string;
 }) {
   const [name, setName] = useState("");
   const [type, setType] = useState<string>("OFICINA");
@@ -45,7 +47,7 @@ export function TypedCatalogAddDialog({
   useEffect(() => {
     if (open) {
       setName("");
-      setType(allowAll ? "TODOS" : "OFICINA");
+      setType(initialType || (allowAll ? "TODOS" : "OFICINA"));
       setIsPending(false);
     } else {
       setName("");
@@ -202,6 +204,86 @@ export function TypedCatalogEditDialog({
         </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button type="button" onClick={handleSave} disabled={isPending || !name.trim()}>
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Guardar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function SimpleCatalogAddDialog({
+  open,
+  onOpenChange,
+  onSuccess,
+  catalogType,
+  title,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: (item: CatalogItem) => void;
+  catalogType: CatalogType;
+  title: string;
+}) {
+  const [name, setName] = useState("");
+  const [isPending, setIsPending] = useState(false);
+
+  const handleClose = () => {
+    setName("");
+    setIsPending(false);
+    onOpenChange(false);
+  };
+
+  const handleSave = async () => {
+    const nameVal = name.trim();
+    if (!nameVal) return;
+
+    setIsPending(true);
+    try {
+      const res = await createCatalogItem(catalogType, { name: nameVal });
+      if (res.success) {
+        toast.success(`${title} creado`);
+        onSuccess(res.data);
+        handleClose();
+      } else {
+        toast.error(res.error || "Error al crear");
+      }
+    } catch {
+      toast.error("Error al crear");
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSave();
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Agregar {title}</DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col gap-4 py-4">
+          <div className="flex flex-col gap-2">
+            <Label>Nombre</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={`Nombre del ${title.toLowerCase()}`}
+              autoFocus
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={handleClose}>Cancelar</Button>
           <Button type="button" onClick={handleSave} disabled={isPending || !name.trim()}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Guardar

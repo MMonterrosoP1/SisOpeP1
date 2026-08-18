@@ -42,6 +42,7 @@ export function Icd10SearchModal({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Icd10Option[]>([]);
   const [loading, setLoading] = useState(false);
+  const [resolving, setResolving] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   
   // Pagination state
@@ -49,12 +50,28 @@ export function Icd10SearchModal({
   const [totalCount, setTotalCount] = useState(0);
   const pageSize = 50;
 
-  // Clear selected label if value is cleared externally
+  // Resolve label when value is set externally (reconsulta / antecedentes precargados)
+  // but selectedLabel is still null (i.e. not set interactively by the user this session).
   useEffect(() => {
     if (value === null) {
       setSelectedLabel(null);
+      return;
     }
-  }, [value]);
+    if (selectedLabel !== null) return; // Ya tenemos el label, no re-fetchar
+    let cancelled = false;
+    setResolving(true);
+    fetch(`/api/search/icd10/${value}`)
+      .then((r) => r.json())
+      .then((res) => {
+        if (!cancelled && res.success && res.data) {
+          setSelectedLabel(`${res.data.code} - ${res.data.description}`);
+        }
+      })
+      .catch(() => {/* silencioso */})
+      .finally(() => { if (!cancelled) setResolving(false); });
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]); // Intencionalmente NO incluir selectedLabel para evitar loop
 
   // Debounced search effect
   useEffect(() => {
@@ -148,9 +165,12 @@ export function Icd10SearchModal({
         }
       >
         <span className="truncate">
-          {selectedLabel || "Seleccione un diagnóstico..."}
+          {resolving ? "Cargando..." : (selectedLabel || "Seleccione un diagnóstico...")}
         </span>
-        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        {resolving
+          ? <Loader2 className="ml-2 h-4 w-4 shrink-0 opacity-50 animate-spin" />
+          : <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        }
       </DialogTrigger>
       
       <DialogContent className="max-w-5xl max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden" showCloseButton={true}>

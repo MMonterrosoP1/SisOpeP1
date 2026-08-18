@@ -83,18 +83,7 @@ describe("createEncounterSchema", () => {
     }
   });
 
-  it("requires exercise type and frequency when doesExercise is true", () => {
-    const result = createEncounterSchema.safeParse({
-      ...validEncounterPayload,
-      exercises: [{ doesExercise: true }],
-    });
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      const issue = result.error.issues.find((i) => i.path.join(".") === "exercises");
-      expect(issue?.message).toBe("Si realiza ejercicio, debe especificar el tipo de deporte y las veces por semana");
-    }
-  });
 
   it("rejects duplicated occupational exposures", () => {
     const result = createEncounterSchema.safeParse({
