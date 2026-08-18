@@ -15,6 +15,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -180,40 +182,7 @@ function CatalogComboboxField({
   );
 }
 
-function CollapsibleSection({
-  title,
-  defaultExpanded = false,
-  hasError = false,
-  children,
-}: {
-  title: string;
-  defaultExpanded?: boolean;
-  hasError?: boolean;
-  children: React.ReactNode;
-}) {
-  const [expanded, setExpanded] = useState(defaultExpanded || hasError);
 
-  // Auto-expand when errors appear (useEffect to avoid render side-effect)
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (hasError) setExpanded(true);
-  }, [hasError]);
-
-  return (
-    <Card className={`overflow-hidden ${hasError ? "ring-1 ring-destructive" : ""}`}>
-      <div
-        className="flex items-center justify-between p-6 cursor-pointer hover:bg-muted/50 transition-colors"
-        onClick={() => setExpanded(!expanded)}
-      >
-        <CardTitle className={`text-lg ${hasError ? "text-destructive" : ""}`}>{title}</CardTitle>
-        <Button variant="ghost" size="icon" type="button">
-          {expanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-        </Button>
-      </div>
-      {expanded && <CardContent className="pt-0">{children}</CardContent>}
-    </Card>
-  );
-}
 
 
 interface EncounterFormProps {
@@ -376,6 +345,30 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
   };
 
   const handleArrayChange = (section: string, index: number, field: string, value: unknown) => {
+    const uniqueFields: Record<string, string> = {
+      diagnoses: "icd10CodeId",
+      allergies: "allergenCatalogId",
+      habits: "habitCatalogId",
+      exercises: "exerciseCatalogId",
+      medicalHistory: "icd10CodeId",
+      surgicalHistory: "surgicalProcedureId",
+      traumaHistory: "icd10CodeId",
+      familyHistory: "icd10CodeId",
+      occupationalExposures: "occupationalExposureId",
+      workDisabilities: "workDisabilityId"
+    };
+
+    if (uniqueFields[section] === field && value !== null && value !== "") {
+      const isDuplicate = (formData[section as keyof typeof formData] as any[]).some(
+        (item: any, i: number) => i !== index && String(item[field]) === String(value)
+      );
+
+      if (isDuplicate) {
+        toast.error("Este elemento ya ha sido agregado a la lista.");
+        return;
+      }
+    }
+
     setFormData((prev: any) => {
       const arr = [...prev[section]];
       arr[index] = { ...arr[index], [field]: value };
