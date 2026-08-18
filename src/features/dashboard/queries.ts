@@ -23,7 +23,7 @@ export async function getEncountersByDate(date: Date): Promise<TodayEncounter[]>
 
   const encounters = await prisma.encounter.findMany({
     where: {
-      date: {
+      createdAt: {
         gte: start,
         lte: end,
       },
@@ -39,13 +39,13 @@ export async function getEncountersByDate(date: Date): Promise<TodayEncounter[]>
       medicalAptitude: true,
     },
     orderBy: {
-      date: 'asc',
+      createdAt: 'asc',
     },
   });
 
   return encounters.map(e => ({
     id: e.id,
-    createdAt: e.date,
+    createdAt: e.createdAt,
     patientId: e.patient.id,
     patientName: `${e.patient.person.givenNames} ${e.patient.person.familyNames}`,
     patientDocument: e.patient.person.identityDocument || 'Sin DPI',
@@ -105,8 +105,8 @@ export async function getDashboardAdminStats(): Promise<DashboardAdminStats> {
   const prevMonthEnd = endOfMonth(subMonths(today, 1));
 
   // 1. Total Encounters
-  const encountersCurrent = await prisma.encounter.count({ where: { date: { gte: currentMonthStart, lte: currentMonthEnd } } });
-  const encountersPrev = await prisma.encounter.count({ where: { date: { gte: prevMonthStart, lte: prevMonthEnd } } });
+  const encountersCurrent = await prisma.encounter.count({ where: { createdAt: { gte: currentMonthStart, lte: currentMonthEnd } } });
+  const encountersPrev = await prisma.encounter.count({ where: { createdAt: { gte: prevMonthStart, lte: prevMonthEnd } } });
   
   // 2. New Patients
   const newPatientsCurrent = await prisma.patient.count({ where: { createdAt: { gte: currentMonthStart, lte: currentMonthEnd } } });
@@ -114,10 +114,10 @@ export async function getDashboardAdminStats(): Promise<DashboardAdminStats> {
 
   // 3. Active Disabilities
   const activeDisabilitiesCurrent = await prisma.workDisabilityEntry.count({
-    where: { encounter: { date: { gte: currentMonthStart, lte: currentMonthEnd } } }
+    where: { encounter: { createdAt: { gte: currentMonthStart, lte: currentMonthEnd } } }
   });
   const activeDisabilitiesPrev = await prisma.workDisabilityEntry.count({
-    where: { encounter: { date: { gte: prevMonthStart, lte: prevMonthEnd } } }
+    where: { encounter: { createdAt: { gte: prevMonthStart, lte: prevMonthEnd } } }
   });
 
   // 4. Pending Follow Ups (for the month)
@@ -190,7 +190,7 @@ export async function getEncountersByTypeOverTime(): Promise<{ data: EncountersB
   const end = endOfMonth(today);
 
   const encounters = await prisma.encounter.findMany({
-    where: { date: { gte: start, lte: end } },
+    where: { createdAt: { gte: start, lte: end } },
     include: { encounterType: true }
   });
 
@@ -206,7 +206,7 @@ export async function getEncountersByTypeOverTime(): Promise<{ data: EncountersB
   }
 
   for (const e of encounters) {
-    const monthKey = format(e.date, 'MMM yyyy', { locale: es });
+    const monthKey = format(e.createdAt, 'MMM yyyy', { locale: es });
     const typeName = e.encounterType.name;
     typesSet.add(typeName);
 
@@ -244,7 +244,7 @@ export async function getTopDiagnoses(): Promise<TopDiagnosis[]> {
   const diagnoses = await prisma.diagnosis.findMany({
     where: {
       encounter: {
-        date: { gte: startMonth, lte: endMonth },
+        createdAt: { gte: startMonth, lte: endMonth },
       },
     },
     include: { icd10Code: true },
@@ -285,14 +285,14 @@ export async function getRecentEncounters(): Promise<RecentEncounterItem[]> {
       practitioner: true,
     },
     orderBy: {
-      date: 'desc'
+      createdAt: 'desc'
     },
     take: 15
   });
 
   return encounters.map(e => ({
     id: e.id,
-    date: e.date,
+    createdAt: e.createdAt,
     patientId: e.patient.id,
     patientName: `${e.patient.person.givenNames} ${e.patient.person.familyNames}`,
     encounterTypeName: e.encounterType.name,

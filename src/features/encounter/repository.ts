@@ -59,13 +59,6 @@ export const encounterRepository = {
         vitalSign: true,
         anthropometry: true,
         diagnoses: { include: { icd10Code: true, diseaseType: true } },
-        allergies: { include: { allergenCatalog: true } },
-        habits: { include: { habitCatalog: true } },  
-        exercises: { include: { exerciseCatalog: true } },
-        medicalHistoryEntries: { include: { icd10Code: true } },
-        surgicalHistoryEntries: { include: { surgicalProcedure: true } },
-        traumaHistoryEntries: { include: { icd10Code: true } },
-        familyHistoryEntries: { include: { icd10Code: true } },
         occupationalExposureEntries: { include: { occupationalExposure: true } },
         workDisabilityEntries: { include: { workDisability: true } },
         documents: { include: { documentType: true } },
@@ -86,13 +79,6 @@ export const encounterRepository = {
         vitalSign: true,
         anthropometry: true,
         diagnoses: { include: { icd10Code: true, diseaseType: true } },
-        allergies: { include: { allergenCatalog: true } },
-        habits: { include: { habitCatalog: true } },  
-        exercises: { include: { exerciseCatalog: true } },
-        medicalHistoryEntries: { include: { icd10Code: true } },
-        surgicalHistoryEntries: { include: { surgicalProcedure: true } },
-        traumaHistoryEntries: { include: { icd10Code: true } },
-        familyHistoryEntries: { include: { icd10Code: true } },
         occupationalExposureEntries: { include: { occupationalExposure: true } },
         workDisabilityEntries: { include: { workDisability: true } },
         documents: { include: { documentType: true } },
@@ -106,13 +92,6 @@ export const encounterRepository = {
       vitalSign,
       anthropometry,
       diagnoses,
-      allergies,
-      habits,
-      exercises,
-      medicalHistory,
-      surgicalHistory,
-      traumaHistory,
-      familyHistory,
       occupationalExposures,
       workDisabilities,
       createdBy,
@@ -131,65 +110,6 @@ export const encounterRepository = {
           observations: diagnosis.observations ?? undefined,
           isPrimary: diagnosis.isPrimary,
         }))
-      : undefined;
-
-    const allergyCreates: Prisma.AllergyUncheckedCreateWithoutEncounterInput[] | undefined = allergies?.length
-      ? allergies.map((allergy) => ({
-          allergenCatalogId: allergy.allergenCatalogId,
-          detail: allergy.detail ?? "",
-        }))
-      : undefined;
-
-    const habitCreates: Prisma.HabitUncheckedCreateWithoutEncounterInput[] | undefined = habits?.length
-      ? habits.map((habit) => ({
-          habitCatalogId: habit.habitCatalogId,
-          duration: habit.duration ?? undefined,
-          quantity: habit.quantity ?? undefined,
-          frequency: (habit.frequency as any) ?? undefined,
-          observations: habit.observations ?? undefined,
-        }))
-      : undefined;
-
-    const exerciseCreates: Prisma.ExerciseUncheckedCreateWithoutEncounterInput[] | undefined = exercises?.length
-      ? exercises.map((exercise) => ({
-          doesExercise: exercise.doesExercise,
-          exerciseCatalogId: exercise.exerciseCatalogId ?? undefined,
-          timesPerWeek: exercise.timesPerWeek ?? undefined,
-        }))
-      : undefined;
-
-    const medicalHistoryCreates: Prisma.MedicalHistoryEntryUncheckedCreateWithoutEncounterInput[] | undefined = medicalHistory?.length
-      ? medicalHistory
-          .filter((entry) => entry.icd10CodeId !== null && entry.icd10CodeId !== undefined)
-          .map((entry) => ({
-            icd10CodeId: entry.icd10CodeId as number,
-            observations: entry.observations ?? undefined,
-          }))
-      : undefined;
-
-    const surgicalHistoryCreates: Prisma.SurgicalHistoryEntryUncheckedCreateWithoutEncounterInput[] | undefined = surgicalHistory?.length
-      ? surgicalHistory.map((entry) => ({
-          surgicalProcedureId: entry.surgicalProcedureId,
-          observations: entry.observations ?? undefined,
-        }))
-      : undefined;
-
-    const traumaHistoryCreates: Prisma.TraumaHistoryEntryUncheckedCreateWithoutEncounterInput[] | undefined = traumaHistory?.length
-      ? traumaHistory
-          .filter((entry) => entry.icd10CodeId !== null && entry.icd10CodeId !== undefined)
-          .map((entry) => ({
-            icd10CodeId: entry.icd10CodeId as number,
-            observations: entry.observations ?? undefined,
-          }))
-      : undefined;
-
-    const familyHistoryCreates: Prisma.FamilyHistoryEntryUncheckedCreateWithoutEncounterInput[] | undefined = familyHistory?.length
-      ? familyHistory
-          .filter((entry) => entry.icd10CodeId !== null && entry.icd10CodeId !== undefined)
-          .map((entry) => ({
-            icd10CodeId: entry.icd10CodeId as number,
-            observations: entry.observations ?? undefined,
-          }))
       : undefined;
 
     const occupationalExposureCreates: Prisma.OccupationalExposureEntryUncheckedCreateWithoutEncounterInput[] | undefined = occupationalExposures?.length
@@ -215,13 +135,6 @@ export const encounterRepository = {
         vitalSign: vitalSign ? { create: vitalSign } : undefined,
         anthropometry: anthropometry ? { create: anthropometry } : undefined,
         diagnoses: diagnosisCreates ? { create: diagnosisCreates } : undefined,
-        allergies: allergyCreates ? { create: allergyCreates } : undefined,
-        habits: habitCreates ? { create: habitCreates } : undefined,
-        exercises: exerciseCreates ? { create: exerciseCreates } : undefined,
-        medicalHistoryEntries: medicalHistoryCreates ? { create: medicalHistoryCreates } : undefined,
-        surgicalHistoryEntries: surgicalHistoryCreates ? { create: surgicalHistoryCreates } : undefined,
-        traumaHistoryEntries: traumaHistoryCreates ? { create: traumaHistoryCreates } : undefined,
-        familyHistoryEntries: familyHistoryCreates ? { create: familyHistoryCreates } : undefined,
         occupationalExposureEntries: occupationalExposureCreates ? { create: occupationalExposureCreates } : undefined,
         workDisabilityEntries: workDisabilityCreates ? { create: workDisabilityCreates } : undefined,
       },

@@ -53,6 +53,9 @@ enum BmiCategory {
 enum HabitFrequency {
   DAILY
   WEEKLY
+  MONTHLY
+  OCCASIONAL
+  FORMER
 }
 
 enum AuditAction {
@@ -99,7 +102,6 @@ model User {
   preamble String? @db.Text
 
   // Relaciones de auditoría (creación/modificación)
-
 
   @@map("user")
 }
@@ -164,11 +166,10 @@ model DocumentTypeCatalog {
 
   documents Document[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   @@map("document_type_catalog")
 }
@@ -181,15 +182,14 @@ enum WorkplaceType {
 }
 
 model Company {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  acronym     String?
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  acronym   String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   patients Patient[]
 
@@ -197,15 +197,14 @@ model Company {
 }
 
 model Workplace {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  type        WorkplaceType @default(OFICINA)
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  id        Int           @id @default(autoincrement())
+  name      String        @unique
+  type      WorkplaceType @default(OFICINA)
+  active    Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   patients Patient[]
 
@@ -213,15 +212,14 @@ model Workplace {
 }
 
 model WorkArea {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  type        WorkplaceType?
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  id        Int            @id @default(autoincrement())
+  name      String         @unique
+  type      WorkplaceType?
+  active    Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   patients Patient[]
 
@@ -229,15 +227,14 @@ model WorkArea {
 }
 
 model JobPosition {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  type        WorkplaceType?
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  id        Int            @id @default(autoincrement())
+  name      String         @unique
+  type      WorkplaceType?
+  active    Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   patients Patient[]
 
@@ -245,17 +242,16 @@ model JobPosition {
 }
 
 model EncounterType {
-  id   Int     @id @default(autoincrement())
-  code String? @unique
+  id   Int    @id @default(autoincrement())
+  code String @unique
   name String
 
   encounters Encounter[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   @@map("encounter_type")
 }
@@ -267,11 +263,10 @@ model OccupationalExposure {
 
   entries OccupationalExposureEntry[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   @@map("occupational_exposure")
 }
@@ -283,11 +278,10 @@ model WorkDisability {
 
   entries WorkDisabilityEntry[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   @@map("work_disability")
 }
@@ -298,13 +292,11 @@ model SurgicalProcedureCatalog {
   name   String
   active Boolean @default(true)
 
-  entries SurgicalHistoryEntry[]
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-  createdBy String?
-  updatedBy String?
-
+  createdAt                DateTime                 @default(now())
+  updatedAt                DateTime                 @default(now()) @updatedAt
+  createdBy                String?
+  updatedBy                String?
+  patientSurgicalHistories PatientSurgicalHistory[]
 
   @@map("surgical_procedure_catalog")
 }
@@ -316,11 +308,10 @@ model ReferralLevel {
 
   encounters Encounter[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   @@map("referral_level")
 }
@@ -332,11 +323,10 @@ model MedicalAptitude {
 
   encounters Encounter[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   @@map("medical_aptitude")
 }
@@ -347,11 +337,10 @@ model RelationshipType {
 
   emergencyContacts EmergencyContact[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   @@map("relationship_type")
 }
@@ -364,10 +353,10 @@ model Icd10Code {
   block       String?
   active      Boolean @default(true)
 
-  medicalHistoryEntries MedicalHistoryEntry[]
-  traumaHistoryEntries  TraumaHistoryEntry[]
-  familyHistoryEntries  FamilyHistoryEntry[]
-  diagnoses             Diagnosis[]
+  diagnoses               Diagnosis[]
+  patientMedicalHistories PatientMedicalHistory[]
+  patientTraumaHistories  PatientTraumaHistory[]
+  patientFamilyHistories  PatientFamilyHistory[]
 
   @@index([code])
   @@fulltext([description])
@@ -381,11 +370,10 @@ model AllergyCategory {
 
   allergens AllergenCatalog[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   @@map("allergy_category")
 }
@@ -397,13 +385,12 @@ model AllergenCatalog {
   active            Boolean @default(true)
 
   allergyCategory AllergyCategory @relation(fields: [allergyCategoryId], references: [id])
-  allergies       Allergy[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-  createdBy String?
-  updatedBy String?
-
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @default(now()) @updatedAt
+  createdBy        String?
+  updatedBy        String?
+  patientAllergies PatientAllergy[]
 
   @@unique([name, allergyCategoryId])
   @@map("allergen_catalog")
@@ -414,13 +401,11 @@ model HabitCatalog {
   name   String  @unique
   active Boolean @default(true)
 
-  habits Habit[]
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-  createdBy String?
-  updatedBy String?
-
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  createdBy     String?
+  updatedBy     String?
+  patientHabits PatientHabit[]
 
   @@map("habit_catalog")
 }
@@ -432,11 +417,10 @@ model DiseaseTypeCatalog {
 
   diagnoses Diagnosis[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   @@map("disease_type_catalog")
 }
@@ -449,12 +433,12 @@ model MaritalStatusCatalog {
 
   patients Patient[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
 
-
+  @@unique([name])
   @@map("marital_status_catalog")
 }
 
@@ -465,11 +449,10 @@ model BloodTypeCatalog {
 
   patients Patient[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   @@map("blood_type_catalog")
 }
@@ -481,11 +464,10 @@ model SuspensionHourCatalog {
 
   encounters Encounter[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
-
 
   @@map("suspension_hour_catalog")
 }
@@ -499,20 +481,18 @@ model Person {
   givenNames       String
   familyNames      String
   documentType     DocumentType @default(DPI)
-  identityDocument String?      @unique
+  identityDocument String       @unique
   birthDate        DateTime?    @db.Date
   sex              Sex
   phone            String?
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
-  createdBy String?
-  updatedBy String?
-
+  createdBy        String?
+  updatedBy        String?
 
   patient Patient?
   user    User?
 
-  @@index([identityDocument])
   @@index([familyNames, givenNames])
   @@map("person")
 }
@@ -529,9 +509,8 @@ model Patient {
   active          Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  createdBy String?
-  updatedBy String?
-
+  createdBy       String?
+  updatedBy       String?
 
   person        Person               @relation(fields: [personId], references: [id], onDelete: Cascade)
   company       Company              @relation(fields: [companyId], references: [id])
@@ -544,6 +523,14 @@ model Patient {
   emergencyContacts EmergencyContact[]
   encounters        Encounter[]
   documents         Document[]
+
+  medicalHistory  PatientMedicalHistory[]
+  surgicalHistory PatientSurgicalHistory[]
+  traumaHistory   PatientTraumaHistory[]
+  familyHistory   PatientFamilyHistory[]
+  allergies       PatientAllergy[]
+  habits          PatientHabit[]
+  exercises       PatientExercise[]
 
   @@index([companyId])
   @@map("patient")
@@ -564,6 +551,146 @@ model EmergencyContact {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// ANTECEDENTES MÉDICOS (NIVEL PACIENTE)
+// ═══════════════════════════════════════════════════════════════════════
+
+/// Antecedentes médicos — FHIR: Condition (category: problem-list)
+model PatientMedicalHistory {
+  id           Int      @id @default(autoincrement())
+  patientId    Int
+  icd10CodeId  Int
+  observations String?  @db.Text
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+  createdBy    String?
+  updatedBy    String?
+
+  patient   Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  icd10Code Icd10Code @relation(fields: [icd10CodeId], references: [id])
+
+  @@index([patientId])
+  @@map("patient_medical_history")
+}
+
+/// Antecedentes quirúrgicos — FHIR: Procedure
+model PatientSurgicalHistory {
+  id                  Int      @id @default(autoincrement())
+  patientId           Int
+  surgicalProcedureId Int
+  observations        String?  @db.Text
+  active              Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @default(now()) @updatedAt
+  createdBy           String?
+  updatedBy           String?
+
+  patient           Patient                  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  surgicalProcedure SurgicalProcedureCatalog @relation(fields: [surgicalProcedureId], references: [id])
+
+  @@index([patientId])
+  @@map("patient_surgical_history")
+}
+
+/// Antecedentes traumáticos — FHIR: Condition (category: trauma)
+model PatientTraumaHistory {
+  id           Int      @id @default(autoincrement())
+  patientId    Int
+  icd10CodeId  Int
+  observations String?  @db.Text
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+  createdBy    String?
+  updatedBy    String?
+
+  patient   Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  icd10Code Icd10Code @relation(fields: [icd10CodeId], references: [id])
+
+  @@index([patientId])
+  @@map("patient_trauma_history")
+}
+
+/// Antecedentes familiares — FHIR: FamilyMemberHistory
+model PatientFamilyHistory {
+  id           Int      @id @default(autoincrement())
+  patientId    Int
+  icd10CodeId  Int
+  observations String?  @db.Text
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+  createdBy    String?
+  updatedBy    String?
+
+  patient   Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  icd10Code Icd10Code @relation(fields: [icd10CodeId], references: [id])
+
+  @@index([patientId])
+  @@map("patient_family_history")
+}
+
+/// Alergias — FHIR: AllergyIntolerance
+model PatientAllergy {
+  id                Int      @id @default(autoincrement())
+  patientId         Int
+  allergenCatalogId Int
+  detail            String?  @db.Text
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+  createdBy         String?
+  updatedBy         String?
+
+  patient         Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  allergenCatalog AllergenCatalog @relation(fields: [allergenCatalogId], references: [id])
+
+  @@index([patientId])
+  @@map("patient_allergy")
+}
+
+/// Hábitos del paciente
+model PatientHabit {
+  id             Int             @id @default(autoincrement())
+  patientId      Int
+  habitCatalogId Int
+  duration       String?
+  quantity       Float?
+  frequency      HabitFrequency?
+  observations   String?         @db.Text
+  active         Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now()) @updatedAt
+  createdBy      String?
+  updatedBy      String?
+
+  patient      Patient      @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  habitCatalog HabitCatalog @relation(fields: [habitCatalogId], references: [id])
+
+  @@index([patientId])
+  @@map("patient_habit")
+}
+
+/// Ejercicio del paciente
+model PatientExercise {
+  id                Int      @id @default(autoincrement())
+  patientId         Int
+  exerciseCatalogId Int
+  timesPerWeek      Int?
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+  createdBy         String?
+  updatedBy         String?
+
+  patient         Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  exerciseCatalog ExerciseCatalog @relation(fields: [exerciseCatalogId], references: [id])
+
+  @@index([patientId])
+  @@map("patient_exercise")
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // CONSULTA / ENCOUNTER (FHIR: Encounter)
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -572,7 +699,6 @@ model Encounter {
   patientId               Int
   practitionerId          String
   encounterTypeId         Int
-  date                    DateTime        @default(now())
   isFirstVisit            Boolean         @default(false)
   symptomatology          String?         @db.Text
   illnessHistory          String?         @db.Text
@@ -588,9 +714,8 @@ model Encounter {
   followUpDate            DateTime?       @db.Date
   createdAt               DateTime        @default(now())
   updatedAt               DateTime        @default(now()) @updatedAt
-  createdBy String?
-  updatedBy String?
-
+  createdBy               String?
+  updatedBy               String?
 
   // Relaciones
   patient         Patient                @relation(fields: [patientId], references: [id])
@@ -605,18 +730,10 @@ model Encounter {
   anthropometry               Anthropometry?
   occupationalExposureEntries OccupationalExposureEntry[]
   workDisabilityEntries       WorkDisabilityEntry[]
-  medicalHistoryEntries       MedicalHistoryEntry[]
-  surgicalHistoryEntries      SurgicalHistoryEntry[]
-  traumaHistoryEntries        TraumaHistoryEntry[]
-  familyHistoryEntries        FamilyHistoryEntry[]
-  allergies                   Allergy[]
-  habits                      Habit[]
-  exercises                   Exercise[]
   diagnoses                   Diagnosis[]
   documents                   Document[]
 
   @@index([patientId])
-  @@index([date])
   @@index([practitionerId])
   @@map("encounter")
 }
@@ -689,93 +806,6 @@ model WorkDisabilityEntry {
   @@map("work_disability_entry")
 }
 
-/// Antecedentes médicos — FHIR: Condition (category: problem-list)
-
-model MedicalHistoryEntry {
-  id           Int     @id @default(autoincrement())
-  encounterId  Int
-  icd10CodeId  Int
-  observations String? @db.Text
-
-  encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  icd10Code Icd10Code @relation(fields: [icd10CodeId], references: [id])
-
-  @@map("medical_history_entry")
-}
-
-/// Antecedentes quirúrgicos — FHIR: Procedure
-
-model SurgicalHistoryEntry {
-  id                  Int     @id @default(autoincrement())
-  encounterId         Int
-  surgicalProcedureId Int
-  observations        String? @db.Text
-
-  encounter         Encounter                @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  surgicalProcedure SurgicalProcedureCatalog @relation(fields: [surgicalProcedureId], references: [id])
-
-  @@map("surgical_history_entry")
-}
-
-/// Antecedentes traumáticos — FHIR: Condition (category: trauma)
-
-model TraumaHistoryEntry {
-  id           Int     @id @default(autoincrement())
-  encounterId  Int
-  icd10CodeId  Int
-  observations String? @db.Text
-
-  encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  icd10Code Icd10Code @relation(fields: [icd10CodeId], references: [id])
-
-  @@map("trauma_history_entry")
-}
-
-/// Antecedentes familiares — FHIR: FamilyMemberHistory
-
-model FamilyHistoryEntry {
-  id           Int     @id @default(autoincrement())
-  encounterId  Int
-  icd10CodeId  Int
-  observations String? @db.Text
-
-  encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  icd10Code Icd10Code @relation(fields: [icd10CodeId], references: [id])
-
-  @@map("family_history_entry")
-}
-
-/// Alergias — FHIR: AllergyIntolerance
-
-model Allergy {
-  id                Int    @id @default(autoincrement())
-  encounterId       Int
-  allergenCatalogId Int
-  detail            String @db.Text
-
-  encounter       Encounter       @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  allergenCatalog AllergenCatalog @relation(fields: [allergenCatalogId], references: [id])
-
-  @@map("allergy")
-}
-
-/// Hábitos
-
-model Habit {
-  id             Int             @id @default(autoincrement())
-  encounterId    Int
-  habitCatalogId Int
-  duration       String? // hace cuánto tiempo
-  quantity       Float?
-  frequency      HabitFrequency?
-  observations   String?         @db.Text
-
-  encounter    Encounter    @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  habitCatalog HabitCatalog @relation(fields: [habitCatalogId], references: [id])
-
-  @@map("habit")
-}
-
 /// Ejercicio
 
 model ExerciseCatalog {
@@ -783,28 +813,13 @@ model ExerciseCatalog {
   code String @unique
   name String
 
-  exercises Exercise[]
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-  createdBy String?
-  updatedBy String?
-
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now()) @updatedAt
+  createdBy        String?
+  updatedBy        String?
+  patientExercises PatientExercise[]
 
   @@map("exercise_catalog")
-}
-
-model Exercise {
-  id                Int     @id @default(autoincrement())
-  encounterId       Int
-  doesExercise      Boolean @default(false)
-  exerciseCatalogId Int?
-  timesPerWeek      Int?
-
-  encounter       Encounter        @relation(fields: [encounterId], references: [id], onDelete: Cascade)
-  exerciseCatalog ExerciseCatalog? @relation(fields: [exerciseCatalogId], references: [id])
-
-  @@map("exercise")
 }
 
 /// Diagnóstico — FHIR: Condition (category: encounter-diagnosis)
@@ -821,6 +836,7 @@ model Diagnosis {
   icd10Code   Icd10Code           @relation(fields: [icd10CodeId], references: [id])
   diseaseType DiseaseTypeCatalog? @relation(fields: [diseaseTypeId], references: [id])
 
+  @@index([encounterId])
   @@map("diagnosis")
 }
 

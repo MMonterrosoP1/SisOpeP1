@@ -1,5 +1,18 @@
 type EncounterData = NonNullable<Awaited<ReturnType<typeof import("../repository").encounterRepository.findLatestByPatient>>>;
 
+/**
+ * Mapea los datos de la última consulta a los valores por defecto del formulario de reconsulta.
+ *
+ * Copia TODOS los campos clínicos de la consulta anterior:
+ * - Datos generales: tipo, sintomatología, historia de enfermedad, ginecología, etc.
+ * - Plan y observaciones: nivel de referencia, aptitud médica, observación interna/patronal,
+ *   horas de suspensión, horas de sueño, medicamentos, fecha de seguimiento.
+ * - Signos vitales y antropometría.
+ * - Diagnósticos, exposiciones laborales y discapacidades.
+ *
+ * Los antecedentes (alergias, hábitos, ejercicios, historial médico/quirúrgico/traumático/familiar)
+ * provienen siempre del historial actualizado del paciente (patientHistory), no de la consulta.
+ */
 export function mapEncounterToFormDefaults(encounter: EncounterData, patientId: number) {
 
   return {
@@ -41,45 +54,6 @@ export function mapEncounterToFormDefaults(encounter: EncounterData, patientId: 
       observations: d.observations || "",
       isPrimary: d.isPrimary || false,
     })) : [{ icd10CodeId: null, diseaseTypeId: "", observations: "", isPrimary: true }],
-
-    allergies: encounter.allergies?.map((a) => ({
-      allergenCatalogId: String(a.allergenCatalogId),
-      detail: a.detail || "",
-    })) || [],
-
-    habits: encounter.habits?.map((h) => ({
-      habitCatalogId: String(h.habitCatalogId),
-      duration: h.duration || "",
-      quantity: h.quantity?.toString() || "",
-      frequency: h.frequency || "",
-      observations: h.observations || "",
-    })) || [],
-
-    exercises: encounter.exercises?.length > 0 ? encounter.exercises.map((e) => ({
-      doesExercise: e.doesExercise || false,
-      exerciseCatalogId: e.exerciseCatalogId ? String(e.exerciseCatalogId) : "",
-      timesPerWeek: e.timesPerWeek?.toString() || "",
-    })) : [{ doesExercise: false, exerciseCatalogId: "", timesPerWeek: "" }],
-
-    medicalHistory: encounter.medicalHistoryEntries?.map((h) => ({
-      icd10CodeId: h.icd10CodeId,
-      observations: h.observations || "",
-    })) || [],
-
-    surgicalHistory: encounter.surgicalHistoryEntries?.map((s) => ({
-      surgicalProcedureId: String(s.surgicalProcedureId),
-      observations: s.observations || "",
-    })) || [],
-
-    traumaHistory: encounter.traumaHistoryEntries?.map((h) => ({
-      icd10CodeId: h.icd10CodeId,
-      observations: h.observations || "",
-    })) || [],
-
-    familyHistory: encounter.familyHistoryEntries?.map((h) => ({
-      icd10CodeId: h.icd10CodeId,
-      observations: h.observations || "",
-    })) || [],
 
     occupationalExposures: encounter.occupationalExposureEntries?.map((e) => ({
       occupationalExposureId: String(e.occupationalExposureId),
