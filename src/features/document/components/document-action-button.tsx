@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { generateDocumentAction } from "../actions";
 import { FileText, Loader2 } from "lucide-react";
@@ -27,6 +28,7 @@ export function DocumentActionButton({
   variant = "outline",
   size = "sm",
 }: DocumentActionButtonProps) {
+  const router = useRouter();
   const [hasDocument, setHasDocument] = useState<boolean>(!!initialPdfUrl);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -47,6 +49,7 @@ export function DocumentActionButton({
       if (response.success && response.data?.pdfUrl) {
         setHasDocument(true);
         toast.success(`${label} generado exitosamente`);
+        router.refresh();
         window.open(proxyUrl, "_blank");
       } else if (!response.success) {
         toast.error(response.error || `Error al generar ${label}`);
@@ -87,6 +90,7 @@ export function DocumentActionMenuItem({
   initialPdfUrl,
   className,
 }: Omit<DocumentActionButtonProps, 'variant' | 'size'>) {
+  const router = useRouter();
   const [hasDocument, setHasDocument] = useState<boolean>(!!initialPdfUrl);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -108,6 +112,7 @@ export function DocumentActionMenuItem({
       if (response.success && response.data?.pdfUrl) {
         setHasDocument(true);
         toast.success(`${label} generado exitosamente`);
+        router.refresh();
         window.open(proxyUrl, "_blank");
       } else if (!response.success) {
         toast.error(response.error || `Error al generar ${label}`);
