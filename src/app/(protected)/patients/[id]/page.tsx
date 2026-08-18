@@ -1,5 +1,7 @@
 import { getPatientById } from "@/features/patient/queries";
 import { getEncountersByPatient } from "@/features/encounter/queries";
+import { getPatientHistory } from "@/features/patient-history/queries";
+import { PatientHistorySummary } from "@/features/patient-history/components/patient-history-summary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +22,10 @@ export default async function PatientDetailPage({
 
   // Iniciar la carga de consultas concurrentemente con la del paciente
   const encountersPromise = getEncountersByPatient(patientId, { page: 1, pageSize: 10 });
-  const patient = await getPatientById(patientId);
+  const [patient, patientHistory] = await Promise.all([
+    getPatientById(patientId),
+    getPatientHistory(patientId)
+  ]);
 
   if (!patient) notFound();
 
@@ -160,6 +165,20 @@ export default async function PatientDetailPage({
             )}
           </CardContent>
         </Card>
+
+        <div className="md:col-span-2">
+          <PatientHistorySummary 
+            history={patientHistory} 
+            action={
+              <Link href={`/patients/${patient.id}/history`}>
+                <Button variant="outline" size="sm">
+                  <Edit2 className="w-4 h-4 mr-2" />
+                  Actualizar Antecedentes
+                </Button>
+              </Link>
+            }
+          />
+        </div>
 
         {/* Encounters History */}
         <Card className="md:col-span-2">
