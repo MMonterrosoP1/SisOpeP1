@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { Icd10SearchModal } from "@/features/encounter/components/icd10-search-modal";
-import { SimpleCatalogAddDialog } from "@/features/catalog/components/typed-catalog-dialogs";
+import { CatalogQuickAddDialog } from "@/features/catalog/components/catalog-quick-add-dialog";
 import { AllergenQuickAddDialog } from "@/features/catalog/components/allergen-quick-add-dialog";
 import { CatalogType } from "@/features/catalog/types";
 
@@ -88,11 +88,8 @@ export function PatientHistoryFormSection({
   return (
     <div className="space-y-4">
       {/* ALERGIAS */}
-      <Card className="overflow-hidden">
-        <CardHeader className="py-4 bg-muted/20">
-          <CardTitle className="text-sm font-semibold uppercase">Alergias</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 space-y-4">
+      <CollapsibleSection defaultExpanded title="Alergias">
+        <div className="space-y-4">
           {formData.allergies.map((a, index) => {
             const original = findOriginal("allergies", (orig) => String(orig.allergenCatalogId) === String(a.allergenCatalogId));
             return (
@@ -144,15 +141,12 @@ export function PatientHistoryFormSection({
           <Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("allergies", { allergenCatalogId: "", detail: "" })}>
             <Plus className="h-4 w-4 mr-2" /> Agregar Alergia
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </CollapsibleSection>
 
       {/* ANTECEDENTES MEDICOS */}
-      <Card className="overflow-hidden">
-        <CardHeader className="py-4 bg-muted/20">
-          <CardTitle className="text-sm font-semibold uppercase">Antecedentes Médicos</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 space-y-4">
+      <CollapsibleSection defaultExpanded title="Antecedentes Médicos">
+        <div className="space-y-4">
           {formData.medicalHistory.map((m, index) => {
             const original = findOriginal("medicalHistory", (orig) => orig.icd10CodeId === m.icd10CodeId);
             return (
@@ -181,15 +175,12 @@ export function PatientHistoryFormSection({
           <Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("medicalHistory", { icd10CodeId: null, observations: "" })}>
             <Plus className="h-4 w-4 mr-2" /> Agregar Ant. Médico
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </CollapsibleSection>
 
       {/* ANTECEDENTES QUIRURGICOS */}
-      <Card className="overflow-hidden">
-        <CardHeader className="py-4 bg-muted/20">
-          <CardTitle className="text-sm font-semibold uppercase">Antecedentes Quirúrgicos</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 space-y-4">
+      <CollapsibleSection defaultExpanded title="Antecedentes Quirúrgicos">
+        <div className="space-y-4">
           {formData.surgicalHistory.map((s, index) => {
             const original = findOriginal("surgicalHistory", (orig) => String(orig.surgicalProcedureId) === String(s.surgicalProcedureId));
             return (
@@ -241,15 +232,12 @@ export function PatientHistoryFormSection({
           <Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("surgicalHistory", { surgicalProcedureId: "", observations: "" })}>
             <Plus className="h-4 w-4 mr-2" /> Agregar Ant. Quirúrgico
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </CollapsibleSection>
 
       {/* ANTECEDENTES TRAUMATICOS */}
-      <Card className="overflow-hidden">
-        <CardHeader className="py-4 bg-muted/20">
-          <CardTitle className="text-sm font-semibold uppercase">Antecedentes Traumáticos</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 space-y-4">
+      <CollapsibleSection defaultExpanded title="Antecedentes Traumáticos">
+        <div className="space-y-4">
           {formData.traumaHistory.map((t, index) => {
             const original = findOriginal("traumaHistory", (orig) => orig.icd10CodeId === t.icd10CodeId);
             return (
@@ -278,15 +266,12 @@ export function PatientHistoryFormSection({
           <Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("traumaHistory", { icd10CodeId: null, observations: "" })}>
             <Plus className="h-4 w-4 mr-2" /> Agregar Ant. Traumático
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </CollapsibleSection>
 
       {/* HABITOS */}
-      <Card className="overflow-hidden">
-        <CardHeader className="py-4 bg-muted/20">
-          <CardTitle className="text-sm font-semibold uppercase">Hábitos</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 space-y-4">
+      <CollapsibleSection defaultExpanded title="Hábitos">
+        <div className="space-y-4">
           {formData.habits.map((h, index) => {
             const original = findOriginal("habits", (orig) => String(orig.habitCatalogId) === String(h.habitCatalogId));
             return (
@@ -358,15 +343,12 @@ export function PatientHistoryFormSection({
           <Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("habits", { habitCatalogId: "", duration: "", quantity: "", frequency: "", observations: "" })}>
             <Plus className="h-4 w-4 mr-2" /> Agregar Hábito
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </CollapsibleSection>
 
       {/* ANTECEDENTES FAMILIARES */}
-      <Card className="overflow-hidden">
-        <CardHeader className="py-4 bg-muted/20">
-          <CardTitle className="text-sm font-semibold uppercase">Antecedentes Familiares</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 space-y-4">
+      <CollapsibleSection defaultExpanded title="Antecedentes Familiares">
+        <div className="space-y-4">
           {formData.familyHistory.map((f, index) => {
             const original = findOriginal("familyHistory", (orig) => orig.icd10CodeId === f.icd10CodeId);
             return (
@@ -395,15 +377,12 @@ export function PatientHistoryFormSection({
           <Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("familyHistory", { icd10CodeId: null, observations: "" })}>
             <Plus className="h-4 w-4 mr-2" /> Agregar Ant. Familiar
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </CollapsibleSection>
 
       {/* EJERCICIOS */}
-      <Card className="overflow-hidden">
-        <CardHeader className="py-4 bg-muted/20">
-          <CardTitle className="text-sm font-semibold uppercase">Actividad Física</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 space-y-4">
+      <CollapsibleSection defaultExpanded title="Actividad Física">
+        <div className="space-y-4">
           {formData.exercises.map((e, index) => {
             const original = findOriginal("exercises", (orig) => String(orig.exerciseCatalogId) === String(e.exerciseCatalogId));
             return (
@@ -455,8 +434,8 @@ export function PatientHistoryFormSection({
           <Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("exercises", { exerciseCatalogId: "", timesPerWeek: "" })}>
             <Plus className="h-4 w-4 mr-2" /> Agregar Actividad
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </CollapsibleSection>
 
       {/* Quick Add Dialogs */}
       {quickAdd.catalogType === "allergenCatalog" ? (
@@ -467,10 +446,10 @@ export function PatientHistoryFormSection({
           onSuccess={handleQuickAddSuccess}
         />
       ) : (
-        <SimpleCatalogAddDialog
+        <CatalogQuickAddDialog
           open={quickAdd.open}
           onOpenChange={(open) => setQuickAdd((prev) => ({ ...prev, open }))}
-          catalogType={quickAdd.catalogType}
+          type={quickAdd.catalogType}
           title={quickAdd.title}
           onSuccess={handleQuickAddSuccess}
         />
