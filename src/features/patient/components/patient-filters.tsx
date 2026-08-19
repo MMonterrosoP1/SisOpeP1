@@ -10,7 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-export type FilterSelectOption = { key: string; label: string; };
+export type FilterSelectOption = { key: string; label: string; companyId?: number | null; type?: string | null; };
 import { Button } from "@/components/ui/button";
 import { useDebounce } from "@/shared/hooks/use-debounce";
 import { useSavedFilters } from "@/shared/hooks/use-saved-filters";
@@ -64,7 +64,19 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
   };
 
   const handleFilterChange = (key: string, value: string | null) => {
-    const newParams = createQueryString({ [key]: value });
+    let paramsToUpdate: Record<string, string | null> = { [key]: value };
+
+    // Apply cascade resets
+    if (key === "company") {
+      paramsToUpdate.workplace = null;
+      paramsToUpdate.workArea = null;
+      paramsToUpdate.jobPosition = null;
+    } else if (key === "workplace") {
+      paramsToUpdate.workArea = null;
+      paramsToUpdate.jobPosition = null;
+    }
+
+    const newParams = createQueryString(paramsToUpdate);
     saveFiltersCookie(newParams);
     router.push(`?${newParams}`);
   };
@@ -103,6 +115,21 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
     const opt = options.find((o) => o.key === val);
     return opt ? opt.label : fallback;
   };
+
+  const selectedCompany = searchParams.get("company");
+  const selectedWorkplaceId = searchParams.get("workplace");
+  const selectedWorkplace = workplaces.find(w => w.key === selectedWorkplaceId);
+  const selectedWorkplaceType = selectedWorkplace?.type;
+
+  const filteredWorkplaces = selectedCompany
+    ? workplaces.filter(w => !w.companyId || String(w.companyId) === selectedCompany)
+    : workplaces;
+  const filteredWorkAreas = selectedWorkplaceType
+    ? workAreas.filter(a => !a.type || a.type === selectedWorkplaceType)
+    : workAreas;
+  const filteredJobPositions = selectedWorkplaceType
+    ? jobPositions.filter(p => !p.type || p.type === selectedWorkplaceType)
+    : jobPositions;
 
   return (
     <div className="flex flex-col gap-4">
@@ -176,7 +203,7 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas las Sedes</SelectItem>
-                {workplaces.map((opt) => (
+                {filteredWorkplaces.map((opt) => (
                   <SelectItem key={opt.key} value={opt.key}>
                     {opt.label}
                   </SelectItem>
@@ -198,7 +225,7 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas las Áreas</SelectItem>
-                {workAreas.map((opt) => (
+                {filteredWorkAreas.map((opt) => (
                   <SelectItem key={opt.key} value={opt.key}>
                     {opt.label}
                   </SelectItem>
@@ -220,7 +247,7 @@ export function PatientFilters({ companies, workplaces, workAreas, jobPositions 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los Puestos</SelectItem>
-                {jobPositions.map((opt) => (
+                {filteredJobPositions.map((opt) => (
                   <SelectItem key={opt.key} value={opt.key}>
                     {opt.label}
                   </SelectItem>

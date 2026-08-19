@@ -178,7 +178,6 @@ enum WorkplaceType {
   OBRA
   OFICINA
   PLANTA
-  PLANTA_ADMINISTRATIVO
 }
 
 model Company {
@@ -192,6 +191,7 @@ model Company {
   updatedBy String?
 
   patients Patient[]
+  workplaces Workplace[]
 
   @@map("company")
 }
@@ -200,20 +200,22 @@ model Workplace {
   id        Int           @id @default(autoincrement())
   name      String        @unique
   type      WorkplaceType @default(OFICINA)
+  companyId Int?
   active    Boolean       @default(true)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @default(now()) @updatedAt
   createdBy String?
   updatedBy String?
 
-  patients Patient[]
+  company   Company?      @relation(fields: [companyId], references: [id])
+  patients  Patient[]
 
   @@map("workplace")
 }
 
 model WorkArea {
   id        Int            @id @default(autoincrement())
-  name      String         @unique
+  name      String
   type      WorkplaceType?
   active    Boolean        @default(true)
   createdAt DateTime       @default(now())
@@ -223,12 +225,13 @@ model WorkArea {
 
   patients Patient[]
 
+  @@unique([name, type])
   @@map("work_area")
 }
 
 model JobPosition {
   id        Int            @id @default(autoincrement())
-  name      String         @unique
+  name      String
   type      WorkplaceType?
   active    Boolean        @default(true)
   createdAt DateTime       @default(now())
@@ -238,6 +241,7 @@ model JobPosition {
 
   patients Patient[]
 
+  @@unique([name, type])
   @@map("job_position")
 }
 

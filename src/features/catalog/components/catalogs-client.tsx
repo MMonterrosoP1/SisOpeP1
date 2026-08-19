@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -39,6 +40,7 @@ interface CatalogsClientProps {
 }
 
 export function CatalogsClient({ initialData }: CatalogsClientProps) {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
 
   // Helper function to filter items locally by name
@@ -103,7 +105,10 @@ export function CatalogsClient({ initialData }: CatalogsClientProps) {
                     <CompanyAddDialog
                       open={open}
                       onOpenChange={(v) => !v && onClose()}
-                      onSuccess={() => onClose()}
+                      onSuccess={() => {
+                        router.refresh();
+                        onClose();
+                      }}
                     />
                   )}
                   renderEditDialog={(item, onClose) => (
@@ -119,11 +124,15 @@ export function CatalogsClient({ initialData }: CatalogsClientProps) {
                     <WorkplaceAddDialog
                       open={open}
                       onOpenChange={(v) => !v && onClose()}
-                      onSuccess={() => onClose()}
+                      onSuccess={() => {
+                        router.refresh();
+                        onClose();
+                      }}
+                      companies={initialData.company}
                     />
                   )}
                   renderEditDialog={(item, onClose) => (
-                    <WorkplaceEditDialog item={item} onClose={onClose} />
+                    <WorkplaceEditDialog item={item} onClose={onClose} companies={initialData.company} />
                   )}
                 />
                 <CatalogSection
@@ -135,7 +144,10 @@ export function CatalogsClient({ initialData }: CatalogsClientProps) {
                     <TypedCatalogAddDialog
                       open={open}
                       onOpenChange={(v) => !v && onClose()}
-                      onSuccess={() => onClose()}
+                      onSuccess={() => {
+                        router.refresh();
+                        onClose();
+                      }}
                       catalogType="workArea"
                       title="Área de Trabajo"
                       allowAll
@@ -154,7 +166,10 @@ export function CatalogsClient({ initialData }: CatalogsClientProps) {
                     <TypedCatalogAddDialog
                       open={open}
                       onOpenChange={(v) => !v && onClose()}
-                      onSuccess={() => onClose()}
+                      onSuccess={() => {
+                        router.refresh();
+                        onClose();
+                      }}
                       catalogType="jobPosition"
                       title="Puesto de Trabajo"
                       allowAll
@@ -229,7 +244,10 @@ export function CatalogsClient({ initialData }: CatalogsClientProps) {
                       open={open}
                       allergyCategories={initialData.allergyCategory}
                       onOpenChange={(v) => !v && onClose()}
-                      onSuccess={() => onClose()}
+                      onSuccess={() => {
+                        router.refresh();
+                        onClose();
+                      }}
                     />
                   )}
                 />
@@ -253,7 +271,10 @@ export function CatalogsClient({ initialData }: CatalogsClientProps) {
                     <MaritalStatusAddDialog
                       open={open}
                       onOpenChange={(v) => !v && onClose()}
-                      onSuccess={() => onClose()}
+                      onSuccess={() => {
+                        router.refresh();
+                        onClose();
+                      }}
                     />
                   )}
                 />
