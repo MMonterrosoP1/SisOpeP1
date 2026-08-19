@@ -129,7 +129,7 @@ export function CompanyAddDialog({
               id="company-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej. Industrias del Norte"
+              placeholder="Nombre de la empresa"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") {

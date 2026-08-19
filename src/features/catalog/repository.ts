@@ -38,7 +38,8 @@ export const workplaceRepo = {
     if (filter?.search) where.name = { contains: filter.search };
     return prisma.workplace.findMany({ 
       where, 
-      orderBy: { name: "asc" }
+      orderBy: { name: "asc" },
+      include: { company: true }
     });
   }
 };
