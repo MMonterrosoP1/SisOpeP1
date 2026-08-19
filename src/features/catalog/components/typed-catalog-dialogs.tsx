@@ -54,7 +54,7 @@ export function TypedCatalogAddDialog({
       setType("OFICINA");
       setIsPending(false);
     }
-  }, [open, allowAll]);
+  }, [open, allowAll, initialType]);
 
   const handleOpenChange = (value: boolean) => {
     onOpenChange(value);
@@ -108,7 +108,6 @@ export function TypedCatalogAddDialog({
                 <SelectItem value="OBRA">Obra</SelectItem>
                 <SelectItem value="OFICINA">Oficina</SelectItem>
                 <SelectItem value="PLANTA">Planta</SelectItem>
-                <SelectItem value="PLANTA_ADMINISTRATIVO">Planta Administrativo</SelectItem>
                 {allowAll && <SelectItem value="TODOS">Todos (Aplica a cualquiera)</SelectItem>}
               </SelectContent>
             </Select>
@@ -196,7 +195,6 @@ export function TypedCatalogEditDialog({
                 <SelectItem value="OBRA">Obra</SelectItem>
                 <SelectItem value="OFICINA">Oficina</SelectItem>
                 <SelectItem value="PLANTA">Planta</SelectItem>
-                <SelectItem value="PLANTA_ADMINISTRATIVO">Planta Administrativo</SelectItem>
                 {allowAll && <SelectItem value="TODOS">Todos (Aplica a cualquiera)</SelectItem>}
               </SelectContent>
             </Select>

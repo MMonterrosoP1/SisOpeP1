@@ -64,9 +64,9 @@ async function PatientsContent({
     <>
       <PatientFilters
         companies={companies.map((c: any) => ({ key: String(c.id), label: c.acronym || c.name }))}
-        workplaces={workplaces.map((w: any) => ({ key: String(w.id), label: w.name }))}
-        workAreas={workAreas.map((a: any) => ({ key: String(a.id), label: a.name }))}
-        jobPositions={jobPositions.map((p: any) => ({ key: String(p.id), label: p.name }))}
+        workplaces={workplaces.map((w: any) => ({ key: String(w.id), label: w.name, companyId: w.companyId, type: w.type }))}
+        workAreas={workAreas.map((a: any) => ({ key: String(a.id), label: a.name, type: a.type }))}
+        jobPositions={jobPositions.map((p: any) => ({ key: String(p.id), label: p.name, type: p.type }))}
       />
 
       <div className="bg-background rounded-lg border shadow-sm flex flex-col max-h-[calc(100vh-16rem)]">

@@ -98,11 +98,17 @@ async function main() {
       if (tipoRaw === "PLANTA") type = "PLANTA";
       if (tipoRaw === "PLANTA_ADMINISTRATIVO" || tipoRaw === "PLANTA ADMINISTRATIVO") type = "PLANTA_ADMINISTRATIVO";
 
-      await prisma.workArea.upsert({
-        where: { name },
-        update: { active, type },
-        create: { name, active, type },
-      });
+      const existing = await prisma.workArea.findFirst({ where: { name, type } });
+      if (existing) {
+        await prisma.workArea.update({
+          where: { id: existing.id },
+          data: { active, type },
+        });
+      } else {
+        await prisma.workArea.create({
+          data: { name, active, type },
+        });
+      }
     }
   }
 
@@ -119,11 +125,17 @@ async function main() {
       if (tipoRaw === "PLANTA") type = "PLANTA";
       if (tipoRaw === "PLANTA_ADMINISTRATIVO" || tipoRaw === "PLANTA ADMINISTRATIVO") type = "PLANTA_ADMINISTRATIVO";
 
-      await prisma.jobPosition.upsert({
-        where: { name },
-        update: { type },
-        create: { name, type },
-      });
+      const existing = await prisma.jobPosition.findFirst({ where: { name, type } });
+      if (existing) {
+        await prisma.jobPosition.update({
+          where: { id: existing.id },
+          data: { type },
+        });
+      } else {
+        await prisma.jobPosition.create({
+          data: { name, type },
+        });
+      }
     }
   }
 

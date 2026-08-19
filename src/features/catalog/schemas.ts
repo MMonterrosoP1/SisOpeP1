@@ -41,16 +41,18 @@ export const exerciseCatalogSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(255),
 });
 
-export const WorkplaceTypeSchema = z.enum(["OBRA", "OFICINA", "PLANTA", "PLANTA_ADMINISTRATIVO"]);
+export const WorkplaceTypeSchema = z.enum(["OBRA", "OFICINA", "PLANTA"]);
 
 export const workplaceSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(255),
   type: WorkplaceTypeSchema.default("OFICINA"),
+  companyId: z.coerce.number().int().positive().nullable().optional(),
 });
 
 export const workplaceUpdateSchema = z.object({
   name: z.string().trim().min(1).max(255).optional(),
   type: WorkplaceTypeSchema.optional(),
+  companyId: z.coerce.number().int().positive().nullable().optional(),
   active: z.boolean().optional(),
 });
 
