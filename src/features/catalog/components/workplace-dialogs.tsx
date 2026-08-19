@@ -20,24 +20,35 @@ interface CatalogItem {
   id: number;
   name: string;
   type?: string | null;
+  companyId?: number | null;
+}
+
+interface CompanyItem {
+  id: number;
+  name: string;
+  acronym?: string | null;
 }
 
 export function WorkplaceAddDialog({
   open,
   onOpenChange,
   onSuccess,
+  companies,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  companies: CompanyItem[];
 }) {
   const [name, setName] = useState("");
   const [type, setType] = useState<string>("OFICINA");
+  const [companyId, setCompanyId] = useState<string>("");
   const [isPending, setIsPending] = useState(false);
 
   const resetForm = () => {
     setName("");
     setType("OFICINA");
+    setCompanyId("");
     setIsPending(false);
   };
 
@@ -52,7 +63,11 @@ export function WorkplaceAddDialog({
 
     setIsPending(true);
     try {
-      const data = { name: nameVal, type };
+      const data = {
+        name: nameVal,
+        type,
+        companyId: companyId && companyId !== "none" ? parseInt(companyId) : null
+      };
       const res = await createCatalogItem("workplace", data);
       if (res.success) {
         toast.success("Centro de Trabajo creado");
@@ -80,7 +95,7 @@ export function WorkplaceAddDialog({
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej. Planta Norte"
+              placeholder="Ej. Planta , Proyecto X"
               autoFocus
             />
           </div>
@@ -88,20 +103,41 @@ export function WorkplaceAddDialog({
             <Label>Tipo</Label>
             <Select value={type} onValueChange={(val) => setType(val || "")}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccione tipo" />
+                <span className="flex flex-1 text-left truncate">
+                  {type === "OBRA" ? "Obra" : type === "OFICINA" ? "Oficina" : type === "PLANTA" ? "Planta" : <span className="text-muted-foreground">Seleccione tipo</span>}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="OBRA">Obra</SelectItem>
                 <SelectItem value="OFICINA">Oficina</SelectItem>
                 <SelectItem value="PLANTA">Planta</SelectItem>
-                <SelectItem value="PLANTA_ADMINISTRATIVO">Planta Administrativo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>Empresa (Opcional para Oficina/Planta)</Label>
+            <Select value={companyId} onValueChange={(val) => setCompanyId(val || "")}>
+              <SelectTrigger>
+                <span className="flex flex-1 text-left truncate">
+                  {companyId && companyId !== "none"
+                    ? (companies.find(c => c.id.toString() === companyId)?.acronym || companies.find(c => c.id.toString() === companyId)?.name)
+                    : companyId === "none"
+                      ? "Ninguna (Compartido)"
+                      : <span className="text-muted-foreground">Seleccione empresa (compartido si está vacío)</span>}
+                </span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none" className="text-muted-foreground">Ninguna (Compartido)</SelectItem>
+                {companies.map(c => (
+                  <SelectItem key={c.id} value={c.id.toString()}>{c.acronym || c.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
         </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>Cancelar</Button>
-          <Button type="button" onClick={handleSave} disabled={isPending || !name.trim()}>
+          <Button type="button" onClick={handleSave} disabled={isPending || !name.trim() || (type === "OBRA" && (!companyId || companyId === "none"))}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Guardar
           </Button>
@@ -114,18 +150,22 @@ export function WorkplaceAddDialog({
 export function WorkplaceEditDialog({
   item,
   onClose,
+  companies,
 }: {
   item: CatalogItem | null;
   onClose: () => void;
+  companies: CompanyItem[];
 }) {
   const [name, setName] = useState("");
   const [type, setType] = useState<string>("OFICINA");
+  const [companyId, setCompanyId] = useState<string>("");
   const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     if (item) {
       setName(item.name);
       setType(item.type || "OFICINA");
+      setCompanyId(item.companyId ? item.companyId.toString() : "none");
     }
   }, [item]);
 
@@ -136,7 +176,11 @@ export function WorkplaceEditDialog({
 
     setIsPending(true);
     try {
-      const data = { name: nameVal, type };
+      const data = {
+        name: nameVal,
+        type,
+        companyId: companyId && companyId !== "none" ? parseInt(companyId) : null
+      };
       const res = await updateCatalogItem("workplace", item.id, data);
       if (res.success) {
         toast.success("Actualizado");
@@ -169,20 +213,41 @@ export function WorkplaceEditDialog({
             <Label>Tipo</Label>
             <Select value={type} onValueChange={(val) => setType(val || "")}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccione tipo" />
+                <span className="flex flex-1 text-left truncate">
+                  {type === "OBRA" ? "Obra" : type === "OFICINA" ? "Oficina" : type === "PLANTA" ? "Planta" : <span className="text-muted-foreground">Seleccione tipo</span>}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="OBRA">Obra</SelectItem>
                 <SelectItem value="OFICINA">Oficina</SelectItem>
                 <SelectItem value="PLANTA">Planta</SelectItem>
-                <SelectItem value="PLANTA_ADMINISTRATIVO">Planta Administrativo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>Empresa (Opcional para Oficina/Planta)</Label>
+            <Select value={companyId} onValueChange={(val) => setCompanyId(val || "")}>
+              <SelectTrigger>
+                <span className="flex flex-1 text-left truncate">
+                  {companyId && companyId !== "none"
+                    ? (companies.find(c => c.id.toString() === companyId)?.acronym || companies.find(c => c.id.toString() === companyId)?.name)
+                    : companyId === "none"
+                      ? "Ninguna (Compartido)"
+                      : <span className="text-muted-foreground">Seleccione empresa (compartido si está vacío)</span>}
+                </span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none" className="text-muted-foreground">Ninguna (Compartido)</SelectItem>
+                {companies.map(c => (
+                  <SelectItem key={c.id} value={c.id.toString()}>{c.acronym || c.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
         </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button type="button" onClick={handleSave} disabled={isPending || !name.trim()}>
+          <Button type="button" onClick={handleSave} disabled={isPending || !name.trim() || (type === "OBRA" && (!companyId || companyId === "none"))}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Guardar
           </Button>

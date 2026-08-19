@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Edit2, Check, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ interface CatalogSectionProps {
 }
 
 export function CatalogSection({ type, title, description, items, hasActiveField = true, renderAddDialog, renderEditDialog }: CatalogSectionProps) {
+  const router = useRouter();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [isUpdating, setIsUpdating] = useState<number | null>(null);
@@ -185,7 +187,10 @@ export function CatalogSection({ type, title, description, items, hasActiveField
           title={title}
           open={isAddDialogOpen}
           onOpenChange={setIsAddDialogOpen}
-          onSuccess={() => {}}
+          onSuccess={() => {
+            router.refresh();
+            setIsAddDialogOpen(false);
+          }}
         />
       )}
 

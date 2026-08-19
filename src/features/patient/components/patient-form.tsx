@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { ComboboxSelect } from "@/components/ui/combobox-select";
 import { Plus, Calendar as CalendarIcon } from "lucide-react";
 import { TypedCatalogAddDialog } from "@/features/catalog/components/typed-catalog-dialogs";
+import { WorkplaceAddDialog } from "@/features/catalog/components/workplace-dialogs";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,7 @@ type CatalogItem = {
   acronym?: string | null;
   sex?: "MALE" | "FEMALE" | null;
   type?: string | null;
+  companyId?: number | null;
 };
 
 type SelectOption = {
@@ -230,6 +232,10 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [localCatalogs, setLocalCatalogs] = useState<Record<string, CatalogItem[]>>(catalogs);
 
+  useEffect(() => {
+    setLocalCatalogs(catalogs);
+  }, [catalogs]);
+
   const [quickAddDialog, setQuickAddDialog] = useState<{
     open: boolean;
     type: "workplace" | "workArea" | "jobPosition";
@@ -296,7 +302,9 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
       }
 
       if (field === "companyId") {
-        // Only company changes, nothing else cascades to it anymore
+        next.workplaceId = "";
+        next.workAreaId = "";
+        next.jobPositionId = "";
       } else if (field === "workplaceId") {
         next.workAreaId = "";
         next.jobPositionId = "";
@@ -607,7 +615,10 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
                 name="workplaceId"
                 label="Lugar de trabajo"
                 value={formData.workplaceId}
-                options={getCatalogOptions("workplace")}
+                options={getCatalogOptions("workplace").filter(opt => {
+                  const wp = localCatalogs.workplace?.find(w => String(w.id) === opt.key);
+                  return !wp?.companyId || String(wp.companyId) === formData.companyId;
+                })}
                 placeholder="Seleccione lugar"
                 isRequired
                 error={getFieldError("workplaceId")}
@@ -775,22 +786,41 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
         </Button>
       </div>
 
-      <TypedCatalogAddDialog
-        catalogType={quickAddDialog.type}
-        title={quickAddDialog.title}
-        open={quickAddDialog.open}
-        allowAll={quickAddDialog.type === "jobPosition" || quickAddDialog.type === "workArea"}
-        onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}
-        onSuccess={(item) => {
-          // Actualizar el catálogo local
-          setLocalCatalogs((prev) => ({
-            ...prev,
-            [quickAddDialog.type]: [...(prev[quickAddDialog.type] || []), item],
-          }));
-          // Seleccionar el nuevo elemento
-          handleChange(quickAddDialog.field, String(item.id));
-        }}
-      />
+      {quickAddDialog.type === "workplace" ? (
+        <WorkplaceAddDialog
+          open={quickAddDialog.open}
+          onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}
+          onSuccess={() => {
+            // Recargar catálogos no es trivial aquí sin invalidate, pero simularemos agregando al localCatalogs no es fácil porque onSuccess no devuelve el item.
+            // Para mantener consistencia con el diseño actual, el usuario deberá refrescar o se requiere una recarga del servidor.
+            // idealmente WorkplaceAddDialog debería devolver el item creado.
+            router.refresh();
+            setQuickAddDialog((prev) => ({ ...prev, open: false }));
+          }}
+          companies={localCatalogs.company || []}
+        />
+      ) : (() => {
+        const selectedWorkplace = localCatalogs.workplace?.find(w => String(w.id) === formData.workplaceId);
+        const selectedWorkplaceType = selectedWorkplace?.type || undefined;
+        
+        return (
+          <TypedCatalogAddDialog
+            catalogType={quickAddDialog.type}
+            title={quickAddDialog.title}
+            open={quickAddDialog.open}
+            allowAll={quickAddDialog.type === "jobPosition" || quickAddDialog.type === "workArea"}
+            initialType={selectedWorkplaceType}
+            onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}
+            onSuccess={(item) => {
+              setLocalCatalogs((prev) => ({
+                ...prev,
+                [quickAddDialog.type]: [...(prev[quickAddDialog.type] || []), item],
+              }));
+              handleChange(quickAddDialog.field, String(item.id));
+            }}
+          />
+        );
+      })()}
     </form>
   );
 }
