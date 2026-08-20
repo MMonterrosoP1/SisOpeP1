@@ -1,4 +1,4 @@
-# Gestión Clínica Premed
+# Gestión Clínica
 
 Sistema integral de gestión clínica y expedientes médicos electrónicos, diseñado para la administración eficiente de pacientes, historial clínico, consultas médicas y emisión de constancias certificadas.
 
