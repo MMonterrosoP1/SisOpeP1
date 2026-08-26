@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
 
-const { encounterRepositoryMock, patientRepositoryMock, auditServiceMock } = vi.hoisted(() => ({
+const { encounterRepositoryMock, patientRepositoryMock, auditServiceMock, prismaMock } = vi.hoisted(() => ({
   encounterRepositoryMock: {
     findAll: vi.fn(),
     create: vi.fn(),
@@ -13,6 +13,15 @@ const { encounterRepositoryMock, patientRepositoryMock, auditServiceMock } = vi.
   auditServiceMock: {
     log: vi.fn(),
   },
+  prismaMock: {
+    practitioner: {
+      findUnique: vi.fn(),
+    },
+  },
+}));
+
+vi.mock("@/lib/prisma", () => ({
+  prisma: prismaMock,
 }));
 
 vi.mock("./repository", () => ({
@@ -38,6 +47,7 @@ const basePayload = {
 describe("encounterService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    prismaMock.practitioner.findUnique.mockResolvedValue({ id: "clx123", userId: "user-99" });
   });
 
   it("create: throws NotFoundError when patient does not exist", async () => {
@@ -59,7 +69,7 @@ describe("encounterService", () => {
 
     await expect(
       encounterService.create({ ...basePayload, pregnancyStatus: "PREGNANT" } as never, { id: "user-1", email: "test@example.com" })
-    ).rejects.toMatchObject({ message: "Pregnancy status is only applicable to female patients" });
+    ).rejects.toMatchObject({ message: "El estado de embarazo solo es aplicable a pacientes femeninas" });
   });
 
   it("create: rejects gynecological history for non-female patients", async () => {
@@ -67,7 +77,7 @@ describe("encounterService", () => {
 
     await expect(
       encounterService.create({ ...basePayload, gynecologicalHistory: "detail" } as never, { id: "user-1", email: "test@example.com" })
-    ).rejects.toMatchObject({ message: "Gynecological history is only applicable to female patients" });
+    ).rejects.toMatchObject({ message: "La historia ginecológica solo es aplicable a pacientes femeninas" });
   });
 
   it("create: computes bmi, marks first visit and audits", async () => {

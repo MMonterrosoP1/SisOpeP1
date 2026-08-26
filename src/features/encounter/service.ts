@@ -11,20 +11,20 @@ export const encounterService = {
   async create(data: CreateEncounterInput, user: { id: string; email: string }) {
     const patient = await patientRepository.findById(data.patientId);
     if (!patient) {
-      throw new NotFoundError("Patient not found", "patient", data.patientId);
+      throw new NotFoundError("Paciente no encontrado", "patient", data.patientId);
     }
     if (!patient.active) {
-      throw new ValidationError("Cannot create encounter for inactive patient");
+      throw new ValidationError("No se puede crear una consulta para un paciente inactivo");
     }
 
     if (data.pregnancyStatus && data.pregnancyStatus !== "NOT_APPLICABLE") {
       if (patient.person?.sex !== "FEMALE") {
-        throw new ValidationError("Pregnancy status is only applicable to female patients");
+        throw new ValidationError("El estado de embarazo solo es aplicable a pacientes femeninas");
       }
     }
 
     if (data.gynecologicalHistory && patient.person?.sex !== "FEMALE") {
-      throw new ValidationError("Gynecological history is only applicable to female patients");
+      throw new ValidationError("La historia ginecológica solo es aplicable a pacientes femeninas");
     }
 
     let anthropometryToSave = data.anthropometry;
@@ -109,7 +109,7 @@ export const encounterService = {
   async getDetail(id: number) {
     const encounter = await encounterRepository.findById(id);
     if (!encounter) {
-      throw new NotFoundError("Encounter not found", "encounter", id);
+      throw new NotFoundError("Consulta no encontrada", "encounter", id);
     }
     return encounter;
   },
