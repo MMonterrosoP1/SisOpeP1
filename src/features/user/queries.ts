@@ -22,7 +22,7 @@ export async function getUsers(filters: UserFilters): Promise<UserListResponse> 
   }
 
   if (filters.role && filters.role !== "ALL") {
-    where.role = filters.role.toLowerCase();
+    where.role = filters.role.toUpperCase();
   }
 
   if (filters.status && filters.status !== "ALL") {
@@ -43,8 +43,8 @@ export async function getUsers(filters: UserFilters): Promise<UserListResponse> 
       take: limit,
       orderBy: { createdAt: "desc" },
       include: {
-        person: {
-          select: { sex: true }
+        practitioner: {
+          select: { sex: true, preamble: true, givenNames: true, familyNames: true }
         }
       }
     }),
@@ -64,8 +64,10 @@ export async function getUsers(filters: UserFilters): Promise<UserListResponse> 
       emailVerified: u.emailVerified,
       createdAt: new Date(u.createdAt),
       image: u.image,
-      preamble: u.preamble,
-      sex: u.person?.sex,
+      preamble: u.practitioner?.preamble,
+      sex: u.practitioner?.sex,
+      givenNames: u.practitioner?.givenNames,
+      familyNames: u.practitioner?.familyNames,
     })),
     total,
     limit,

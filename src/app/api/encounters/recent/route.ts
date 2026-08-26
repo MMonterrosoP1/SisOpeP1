@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { getEncounters } from "@/features/encounter/queries";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { AppError } from "@/shared/errors/app-error";
@@ -15,7 +16,13 @@ export async function GET(request: NextRequest) {
 
     const filters: any = { patientId: Number(patientId) };
     if (session.user.role === "DOCTOR") {
-      filters.practitionerId = session.user.id;
+      const practitioner = await prisma.practitioner.findUnique({ where: { userId: session.user.id } });
+      if (practitioner) {
+        filters.practitionerId = practitioner.id;
+      } else {
+        // If they are a doctor but have no practitioner profile, they shouldn't see anything
+        filters.practitionerId = -1;
+      }
     }
 
     const result = await getEncounters(filters, { page: 1, pageSize: 15 });

@@ -22,7 +22,7 @@ export default async function GlobalEncountersPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 md:gap-6 h-full">
       <EncountersHeader />
       <EncountersContent searchParams={searchParams} />
     </div>
@@ -65,8 +65,8 @@ async function EncountersContent({
         currentSearch={currentSearch}
       />
 
-      <div className="bg-background rounded-lg border shadow-sm flex flex-col max-h-[calc(100vh-16rem)]">
-        <div className="flex-1 flex flex-col min-h-0 relative rounded-t-lg">
+      <div className="bg-background rounded-lg border shadow-sm flex flex-col flex-1 min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 relative rounded-t-lg overflow-auto">
         {encounters.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-8 text-center bg-muted/30">
             <p className="text-muted-foreground">No hay consultas registradas en el sistema.</p>
@@ -97,20 +97,20 @@ async function EncountersContent({
 
         {/* Pagination controls */}
         {encounters.length > 0 && (
-          <div className="flex justify-between items-center p-4 border-t bg-background shrink-0 rounded-b-lg">
+          <div className="flex justify-between items-center p-4 border-t bg-background shrink-0 rounded-b-lg relative z-10">
             <span className="text-sm text-muted-foreground">
               Mostrando {encounters.length} de {meta.totalCount} resultados
             </span>
             <div className="flex gap-2">
               {page > 1 && (
-                <Link href={`/encounters?page=${page - 1}`}>
+                <Link href={`/encounters?${new URLSearchParams({ ...resolvedParams as Record<string, string>, page: String(page - 1) }).toString()}`}>
                   <Button variant="outline" size="sm">
                     Anterior
                   </Button>
                 </Link>
               )}
               {page < meta.totalPages && (
-                <Link href={`/encounters?page=${page + 1}`}>
+                <Link href={`/encounters?${new URLSearchParams({ ...resolvedParams as Record<string, string>, page: String(page + 1) }).toString()}`}>
                   <Button variant="outline" size="sm">
                     Siguiente
                   </Button>

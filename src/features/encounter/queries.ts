@@ -7,7 +7,7 @@ import { idParamSchema } from "@/shared/utils/zod-helpers";
 
 const encounterFilterSchema = z.object({
   patientId: idParamSchema.optional(),
-  practitionerId: z.string().optional(),
+  practitionerId: z.number().int().optional(),
   encounterTypeId: idParamSchema.optional(),
   search: z.string().optional(),
 });

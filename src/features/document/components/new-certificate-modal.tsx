@@ -199,7 +199,7 @@ export function NewCertificateModal() {
                           ? (() => {
                             const enc = encounters.find(e => e.id.toString() === selectedEncounterId);
                             return enc
-                              ? `${new Intl.DateTimeFormat("es-ES", { dateStyle: "medium", timeStyle: "short" }).format(new Date(enc.date))} - ${enc.encounterType?.name}`
+                              ? `${new Intl.DateTimeFormat("es-ES", { dateStyle: "medium", timeStyle: "short" }).format(new Date(enc.createdAt))} - ${enc.encounterType?.name}`
                               : 'Selecciona una consulta reciente';
                           })()
                           : 'Selecciona una consulta reciente'
@@ -209,7 +209,7 @@ export function NewCertificateModal() {
                     <SelectContent>
                       {encounters.map((enc) => (
                         <SelectItem key={enc.id} value={enc.id.toString()}>
-                          {new Intl.DateTimeFormat("es-ES", { dateStyle: "medium", timeStyle: "short" }).format(new Date(enc.date))} - {enc.encounterType?.name}
+                          {new Intl.DateTimeFormat("es-ES", { dateStyle: "medium", timeStyle: "short" }).format(new Date(enc.createdAt))} - {enc.encounterType?.name}
                         </SelectItem>
                       ))}
                     </SelectContent>

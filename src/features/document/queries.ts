@@ -22,7 +22,7 @@ import { z } from "zod";
 const documentFilterSchema = z.object({
   search: z.string().optional(),
   type: z.string().optional(),
-  practitionerId: z.string().optional(),
+  practitionerId: z.number().int().optional(),
 });
 
 export async function getDocuments(

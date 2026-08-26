@@ -9,7 +9,7 @@ import {
 } from "@/features/dashboard/queries";
 import { DashboardMetricCard } from "@/features/dashboard/components/dashboard-metric-card";
 import { EncountersByTypeAreaChart } from "@/features/dashboard/components/encounters-by-type-area-chart";
-import { PatientsByWorkplacePieChart } from "@/features/dashboard/components/patients-by-workplace-pie-chart";
+import { PatientsByWorkplaceChart } from "@/features/dashboard/components/patients-by-workplace-chart";
 import { CalendarAgendaView } from "@/features/dashboard/components/calendar-agenda-view";
 import { RecentEncountersList } from "@/features/dashboard/components/recent-encounters-list";
 import { TopDiagnosesChart } from "@/features/dashboard/components/top-diagnoses-chart";
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
       {/* Middle Row: Charts */}
       <div className="grid gap-4 lg:grid-cols-3">
         <EncountersByTypeAreaChart data={encountersOverTime.data} types={encountersOverTime.types} />
-        <PatientsByWorkplacePieChart data={patientsByWorkplace} />
+        <PatientsByWorkplaceChart data={patientsByWorkplace} />
       </div>
 
       {/* Bottom Row: Calendar, Recent Encounters, Top Diagnoses */}

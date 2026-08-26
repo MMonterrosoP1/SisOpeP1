@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
+import { revalidateTag, revalidatePath } from "next/cache";
 
 import { safeParseAction } from "@/shared/utils/zod-helpers";
 import { generateDocumentSchema } from "./schemas";
@@ -27,6 +27,7 @@ export async function generateDocumentAction(data: unknown): Promise<ActionRespo
     revalidateTag(`encounter-${parseResult.data.encounterId}`, "max");
     revalidateTag(`patient-${documentRecord.patientId}`, "max");
     revalidateTag("encounters", "max");
+    revalidatePath("/certificates");
 
     return { success: true, data: documentRecord };
   } catch (error) {

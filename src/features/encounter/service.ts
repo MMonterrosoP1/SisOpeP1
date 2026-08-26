@@ -5,6 +5,7 @@ import { auditService } from "@/shared/audit/audit.service";
 import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
 import { calculateBmi, classifyBmi } from "./domain/bmi-calculator";
 import { CreateEncounterInput, UpdateEncounterInput } from "./schemas";
+import { prisma } from "@/lib/prisma";
 
 export const encounterService = {
   async create(data: CreateEncounterInput, user: { id: string; email: string }) {
@@ -49,7 +50,17 @@ export const encounterService = {
     );
     data.isFirstVisit = previousTypeEncounters.totalCount === 0;
 
-    data.practitionerId = user.id;
+    data.isFirstVisit = previousTypeEncounters.totalCount === 0;
+
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { userId: user.id }
+    });
+    
+    if (!practitioner) {
+      throw new ValidationError("El usuario actual no tiene un perfil de médico asociado");
+    }
+
+    data.practitionerId = practitioner.id;
 
     // Remove history arrays from data before passing to repository
     const {

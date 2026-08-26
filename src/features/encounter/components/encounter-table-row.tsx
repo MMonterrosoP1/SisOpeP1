@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Calendar, Clock, MoreHorizontal, Eye, Pencil } from "lucide-react";
 import Link from "next/link";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+
 
 export function EncounterTableRow({ encounter }: { encounter: any }) {
-  const [menuOpen, setMenuOpen] = useState(false);
+
   const router = useRouter();
   
   const medCert = encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE');
@@ -18,13 +18,13 @@ export function EncounterTableRow({ encounter }: { encounter: any }) {
 
   // Prevent row click from triggering when clicking on links
   const handleRowClick = (e: React.MouseEvent) => {
-    // If the click is on an anchor or a button, don't open the menu programmatically
+    // If the click is on an anchor or a button, don't trigger programmatic navigation
     // because the anchor/button will handle its own action.
     const target = e.target as HTMLElement;
-    if (target.closest('a') || target.closest('button')) {
+    if (target.closest('a') || target.closest('button') || target.closest('[role="menuitem"]')) {
       return;
     }
-    setMenuOpen(true);
+    router.push(`/patients/${encounter.patientId}/encounters/${encounter.id}`);
   };
 
   return (
@@ -82,7 +82,7 @@ export function EncounterTableRow({ encounter }: { encounter: any }) {
             <Eye className="h-4 w-4 text-muted-foreground" />
             <span className="sr-only">Ver Detalle</span>
           </Link>
-          <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+          <DropdownMenu>
             <DropdownMenuTrigger 
               className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0"
               title="Documentos"

@@ -158,7 +158,7 @@ export function PatientTable({ data }: PatientTableProps) {
 
   return (
     <>
-      <div className="h-full">
+      <div className="flex-1 flex flex-col min-h-0">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
