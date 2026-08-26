@@ -22,7 +22,8 @@ import {
   Shield,
   UserCog,
   PanelLeftClose,
-  PanelLeft
+  PanelLeft,
+  BarChart3
 } from "lucide-react";
 import { UserMenu } from "./user-menu";
 import { UserRole } from "@/shared/schemas/enums";
@@ -40,6 +41,7 @@ const navItems: NavItem[] = [
   { name: "Pacientes", href: "/patients", icon: Users, roles: ["ADMIN", "DOCTOR"] },
   { name: "Consultas", href: "/encounters", icon: Stethoscope, roles: ["ADMIN", "DOCTOR"] },
   { name: "Constancias", href: "/certificates", icon: FileText, roles: ["ADMIN", "DOCTOR"] },
+  { name: "Reportes", href: "/reports", icon: BarChart3, roles: ["ADMIN", "DOCTOR", "VIEWER"], isNew: true },
   { name: "Catálogos", href: "/catalogs", icon: BookOpen, roles: ["ADMIN", "DOCTOR"] },
   { name: "Auditoría", href: "/audit", icon: Shield, roles: ["ADMIN"] },
   { name: "Usuarios", href: "/users", icon: UserCog, roles: ["ADMIN"] },
