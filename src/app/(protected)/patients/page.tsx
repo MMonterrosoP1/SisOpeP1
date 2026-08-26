@@ -76,20 +76,20 @@ async function PatientsContent({
         </div>
 
         {/* Simple pagination controls */}
-        <div className="flex justify-between items-center p-4 border-t bg-background shrink-0 rounded-b-lg">
+        <div className="flex justify-between items-center p-4 border-t bg-background shrink-0 rounded-b-lg relative z-10">
           <span className="text-sm text-muted-foreground">
             Mostrando {patientsRes.data.length} de {patientsRes.meta.totalCount} resultados
           </span>
           <div className="flex gap-2">
             {page > 1 && (
-              <Link href={`/patients?page=${page - 1}`}>
+              <Link href={`/patients?${new URLSearchParams({ ...resolvedParams as Record<string, string>, page: String(page - 1) }).toString()}`}>
                 <Button variant="outline" size="sm">
                   Anterior
                 </Button>
               </Link>
             )}
             {page < patientsRes.meta.totalPages && (
-              <Link href={`/patients?page=${page + 1}`}>
+              <Link href={`/patients?${new URLSearchParams({ ...resolvedParams as Record<string, string>, page: String(page + 1) }).toString()}`}>
                 <Button variant="outline" size="sm">
                   Siguiente
                 </Button>
