@@ -20,22 +20,7 @@ export async function createUser(data: unknown): Promise<ActionResponse<any>> {
 
     const { name, email, password, role, sex, preamble, givenNames, familyNames } = parseResult.data;
 
-    let personId: number | undefined;
-
-    // If role is DOCTOR, create Person first
-    if (role === "DOCTOR" && sex && givenNames && familyNames) {
-      const newPerson = await prisma.person.create({
-        data: {
-          givenNames,
-          familyNames,
-          sex,
-          identityDocument: email, // Usamos el email como DPI temporal para médicos
-          createdBy: session.user.email,
-          updatedBy: session.user.email,
-        }
-      });
-      personId = newPerson.id;
-    }
+    let practitionerId: number | undefined;
 
     const newUser = await auth.api.createUser({
       body: {
@@ -51,10 +36,23 @@ export async function createUser(data: unknown): Promise<ActionResponse<any>> {
       data: {
         role: role as UserRole,
         active: true,
-        personId,
-        preamble,
       }
     });
+
+    // If role is DOCTOR, create Practitioner
+    if (role === "DOCTOR" && sex && givenNames && familyNames) {
+      await prisma.practitioner.create({
+        data: {
+          userId: newUser.user.id,
+          givenNames,
+          familyNames,
+          sex,
+          preamble,
+          createdBy: session.user.email,
+          updatedBy: session.user.email,
+        }
+      });
+    }
 
     revalidateTag("users", "max");
     return { success: true, data: newUser.user };
@@ -74,43 +72,35 @@ export async function updateDoctorInfo(data: unknown): Promise<ActionResponse<an
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { person: true }
+      include: { practitioner: true }
     });
 
     if (!user) throw new AppError("Usuario no encontrado", "NOT_FOUND", 404);
     if (user.role !== "DOCTOR") throw new AppError("El usuario no es un doctor", "BAD_REQUEST", 400);
 
-    // Update user preamble
-    await prisma.user.update({
-      where: { id: userId },
-      data: { preamble }
-    });
-
-    // Update or create person
-    if (user.personId) {
-      await prisma.person.update({
-        where: { id: user.personId },
+    // Update or create practitioner
+    if (user.practitioner) {
+      await prisma.practitioner.update({
+        where: { id: user.practitioner.id },
         data: {
           sex,
           givenNames,
           familyNames,
+          preamble,
           updatedBy: session.user.email
         }
       });
     } else {
-      const newPerson = await prisma.person.create({
+      await prisma.practitioner.create({
         data: {
+          userId,
           givenNames,
           familyNames,
           sex,
-          identityDocument: user.email, // Usamos el email como DPI temporal para médicos
+          preamble,
           createdBy: session.user.email,
           updatedBy: session.user.email,
         }
-      });
-      await prisma.user.update({
-        where: { id: userId },
-        data: { personId: newPerson.id }
       });
     }
 
