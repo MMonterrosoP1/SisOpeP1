@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 export default async function CertificatesPage({ searchParams }: CertificatesPageProps) {
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 md:gap-6 h-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Constancias</h1>
@@ -62,7 +62,7 @@ async function CertificatesContent({ searchParams }: CertificatesPageProps) {
     <>
       <CertificatesFilters currentPractitionerId={resolvedParams.practitionerId as string} />
 
-      <div className="bg-background rounded-lg border shadow-sm flex flex-col max-h-[calc(100vh-16rem)]">
+      <div className="bg-background rounded-lg border shadow-sm flex flex-col flex-1 min-h-0">
         <div className="flex-1 flex flex-col min-h-0 relative rounded-t-lg">
         <CertificatesTable data={data} meta={meta} />
 

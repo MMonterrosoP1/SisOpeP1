@@ -19,7 +19,7 @@ export default async function PatientsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 md:gap-6 h-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Pacientes</h1>
@@ -69,7 +69,7 @@ async function PatientsContent({
         jobPositions={jobPositions.map((p: any) => ({ key: String(p.id), label: p.name, type: p.type }))}
       />
 
-      <div className="bg-background rounded-lg border shadow-sm flex flex-col max-h-[calc(100vh-16rem)]">
+      <div className="bg-background rounded-lg border shadow-sm flex flex-col flex-1 min-h-0">
         <div className="flex-1 flex flex-col min-h-0 relative rounded-t-lg">
         <PatientTable data={patientsRes.data} totalCount={patientsRes.meta.totalCount} />
 
