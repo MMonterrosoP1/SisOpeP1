@@ -38,8 +38,8 @@ export function mapEncounterToCertificateData(encounter: any): CertificateData {
     aptitude: mapAptitude(encounter.medicalAptitude?.name),
     employerObservation: encounter.employerObservation || "",
     practitionerPreamble: encounter.practitioner?.preamble || "El/La infrascrito/a Médico/a y Cirujano/a hace constar:",
-    practitionerName: encounter.practitioner?.name || "",
-    practitionerSex: encounter.practitioner?.person?.sex || null,
+    practitionerName: encounter.practitioner ? `${encounter.practitioner.givenNames} ${encounter.practitioner.familyNames}` : "",
+    practitionerSex: encounter.practitioner?.sex || null,
   };
 }
 

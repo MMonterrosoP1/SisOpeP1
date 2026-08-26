@@ -32,7 +32,7 @@ export const documentRepository = {
             jobPosition: true,
           }
         },
-        practitioner: { include: { person: true } },
+        practitioner: true,
         medicalAptitude: true,
         suspensionHour: true,
         diagnoses: {
@@ -68,7 +68,7 @@ export const documentRepository = {
     });
   },
 
-  async create(encounterId: number, patientId: number, practitionerId: string, documentTypeCode: string) {
+  async create(encounterId: number, patientId: number, practitionerId: number, documentTypeCode: string) {
     const typeId = await this.getDocumentTypeIdByCode(documentTypeCode);
     if (!typeId) throw new Error(`Document type ${documentTypeCode} not found`);
 
@@ -77,7 +77,7 @@ export const documentRepository = {
         encounterId,
         patientId,
         documentTypeId: typeId,
-        issuedByUserId: practitionerId,
+        issuedByPractitionerId: practitionerId,
         issuedAt: new Date(),
       },
     });
@@ -91,7 +91,7 @@ export const documentRepository = {
   },
 
   async findAll(
-    filters: { search?: string; type?: string; practitionerId?: string; },
+    filters: { search?: string; type?: string; practitionerId?: number; },
     pagination: { skip: number; take: number }
   ) {
     const whereClause: any = {};
@@ -114,7 +114,7 @@ export const documentRepository = {
 
     if (filters.practitionerId) {
       whereClause.OR = [
-        { issuedByUserId: filters.practitionerId },
+        { issuedByPractitionerId: filters.practitionerId },
         { encounter: { practitionerId: filters.practitionerId } },
       ];
     }

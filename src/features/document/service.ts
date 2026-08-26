@@ -1,4 +1,5 @@
 import { documentRepository } from "./repository";
+import { prisma } from "@/lib/prisma";
 import { auditService } from "@/shared/audit/audit.service";
 import { ConflictError, NotFoundError, ValidationError } from "@/shared/errors/app-error";
 import { put } from "@vercel/blob";
@@ -31,11 +32,16 @@ export const documentService = {
         return existingDoc; // Ya existe y tiene PDF
       }
     } else {
+      const issuer = await prisma.practitioner.findUnique({ where: { userId } });
+      if (!issuer) {
+        throw new ValidationError("El usuario no tiene un perfil de médico asociado para emitir documentos.");
+      }
+
       // Crear el registro de documento si no existe
       await documentRepository.create(
         encounterId, 
         encounter.patientId, 
-        userId,
+        issuer.id,
         documentTypeCode
       );
     }
