@@ -89,7 +89,7 @@ model User {
   practitioner Practitioner?
 
   // Relaciones del negocio
-  auditLogs  AuditLog[]
+  auditLogs AuditLog[]
 
   banned     Boolean?  @default(false)
   banReason  String?   @db.Text
@@ -184,7 +184,7 @@ model Company {
   createdBy String?
   updatedBy String?
 
-  patients Patient[]
+  patients   Patient[]
   workplaces Workplace[]
 
   @@map("company")
@@ -201,8 +201,8 @@ model Workplace {
   createdBy String?
   updatedBy String?
 
-  company   Company?      @relation(fields: [companyId], references: [id])
-  patients  Patient[]
+  company  Company?  @relation(fields: [companyId], references: [id])
+  patients Patient[]
 
   @@map("workplace")
 }
@@ -475,17 +475,17 @@ model SuspensionHourCatalog {
 // ═══════════════════════════════════════════════════════════════════════
 
 model Practitioner {
-  id               Int      @id @default(autoincrement())
-  userId           String   @unique
-  givenNames       String
-  familyNames      String
-  sex              Sex
-  preamble         String?  @db.Text
-  active           Boolean  @default(true)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  createdBy        String?
-  updatedBy        String?
+  id          Int      @id @default(autoincrement())
+  userId      String   @unique
+  givenNames  String
+  familyNames String
+  sex         Sex
+  preamble    String?  @db.Text
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
 
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   encounters Encounter[]
@@ -719,6 +719,7 @@ model Encounter {
   isFirstVisit            Boolean         @default(false)
   symptomatology          String?         @db.Text
   illnessHistory          String?         @db.Text
+  physicalExam            String?         @db.Text
   gynecologicalHistory    String?         @db.Text
   pregnancyStatus         PregnancyStatus @default(NOT_APPLICABLE)
   sleepHours              Float?
@@ -862,13 +863,13 @@ model Diagnosis {
 // ═══════════════════════════════════════════════════════════════════════
 
 model Document {
-  id             Int      @id @default(autoincrement())
-  encounterId    Int
-  patientId      Int
-  documentTypeId Int
+  id                     Int      @id @default(autoincrement())
+  encounterId            Int
+  patientId              Int
+  documentTypeId         Int
   issuedByPractitionerId Int
-  issuedAt       DateTime @default(now())
-  pdfUrl         String?  @db.Text
+  issuedAt               DateTime @default(now())
+  pdfUrl                 String?  @db.Text
 
   documentType DocumentTypeCatalog @relation(fields: [documentTypeId], references: [id])
   encounter    Encounter           @relation(fields: [encounterId], references: [id], onDelete: Cascade)
