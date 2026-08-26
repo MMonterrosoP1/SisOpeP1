@@ -14,6 +14,8 @@ export interface UserListItem {
   image?: string | null;
   preamble?: string | null;
   sex?: Sex | null;
+  givenNames?: string | null;
+  familyNames?: string | null;
 }
 
 export interface UserListResponse {

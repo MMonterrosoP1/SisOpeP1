@@ -31,7 +31,7 @@ export const encounterRepository = {
         orderBy: { createdAt: "desc" },
         include: {
           patient: { select: { id: true, person: { select: { givenNames: true, familyNames: true, identityDocument: true } } } },
-          practitioner: { select: { name: true, email: true } },
+          practitioner: { select: { givenNames: true, familyNames: true, user: { select: { email: true, name: true } } } },
           encounterType: { select: { name: true } },
           diagnoses: {
             where: { isPrimary: true },
@@ -52,7 +52,7 @@ export const encounterRepository = {
       where: { id },
       include: {
         patient: { include: { person: true } },
-        practitioner: { select: { id: true, name: true, email: true } },
+        practitioner: { select: { id: true, givenNames: true, familyNames: true, user: { select: { email: true, name: true } } } },
         encounterType: true,
         referralLevel: true,
         medicalAptitude: true,
@@ -72,7 +72,7 @@ export const encounterRepository = {
       orderBy: { createdAt: "desc" },
       include: {
         patient: { include: { person: true } },
-        practitioner: { select: { id: true, name: true, email: true } },
+        practitioner: { select: { id: true, givenNames: true, familyNames: true, user: { select: { email: true, name: true } } } },
         encounterType: true,
         referralLevel: true,
         medicalAptitude: true,

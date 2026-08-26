@@ -86,20 +86,14 @@ model User {
   sessions Session[]
   accounts Account[]
 
-  // Vínculo a Person (Opcional para que Better Auth no falle al crear)
-  personId Int?    @unique
-  person   Person? @relation(fields: [personId], references: [id])
+  practitioner Practitioner?
 
   // Relaciones del negocio
-  encounters Encounter[]
-  documents  Document[]
   auditLogs  AuditLog[]
 
   banned     Boolean?  @default(false)
   banReason  String?   @db.Text
   banExpires DateTime?
-
-  preamble String? @db.Text
 
   // Relaciones de auditoría (creación/modificación)
 
@@ -480,6 +474,26 @@ model SuspensionHourCatalog {
 // ENTIDADES PRINCIPALES
 // ═══════════════════════════════════════════════════════════════════════
 
+model Practitioner {
+  id               Int      @id @default(autoincrement())
+  userId           String   @unique
+  givenNames       String
+  familyNames      String
+  sex              Sex
+  preamble         String?  @db.Text
+  active           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  createdBy        String?
+  updatedBy        String?
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  encounters Encounter[]
+  documents  Document[]
+
+  @@map("practitioner")
+}
+
 model Person {
   id               Int          @id @default(autoincrement())
   givenNames       String
@@ -495,7 +509,6 @@ model Person {
   updatedBy        String?
 
   patient Patient?
-  user    User?
 
   @@index([familyNames, givenNames])
   @@map("person")
@@ -701,7 +714,7 @@ model PatientExercise {
 model Encounter {
   id                      Int             @id @default(autoincrement())
   patientId               Int
-  practitionerId          String
+  practitionerId          Int
   encounterTypeId         Int
   isFirstVisit            Boolean         @default(false)
   symptomatology          String?         @db.Text
@@ -723,7 +736,7 @@ model Encounter {
 
   // Relaciones
   patient         Patient                @relation(fields: [patientId], references: [id])
-  practitioner    User                   @relation(fields: [practitionerId], references: [id])
+  practitioner    Practitioner           @relation(fields: [practitionerId], references: [id])
   encounterType   EncounterType          @relation(fields: [encounterTypeId], references: [id])
   referralLevel   ReferralLevel?         @relation(fields: [referralLevelId], references: [id])
   medicalAptitude MedicalAptitude?       @relation(fields: [medicalAptitudeId], references: [id])
@@ -853,14 +866,14 @@ model Document {
   encounterId    Int
   patientId      Int
   documentTypeId Int
-  issuedByUserId String
+  issuedByPractitionerId Int
   issuedAt       DateTime @default(now())
   pdfUrl         String?  @db.Text
 
   documentType DocumentTypeCatalog @relation(fields: [documentTypeId], references: [id])
   encounter    Encounter           @relation(fields: [encounterId], references: [id], onDelete: Cascade)
   patient      Patient             @relation(fields: [patientId], references: [id])
-  issuedBy     User                @relation(fields: [issuedByUserId], references: [id])
+  issuedBy     Practitioner        @relation(fields: [issuedByPractitionerId], references: [id])
 
   @@unique([encounterId, documentTypeId])
   @@index([patientId])

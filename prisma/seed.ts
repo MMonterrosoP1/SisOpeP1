@@ -75,7 +75,7 @@ async function main() {
       if (tipoRaw === "OBRA") type = "OBRA";
       if (tipoRaw === "PLANTA") type = "PLANTA";
       if (tipoRaw === "PLANTA_ADMINISTRATIVO" || tipoRaw === "PLANTA ADMINISTRATIVO") type = "PLANTA_ADMINISTRATIVO";
-      
+
       await prisma.workplace.upsert({
         where: { name },
         update: { active, type },
@@ -401,17 +401,7 @@ async function main() {
     where: { email: adminEmail }
   });
 
-  const personAdmin = await prisma.person.upsert({
-    where: { identityDocument: "0000000000000" },
-    update: {},
-    create: {
-      givenNames: "Administrador",
-      familyNames: "del Sistema",
-      identityDocument: "0000000000000",
-      birthDate: new Date("1980-01-01"),
-      sex: "FEMALE"
-    }
-  });
+  // We will create the practitioner after ensuring the user exists
 
   if (!existingAdmin) {
     // Temporalmente permitimos sign-up para poder crear la cuenta desde el API
@@ -430,26 +420,51 @@ async function main() {
       where: { email: adminEmail },
       data: {
         role: "ADMIN",
-        personId: personAdmin.id,
-        preamble: "La infrascrita Médica y Cirujana egresada de la Facultad de Ciencias Médicas de la Universidad de San Carlos de Guatemala, colegiada activa número veintiún mil ochocientos treinta y tres."
       }
     });
 
+    const userAdmin = await prisma.user.findUnique({ where: { email: adminEmail } });
+    if (userAdmin) {
+      const existingPractitioner = await prisma.practitioner.findUnique({ where: { userId: userAdmin.id } });
+      if (!existingPractitioner) {
+        await prisma.practitioner.create({
+          data: {
+            userId: userAdmin.id,
+            givenNames: "Administrador",
+            familyNames: "del Sistema",
+            sex: "FEMALE",
+            preamble: "La infrascrita Médica y Cirujana egresada de la Facultad de Ciencias Médicas de la Universidad de San Carlos de Guatemala, colegiada activa número veintiún mil ochocientos treinta y tres."
+          }
+        });
+      }
+    }
+
     console.log(`✅ Usuario administrador creado: ${adminEmail}`);
   } else {
-    // Si ya existe, nos aseguramos que tenga rol de ADMIN y personId
+    // Si ya existe, nos aseguramos que tenga rol de ADMIN
     await prisma.user.update({
       where: { email: adminEmail },
       data: {
         role: "ADMIN",
-        personId: personAdmin.id,
-        preamble: "La infrascrita Médica y Cirujana egresada de la Facultad de Ciencias Médicas de la Universidad de San Carlos de Guatemala, colegiada activa número veintiún mil ochocientos treinta y tres."
       }
     });
-    console.log(`✅ El usuario administrador ${adminEmail} ya existe y tiene rol ADMIN y Person vinculado.`);
+
+    const existingPractitioner = await prisma.practitioner.findUnique({ where: { userId: existingAdmin.id } });
+    if (!existingPractitioner) {
+      await prisma.practitioner.create({
+        data: {
+          userId: existingAdmin.id,
+          givenNames: "Administrador",
+          familyNames: "del Sistema",
+          sex: "FEMALE",
+          preamble: "La infrascrita Médica y Cirujana egresada de la Facultad de Ciencias Médicas de la Universidad de San Carlos de Guatemala, colegiada activa número veintiún mil ochocientos treinta y tres."
+        }
+      });
+    }
+    console.log(`✅ El usuario administrador ${adminEmail} ya existe y tiene rol ADMIN y Practitioner vinculado.`);
   }
 
-  console.log("🚀 Seeding completado con éxito!");
+  console.log(" Seeding completado con éxito!");
 }
 
 main()

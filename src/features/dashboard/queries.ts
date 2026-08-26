@@ -50,7 +50,7 @@ export async function getEncountersByDate(date: Date): Promise<TodayEncounter[]>
     patientName: `${e.patient.person.givenNames} ${e.patient.person.familyNames}`,
     patientDocument: e.patient.person.identityDocument || 'Sin DPI',
     encounterTypeName: e.encounterType.name,
-    practitionerName: e.practitioner.name || 'Sin asignar',
+    practitionerName: e.practitioner ? `${e.practitioner.givenNames} ${e.practitioner.familyNames}` : 'Sin asignar',
     medicalAptitudeName: e.medicalAptitude?.name || null,
   }));
 }
@@ -296,6 +296,6 @@ export async function getRecentEncounters(): Promise<RecentEncounterItem[]> {
     patientId: e.patient.id,
     patientName: `${e.patient.person.givenNames} ${e.patient.person.familyNames}`,
     encounterTypeName: e.encounterType.name,
-    practitionerName: e.practitioner.name || 'Sin asignar'
+    practitionerName: e.practitioner ? `${e.practitioner.givenNames} ${e.practitioner.familyNames}` : 'Sin asignar'
   }));
 }

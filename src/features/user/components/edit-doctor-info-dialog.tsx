@@ -48,8 +48,8 @@ export function EditDoctorInfoDialog({ open, onOpenChange, user }: EditDoctorInf
       // Como solo requerimos `sex` y `preamble`, llenamos con defaults
       // pero requerimos que el usuario los modifique si faltan.
       const parts = user.name.split(" ");
-      const defaultGiven = parts[0] || "";
-      const defaultFamily = parts.slice(1).join(" ") || "";
+      const defaultGiven = user.givenNames || parts[0] || "";
+      const defaultFamily = user.familyNames || parts.slice(1).join(" ") || "";
 
       setFormData({
         givenNames: defaultGiven,

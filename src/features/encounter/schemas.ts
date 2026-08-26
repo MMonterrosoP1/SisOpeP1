@@ -68,7 +68,7 @@ export const workDisabilitySchema = z.object({
 
 export const createEncounterSchema = z.object({
   patientId: idParamSchema,
-  practitionerId: z.string().cuid().optional(),
+  practitionerId: z.number().int().optional(),
   encounterTypeId: idParamSchema,
   isFirstVisit: z.boolean().default(false),
   symptomatology: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
@@ -136,4 +136,4 @@ export const createEncounterSchema = z.object({
 });
 
 export type CreateEncounterInput = z.infer<typeof createEncounterSchema>;
-export type EncounterFilters = { patientId?: number; practitionerId?: string; encounterTypeId?: number; search?: string; };
+export type EncounterFilters = { patientId?: number; practitionerId?: number; encounterTypeId?: number; search?: string; };
