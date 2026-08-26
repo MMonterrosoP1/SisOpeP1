@@ -209,6 +209,7 @@ type EncounterFormState = {
   isFirstVisit: boolean;
   symptomatology: string;
   illnessHistory: string;
+  physicalExam: string;
   gynecologicalHistory: string;
   pregnancyStatus: string;
   sleepHours: string;
@@ -281,6 +282,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
     isFirstVisit: false,
     symptomatology: "",
     illnessHistory: "",
+    physicalExam: "",
     gynecologicalHistory: "",
     pregnancyStatus: "NOT_APPLICABLE",
     sleepHours: "",
@@ -655,6 +657,17 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
             />
             <FieldError error={getFieldError("illnessHistory")} />
           </div>
+          <div className="col-span-2 flex flex-col gap-2">
+            <Label>Examen físico</Label>
+            <Textarea
+              className={getFieldError("physicalExam") ? "border-destructive ring-1 ring-destructive" : ""}
+              aria-invalid={!!getFieldError("physicalExam")}
+              value={formData.physicalExam || ""}
+              onChange={(e) => handleFieldChange("physicalExam", e.target.value)}
+              placeholder="Describa el examen físico..."
+            />
+            <FieldError error={getFieldError("physicalExam")} />
+          </div>
         </CardContent>
       </Card>
 
@@ -683,11 +696,11 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { field: "systolicBP", label: "Presión Arterial Sistólica" },
-            { field: "diastolicBP", label: "Presión Arterial Diastólica" },
-            { field: "heartRate", label: "Frecuencia Cardíaca (FC)" },
-            { field: "respiratoryRate", label: "Frecuencia Respiratoria (FR)" },
-            { field: "oxygenSaturation", label: "Saturación de Oxígeno (SpO2)" },
+            { field: "systolicBP", label: "Presión arterial sistólica (mmHg)" },
+            { field: "diastolicBP", label: "Presión arterial diastólica (mmHg)" },
+            { field: "heartRate", label: "Frecuencia cardiaca (lpm)" },
+            { field: "respiratoryRate", label: "Frecuencia respiratoria (rpm)" },
+            { field: "oxygenSaturation", label: "Saturación de oxígeno (%)" },
             { field: "glucose", label: "Glucosa (mg/dL)" },
             { field: "temperature", label: "Temperatura (°C)" }
           ].map(({ field, label }) => {

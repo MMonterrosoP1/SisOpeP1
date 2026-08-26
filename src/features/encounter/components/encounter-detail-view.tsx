@@ -113,15 +113,21 @@ export function EncounterDetailView({ encounter, patient, patientHistory }: { en
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div>
-            <h4 className="font-semibold text-sm mb-1 text-muted-foreground">Motivo de Consulta (Sintomatología)</h4>
+            <h4 className="text-sm font-medium mb-1 text-muted-foreground">Motivo de Consulta (Sintomatología)</h4>
             {encounter.symptomatology ? (
-              <p className="text-sm whitespace-pre-wrap">{encounter.symptomatology}</p>
+              <p className="text-sm text-foreground whitespace-pre-wrap">{encounter.symptomatology}</p>
             ) : <EmptyState />}
           </div>
           <div>
-            <h4 className="font-semibold text-sm mb-1 text-muted-foreground">Historia de Enfermedad </h4>
+            <h4 className="text-sm font-medium mb-1 text-muted-foreground">Historia de Enfermedad </h4>
             {encounter.illnessHistory ? (
-              <p className="text-sm whitespace-pre-wrap">{encounter.illnessHistory}</p>
+              <p className="text-sm text-foreground whitespace-pre-wrap">{encounter.illnessHistory}</p>
+            ) : <EmptyState />}
+          </div>
+          <div>
+            <h4 className="text-sm font-medium mb-1 text-muted-foreground">Examen Físico</h4>
+            {encounter.physicalExam ? (
+              <p className="text-sm text-foreground whitespace-pre-wrap">{encounter.physicalExam}</p>
             ) : <EmptyState />}
           </div>
         </CardContent>
@@ -148,49 +154,55 @@ export function EncounterDetailView({ encounter, patient, patientHistory }: { en
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {/* Signos Vitales */}
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Presión Arterial</span>
+                  <span className="text-sm text-muted-foreground">Presión arterial sistólica (mmHg)</span>
                   <span className="text-sm font-medium">
-                    {encounter.vitalSign?.systolicBP || '--'} / {encounter.vitalSign?.diastolicBP || '--'} mmHg
+                    {encounter.vitalSign?.systolicBP || '--'}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Frecuencia Cardíaca</span>
-                  <span className="text-sm font-medium">{encounter.vitalSign?.heartRate || '--'} lpm</span>
+                  <span className="text-sm text-muted-foreground">Presión arterial diastólica (mmHg)</span>
+                  <span className="text-sm font-medium">
+                    {encounter.vitalSign?.diastolicBP || '--'}
+                  </span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Frec. Respiratoria</span>
-                  <span className="text-sm font-medium">{encounter.vitalSign?.respiratoryRate || '--'} /min</span>
+                  <span className="text-sm text-muted-foreground">Frecuencia cardiaca (lpm)</span>
+                  <span className="text-sm font-medium">{encounter.vitalSign?.heartRate || '--'}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">SpO2</span>
-                  <span className="text-sm font-medium">{encounter.vitalSign?.oxygenSaturation || '--'} %</span>
+                  <span className="text-sm text-muted-foreground">Frecuencia respiratoria (rpm)</span>
+                  <span className="text-sm font-medium">{encounter.vitalSign?.respiratoryRate || '--'}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Temperatura</span>
-                  <span className="text-sm font-medium">{encounter.vitalSign?.temperature || '--'} °C</span>
+                  <span className="text-sm text-muted-foreground">Saturación de oxígeno (%)</span>
+                  <span className="text-sm font-medium">{encounter.vitalSign?.oxygenSaturation || '--'}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Glucosa</span>
-                  <span className="text-sm font-medium">{encounter.vitalSign?.glucose || '--'} mg/dL</span>
+                  <span className="text-sm text-muted-foreground">Temperatura (°C)</span>
+                  <span className="text-sm font-medium">{encounter.vitalSign?.temperature || '--'}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm text-muted-foreground">Glucosa (mg/dL)</span>
+                  <span className="text-sm font-medium">{encounter.vitalSign?.glucose || '--'}</span>
                 </div>
 
                 {/* Antropometría */}
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Peso / Talla</span>
+                  <span className="text-sm text-muted-foreground">Peso / Talla</span>
                   <span className="text-sm font-medium">
                     {encounter.anthropometry?.weight || '--'} lb / {encounter.anthropometry?.height || '--'} cm
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Circ. Abdominal</span>
+                  <span className="text-sm text-muted-foreground">Circ. Abdominal</span>
                   <span className="text-sm font-medium">{encounter.anthropometry?.abdominalCircumference || '--'} cm</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">IMC Estimado</span>
+                  <span className="text-sm text-muted-foreground">IMC Estimado</span>
                   <span className="text-sm font-medium">{encounter.anthropometry?.bmi ? encounter.anthropometry.bmi.toFixed(2) : '--'}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Clasificación IMC</span>
+                  <span className="text-sm text-muted-foreground">Clasificación IMC</span>
                   <div>
                     {encounter.anthropometry?.bmiCategory ? (
                       <span className="text-sm font-medium">
@@ -231,8 +243,8 @@ export function EncounterDetailView({ encounter, patient, patientHistory }: { en
                             {d.isPrimary && <Badge className="w-fit text-[10px]" variant="default">Principal</Badge>}
                           </div>
                         </TableCell>
-                        <TableCell className="text-xs">{d.diseaseType?.name || '-'}</TableCell>
-                        <TableCell className="text-xs">{d.observations || '-'}</TableCell>
+                        <TableCell className="text-sm">{d.diseaseType?.name || '-'}</TableCell>
+                        <TableCell className="text-sm">{d.observations || '-'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -251,37 +263,37 @@ export function EncounterDetailView({ encounter, patient, patientHistory }: { en
             <CardContent className="flex flex-col gap-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
-                  <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Aptitud Médica</h4>
+                  <h4 className="text-sm font-medium mb-1 text-muted-foreground">Aptitud Médica</h4>
                   {encounter.medicalAptitude ? <p className="text-sm font-medium">{encounter.medicalAptitude.name}</p> : <EmptyState />}
                 </div>
                 <div>
-                  <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Nivel de Referencia</h4>
+                  <h4 className="text-sm font-medium mb-1 text-muted-foreground">Nivel de Referencia</h4>
                   {encounter.referralLevel ? <p className="text-sm font-medium">{encounter.referralLevel.name}</p> : <EmptyState />}
                 </div>
                 <div>
-                  <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Fecha de Seguimiento</h4>
+                  <h4 className="text-sm font-medium mb-1 text-muted-foreground">Fecha de Seguimiento</h4>
                   {encounter.followUpDate ? <p className="text-sm">{format(new Date(encounter.followUpDate), "PPP", { locale: es })}</p> : <EmptyState />}
                 </div>
                 <div>
-                  <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Medicamentos Administrados</h4>
+                  <h4 className="text-sm font-medium mb-1 text-muted-foreground">Medicamentos Administrados</h4>
                   {encounter.medicationsAdministered ? <p className="text-sm">{encounter.medicationsAdministered}</p> : <EmptyState />}
                 </div>
                 <div>
-                  <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Horas de Suspensión (Descanso)</h4>
+                  <h4 className="text-sm font-medium mb-1 text-muted-foreground">Horas de Suspensión (Descanso)</h4>
                   {encounter.suspensionHour ? <p className="text-sm">{encounter.suspensionHour.name}</p> : <EmptyState />}
                 </div>
                 <div>
-                  <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Horas de Sueño</h4>
+                  <h4 className="text-sm font-medium mb-1 text-muted-foreground">Horas de Sueño</h4>
                   {encounter.sleepHours ? <p className="text-sm">{encounter.sleepHours} horas</p> : <EmptyState />}
                 </div>
               </div>
               <div className="mt-2 pt-4 border-t grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Observación Interna (Médico)</h4>
+                  <h4 className="text-sm font-medium mb-1 text-muted-foreground">Observación Interna (Médico)</h4>
                   {encounter.internalObservation ? <p className="text-sm whitespace-pre-wrap">{encounter.internalObservation}</p> : <EmptyState />}
                 </div>
                 <div>
-                  <h4 className="font-semibold text-xs mb-1 text-muted-foreground">Observación Patronal (Empresa)</h4>
+                  <h4 className="text-sm font-medium mb-1 text-muted-foreground">Observación Patronal (Empresa)</h4>
                   {encounter.employerObservation ? <p className="text-sm whitespace-pre-wrap">{encounter.employerObservation}</p> : <EmptyState />}
                 </div>
               </div>
@@ -300,11 +312,11 @@ export function EncounterDetailView({ encounter, patient, patientHistory }: { en
               </CardHeader>
               <CardContent className="flex flex-col gap-3">
                 <div>
-                  <span className="text-xs text-muted-foreground block mb-1">Estado de Embarazo</span>
+                  <span className="text-sm text-muted-foreground block mb-1">Estado de Embarazo</span>
                   <span className="text-sm font-medium">{encounter.pregnancyStatus ? pregnancyStatusEs[encounter.pregnancyStatus] : pregnancyStatusEs.NOT_APPLICABLE}</span>
                 </div>
                 <div>
-                  <span className="text-xs text-muted-foreground block mb-1">Historia Ginecológica</span>
+                  <span className="text-sm text-muted-foreground block mb-1">Historia Ginecológica</span>
                   {encounter.gynecologicalHistory ? <p className="text-sm text-foreground">{encounter.gynecologicalHistory}</p> : <EmptyState />}
                 </div>
               </CardContent>
@@ -321,22 +333,22 @@ export function EncounterDetailView({ encounter, patient, patientHistory }: { en
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <div>
-                <span className="font-semibold text-xs block mb-1">Exposiciones Laborales</span>
+                <span className="text-sm font-medium text-muted-foreground block mb-1">Exposiciones Laborales</span>
                 {encounter.occupationalExposureEntries?.length ? (
                   <ul className="list-disc list-inside text-sm flex flex-col gap-1 text-muted-foreground">
                     {encounter.occupationalExposureEntries.map((e: any) => (
-                      <li key={e.id}><span className="text-foreground">{e.occupationalExposure?.name}</span> {e.observations && <span className="italic text-xs">({e.observations})</span>}</li>
+                      <li key={e.id}><span className="text-foreground">{e.occupationalExposure?.name}</span> {e.observations && <span className="italic text-sm">({e.observations})</span>}</li>
                     ))}
                   </ul>
                 ) : <EmptyState />}
               </div>
 
               <div>
-                <span className="font-semibold text-xs block mb-1">Incapacidades Laborales</span>
+                <span className="text-sm font-medium text-muted-foreground block mb-1">Incapacidades Laborales</span>
                 {encounter.workDisabilityEntries?.length ? (
                   <ul className="list-disc list-inside text-sm flex flex-col gap-1 text-muted-foreground">
                     {encounter.workDisabilityEntries.map((e: any) => (
-                      <li key={e.id}><span className="text-foreground">{e.workDisability?.name}</span> {e.observations && <span className="italic text-xs">({e.observations})</span>}</li>
+                      <li key={e.id}><span className="text-foreground">{e.workDisability?.name}</span> {e.observations && <span className="italic text-sm">({e.observations})</span>}</li>
                     ))}
                   </ul>
                 ) : <EmptyState />}
