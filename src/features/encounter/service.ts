@@ -4,7 +4,7 @@ import { patientHistoryRepository } from "../patient-history/repository";
 import { auditService } from "@/shared/audit/audit.service";
 import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
 import { calculateBmi, classifyBmi } from "./domain/bmi-calculator";
-import { CreateEncounterInput } from "./schemas";
+import { CreateEncounterInput, UpdateEncounterInput } from "./schemas";
 
 export const encounterService = {
   async create(data: CreateEncounterInput, user: { id: string; email: string }) {
@@ -98,8 +98,90 @@ export const encounterService = {
   async getDetail(id: number) {
     const encounter = await encounterRepository.findById(id);
     if (!encounter) {
-      throw new NotFoundError("Encounter not found", "encounter", id);
+      throw new NotFoundError("Consulta no encontrada", "encounter", id);
     }
     return encounter;
+  },
+
+  async update(data: UpdateEncounterInput, user: { id: string; email: string }) {
+    const existing = await encounterRepository.findById(data.id);
+    if (!existing) {
+      throw new NotFoundError("Consulta no encontrada", "encounter", data.id);
+    }
+
+    const patient = await patientRepository.findById(data.patientId);
+    if (!patient) {
+      throw new NotFoundError("Paciente no encontrado", "patient", data.patientId);
+    }
+    if (!patient.active) {
+      throw new ValidationError("No se puede actualizar una consulta de un paciente inactivo");
+    }
+
+    if (data.pregnancyStatus && data.pregnancyStatus !== "NOT_APPLICABLE") {
+      if (patient.person?.sex !== "FEMALE") {
+        throw new ValidationError("El estado de embarazo solo es aplicable a pacientes femeninas");
+      }
+    }
+
+    if (data.gynecologicalHistory && patient.person?.sex !== "FEMALE") {
+      throw new ValidationError("La historia ginecológica solo es aplicable a pacientes femeninas");
+    }
+
+    let anthropometryToSave = data.anthropometry;
+    
+    if (anthropometryToSave?.height && anthropometryToSave.height < 3) {
+      anthropometryToSave.height = anthropometryToSave.height * 100;
+    }
+    if (anthropometryToSave?.weight && anthropometryToSave?.height) {
+      const bmi = calculateBmi(anthropometryToSave.weight, anthropometryToSave.height);
+      const bmiCategory = classifyBmi(bmi);
+      anthropometryToSave = {
+        ...anthropometryToSave,
+        bmi,
+        bmiCategory,
+      };
+      data.anthropometry = anthropometryToSave;
+    }
+
+    const {
+      allergies,
+      habits,
+      exercises,
+      medicalHistory,
+      surgicalHistory,
+      traumaHistory,
+      familyHistory,
+      ...encounterData
+    } = data;
+
+    const updated = await encounterRepository.update(data.id, {
+      ...encounterData,
+      updatedBy: user.email,
+    });
+
+    await patientHistoryRepository.upsert(
+      data.patientId,
+      {
+        allergies,
+        habits,
+        exercises,
+        medicalHistory,
+        surgicalHistory,
+        traumaHistory,
+        familyHistory,
+      } as any,
+      { userId: user.email }
+    );
+
+    await auditService.log({
+      userId: user.id,
+      action: "UPDATE",
+      entityType: "encounter",
+      entityId: updated!.id,
+      previousData: existing,
+      newData: updated,
+    });
+
+    return updated;
   },
 };

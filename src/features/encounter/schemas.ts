@@ -137,3 +137,8 @@ export const createEncounterSchema = z.object({
 
 export type CreateEncounterInput = z.infer<typeof createEncounterSchema>;
 export type EncounterFilters = { patientId?: number; practitionerId?: string; encounterTypeId?: number; search?: string; };
+
+export const updateEncounterSchema = createEncounterSchema.extend({
+  id: z.number().int().positive("ID de consulta inválido"),
+});
+export type UpdateEncounterInput = z.infer<typeof updateEncounterSchema>;

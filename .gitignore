@@ -61,3 +61,5 @@ inventory.json
 skill_output*.txt
 skill-output*.txt
 .github
+generate_test_data.js
+generate-test-data.sql
