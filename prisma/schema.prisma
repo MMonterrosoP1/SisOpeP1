@@ -209,6 +209,7 @@ model Workplace {
 
   company   Company?      @relation(fields: [companyId], references: [id])
   patients  Patient[]
+  workforceSnapshots WorkforceSnapshot[]
 
   @@map("workplace")
 }
@@ -464,6 +465,7 @@ model BloodTypeCatalog {
 model SuspensionHourCatalog {
   id     Int     @id @default(autoincrement())
   name   String  @unique
+  hours  Int     @default(0)
   active Boolean @default(true)
 
   encounters Encounter[]
@@ -900,4 +902,32 @@ model RateLimit {
   lastRequest BigInt
 
   @@map("rate_limit")
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// REPORTES — Datos de fuerza laboral (ingreso manual)
+// ═══════════════════════════════════════════════════════════════════════
+
+/// Snapshot mensual de fuerza laboral por lugar de trabajo
+/// El admin registra estos datos manualmente al generar un reporte
+model WorkforceSnapshot {
+  id              Int       @id @default(autoincrement())
+  workplaceId     Int
+  year            Int
+  month           Int       // 1-12
+  totalWorkers    Int
+  maleWorkers     Int       @default(0)
+  femaleWorkers   Int       @default(0)
+  scheduledDays   Int       @default(22) // Días laborables programados
+  observations    String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+  createdBy       String?
+  updatedBy       String?
+
+  workplace  Workplace @relation(fields: [workplaceId], references: [id])
+
+  @@unique([workplaceId, year, month])
+  @@index([year, month])
+  @@map("workforce_snapshot")
 }
