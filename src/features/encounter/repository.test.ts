@@ -121,8 +121,8 @@ describe("encounterRepository", () => {
           vitalSign: { create: { systolicBP: 120 } },
           anthropometry: { create: { weight: 150, height: 170 } },
           diagnoses: { create: [{ icd10CodeId: 7, isPrimary: true }] },
-          allergies: undefined,
-          habits: undefined,
+          allergies: [],
+          habits: [],
         }),
       })
     );

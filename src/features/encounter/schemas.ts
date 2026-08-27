@@ -73,6 +73,7 @@ export const createEncounterSchema = z.object({
   isFirstVisit: z.boolean().default(false),
   symptomatology: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
   illnessHistory: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
+  physicalExam: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
   gynecologicalHistory: z.string().max(5000, "Máximo 5000 caracteres").optional().nullable(),
   pregnancyStatus: PregnancyStatusSchema.default("NOT_APPLICABLE"),
   sleepHours: z.number({ message: "Debe ser un número" }).min(0, "No puede ser menor a 0").max(24, "Máximo 24").optional().nullable(),
