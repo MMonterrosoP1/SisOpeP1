@@ -56,7 +56,7 @@ export function EncounterTableRow({ encounter }: { encounter: any }) {
         {encounter.encounterType?.name || "N/A"}
       </TableCell>
       <TableCell>
-        {encounter.practitioner?.name || "N/A"}
+        {encounter.practitioner ? `${encounter.practitioner.givenNames} ${encounter.practitioner.familyNames}` : "N/A"}
       </TableCell>
       <TableCell>
         <div className="max-w-[150px] truncate text-sm" title={encounter.medicationsAdministered}>
