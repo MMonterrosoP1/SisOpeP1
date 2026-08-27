@@ -248,6 +248,27 @@ export function EncounterForm({
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
   const [localCatalogs, setLocalCatalogs] = useState<Record<string, CatalogItem[]>>(catalogs);
+
+  // Sync localCatalogs when server-refreshed catalogs prop arrives with new items.
+  // This fixes the issue where a newly created catalog item doesn't appear until
+  // a full page reload — router.refresh() re-renders the RSC and sends updated props,
+  // but useState ignores them after the initial render.
+  useEffect(() => {
+    setLocalCatalogs((prev) => {
+      const merged: Record<string, CatalogItem[]> = { ...prev };
+      for (const key of Object.keys(catalogs)) {
+        const serverItems = catalogs[key] ?? [];
+        const localItems = prev[key] ?? [];
+        // If server now has more items than local, prefer server list
+        // (it already contains the newly persisted item).
+        if (serverItems.length >= localItems.length) {
+          merged[key] = serverItems;
+        }
+      }
+      return merged;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [catalogs]);
   const [quickAddDialog, setQuickAddDialog] = useState<{
     open: boolean;
     type: CatalogType;
