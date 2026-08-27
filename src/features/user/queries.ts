@@ -22,7 +22,7 @@ export async function getUsers(filters: UserFilters): Promise<UserListResponse> 
   }
 
   if (filters.role && filters.role !== "ALL") {
-    where.role = filters.role.toLowerCase();
+    where.role = filters.role.toUpperCase();
   }
 
   if (filters.status && filters.status !== "ALL") {

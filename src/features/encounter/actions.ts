@@ -1,7 +1,7 @@
 "use server";
 
 import { safeParseAction } from "@/shared/utils/zod-helpers";
-import { createEncounterSchema } from "./schemas";
+import { createEncounterSchema, updateEncounterSchema } from "./schemas";
 import { encounterService } from "./service";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { handleActionError } from "@/shared/errors/app-error";
@@ -29,3 +29,22 @@ export async function createEncounter(data: unknown): Promise<ActionResponse<unk
   }
 }
 
+export async function updateEncounter(data: unknown): Promise<ActionResponse<unknown>> {
+  try {
+    const session = await withAuth(["ADMIN", "DOCTOR"], async (s) => s);
+
+    const parseResult = safeParseAction(updateEncounterSchema, data);
+    if (!parseResult.success) return parseResult;
+
+    const updated = await encounterService.update(parseResult.data, { id: session.user.id, email: session.user.email });
+    
+    revalidateTag("encounters", "max");
+    revalidateTag(`encounter-${parseResult.data.id}`, "max");
+    revalidateTag(`patient-${parseResult.data.patientId}`, "max");
+    revalidateTag("patients", "max");
+    
+    return { success: true, data: updated };
+  } catch (error) {
+    return handleActionError(error);
+  }
+}

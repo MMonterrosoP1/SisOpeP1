@@ -66,3 +66,15 @@ export function mapEncounterToFormDefaults(encounter: EncounterData, patientId: 
     })) || [],
   };
 }
+
+/**
+ * Mapea los datos de una consulta existente a los valores iniciales para el formulario de EDICIÓN.
+ * Incluye todos los datos clínicos de la consulta actual.
+ * Los antecedentes se deben pasar por separado desde el patientHistory.
+ */
+export function mapEncounterToEditFormState(encounter: EncounterData, patientId: number) {
+  return {
+    ...mapEncounterToFormDefaults(encounter, patientId),
+    isFirstVisit: encounter.isFirstVisit || false,
+  };
+}

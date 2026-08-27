@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Stethoscope, AlertTriangle, FileText, Activity, User, Briefcase, History } from "lucide-react";
+import { ArrowLeft, Stethoscope, AlertTriangle, FileText, Activity, User, Briefcase, History, Pencil } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -85,6 +85,10 @@ export function EncounterDetailView({ encounter, patient, patientHistory }: { en
         </div>
 
         <div className="flex shrink-0 gap-2">
+          <Button variant="outline" size="default" onClick={() => router.push(`/patients/${patient.id}/encounters/${encounter.id}/edit`)}>
+            <Pencil className="mr-2 h-4 w-4" />
+            Editar Consulta
+          </Button>
           <DocumentActionButton
             encounterId={encounter.id}
             documentTypeCode="MEDICAL_CERTIFICATE"

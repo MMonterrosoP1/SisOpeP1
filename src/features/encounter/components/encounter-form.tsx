@@ -24,7 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createEncounter } from "../actions";
+import { createEncounter, updateEncounter } from "../actions";
 import { Icd10SearchModal } from "./icd10-search-modal";
 import { AllergenSearchModal, AllergenOption } from "./allergen-search-modal";
 import { ComboboxSelect } from "@/components/ui/combobox-select";
@@ -201,6 +201,9 @@ interface EncounterFormProps {
   isFollowUp?: boolean;
   previousEncounterDate?: string;
   patientHistory?: any;
+  mode?: "create" | "edit";
+  encounterId?: number;
+  initialData?: EncounterFormState;
 }
 
 type EncounterFormState = {
@@ -236,7 +239,10 @@ type EncounterFormState = {
 
 import { PatientHistoryFormSection } from "@/features/patient-history/components/patient-history-form-section";
 
-export function EncounterForm({ patientId, patientSex, catalogs, patientSummary, previousDefaults, isFollowUp, previousEncounterDate, patientHistory }: EncounterFormProps) {
+export function EncounterForm({ 
+  patientId, patientSex, catalogs, patientSummary, previousDefaults, isFollowUp, previousEncounterDate, patientHistory,
+  mode = "create", encounterId, initialData
+}: EncounterFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -310,6 +316,9 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
   };
 
   const [formData, setFormData] = useState<EncounterFormState>(() => {
+    if (mode === "edit" && initialData) {
+      return initialData;
+    }
     if (!previousDefaults) return defaultFormData;
     // En modo reconsulta: los campos clínicos de la consulta vienen de previousDefaults,
     // pero los antecedentes (allergies, habits, exercises, historial médico/quirúrgico/traumático/familiar)
@@ -523,18 +532,24 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
         })).filter((w) => w.workDisabilityId),
       };
 
-      const res = await createEncounter(payload);
+      const res = mode === "edit" && encounterId 
+        ? await updateEncounter({ ...payload, id: encounterId })
+        : await createEncounter(payload);
 
       if (res.success) {
-        toast.success("Consulta creada correctamente");
-        router.push(`/patients/${patientId}`);
+        toast.success(mode === "edit" ? "Consulta actualizada correctamente" : "Consulta creada correctamente");
+        if (mode === "edit" && encounterId) {
+          router.push(`/patients/${patientId}/encounters/${encounterId}`);
+        } else {
+          router.push(`/patients/${patientId}`);
+        }
       } else {
         if (res.fieldErrors) {
           setFieldErrors(res.fieldErrors);
           toast.error("Por favor, revisa los campos marcados en rojo.");
           scrollToFirstError(res.fieldErrors);
         } else {
-          toast.error(res.error || "Ocurrió un error al crear la consulta");
+          toast.error(res.error || `Ocurrió un error al ${mode === "edit" ? "actualizar" : "crear"} la consulta`);
         }
       }
     } catch {
@@ -570,16 +585,23 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
                     Reconsulta
                   </Badge>
                 )}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setPatientSearchOpen(true)}
-                  className="sm:hidden h-6 w-6"
-                  title="Cambiar Paciente"
-                >
-                  <RefreshCw className="h-3 w-3" />
-                </Button>
+                {mode === "edit" && (
+                  <Badge variant="secondary" className="ml-2 bg-amber-100 text-amber-800 hover:bg-amber-200 border-amber-200">
+                    Editando
+                  </Badge>
+                )}
+                {mode === "create" && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setPatientSearchOpen(true)}
+                    className="sm:hidden h-6 w-6"
+                    title="Cambiar Paciente"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                  </Button>
+                )}
               </div>
               <p className="text-sm text-muted-foreground">
                 {patientSummary.identityDocument} • {patientSummary.age} años {patientSummary.phone ? `• Tel: ${patientSummary.phone}` : ''}
@@ -592,11 +614,7 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
                 </p>
               )}
             </div>
-            <div className="text-left md:text-right text-sm text-muted-foreground flex flex-col items-start md:items-end gap-2">
-              <div>
-                {patientSummary.jobPosition && <p>Puesto: <span className="font-medium text-foreground">{patientSummary.jobPosition}</span></p>}
-                {patientSummary.workplace && <p>Lugar: <span className="font-medium text-foreground">{patientSummary.workplace}</span></p>}
-              </div>
+            {mode === "create" && (
               <Button
                 type="button"
                 variant="outline"
@@ -607,6 +625,12 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Cambiar Paciente
               </Button>
+            )}
+            <div className="text-left md:text-right text-sm text-muted-foreground flex flex-col items-start md:items-end gap-2">
+              <div>
+                {patientSummary.jobPosition && <p>Puesto: <span className="font-medium text-foreground">{patientSummary.jobPosition}</span></p>}
+                {patientSummary.workplace && <p>Lugar: <span className="font-medium text-foreground">{patientSummary.workplace}</span></p>}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -1100,20 +1124,26 @@ export function EncounterForm({ patientId, patientSex, catalogs, patientSummary,
         </div>
       </CollapsibleSection>
 
-      <div className="flex justify-between items-center gap-2 sticky bottom-4 bg-background/80 backdrop-blur p-4 rounded-xl border">
-        <div>
-          {isFollowUp && (
-            <Button type="button" variant="ghost" onClick={handleClearData} className="text-muted-foreground hover:text-foreground">
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Limpiar Datos Precargados
+      <div className="flex justify-end gap-4 mt-6">
+          {mode === "create" && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClearData}
+              disabled={isLoading}
+              className="w-full sm:w-auto"
+            >
+              Limpiar Formulario
             </Button>
           )}
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full sm:w-auto"
+          >
+            {isLoading ? "Guardando..." : mode === "edit" ? "Guardar Cambios" : "Crear Consulta"}
+          </Button>
         </div>
-        <div className="flex gap-2">
-          <Button type="button" variant="outline" onClick={() => router.back()}>Cancelar</Button>
-          <Button type="submit" disabled={isLoading}>{isLoading ? "Guardando..." : "Guardar Consulta"}</Button>
-        </div>
-      </div>
 
       <CatalogQuickAddDialog
         type={quickAddDialog.type as CatalogType}

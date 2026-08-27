@@ -32,13 +32,13 @@ type HistoryItem = Record<string, any>;
 
 type PatientHistoryFormSectionProps = {
   formData: {
-    allergies: HistoryItem[];
-    habits: HistoryItem[];
-    exercises: HistoryItem[];
-    medicalHistory: HistoryItem[];
-    surgicalHistory: HistoryItem[];
-    traumaHistory: HistoryItem[];
-    familyHistory: HistoryItem[];
+    allergies?: HistoryItem[];
+    habits?: HistoryItem[];
+    exercises?: HistoryItem[];
+    medicalHistory?: HistoryItem[];
+    surgicalHistory?: HistoryItem[];
+    traumaHistory?: HistoryItem[];
+    familyHistory?: HistoryItem[];
   };
   handleArrayChange: (section: string, index: number, field: string, value: unknown) => void;
   addArrayItem: (section: string, item: HistoryItem) => void;
@@ -90,7 +90,7 @@ export function PatientHistoryFormSection({
       {/* ALERGIAS */}
       <CollapsibleSection defaultExpanded title="Alergias">
         <div className="space-y-4">
-          {formData.allergies.map((a, index) => {
+          {(formData.allergies || []).map((a, index) => {
             const original = findOriginal("allergies", (orig) => String(orig.allergenCatalogId) === String(a.allergenCatalogId));
             return (
               <div key={index} className="flex flex-col gap-2 p-3 border rounded-lg relative bg-card">
@@ -109,7 +109,7 @@ export function PatientHistoryFormSection({
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
-                            {localCatalogs.allergenCatalog?.map((cat) => (
+                            {(localCatalogs.allergenCatalog || []).map((cat) => (
                               <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
                             ))}
                           </SelectContent>
@@ -147,7 +147,7 @@ export function PatientHistoryFormSection({
       {/* ANTECEDENTES MEDICOS */}
       <CollapsibleSection defaultExpanded title="Antecedentes Médicos">
         <div className="space-y-4">
-          {formData.medicalHistory.map((m, index) => {
+          {(formData.medicalHistory || []).map((m, index) => {
             const original = findOriginal("medicalHistory", (orig) => orig.icd10CodeId === m.icd10CodeId);
             return (
               <div key={index} className="flex flex-col gap-2 p-3 border rounded-lg relative bg-card">
@@ -181,7 +181,7 @@ export function PatientHistoryFormSection({
       {/* ANTECEDENTES QUIRURGICOS */}
       <CollapsibleSection defaultExpanded title="Antecedentes Quirúrgicos">
         <div className="space-y-4">
-          {formData.surgicalHistory.map((s, index) => {
+          {(formData.surgicalHistory || []).map((s, index) => {
             const original = findOriginal("surgicalHistory", (orig) => String(orig.surgicalProcedureId) === String(s.surgicalProcedureId));
             return (
               <div key={index} className="flex flex-col gap-2 p-3 border rounded-lg relative bg-card">
@@ -200,7 +200,7 @@ export function PatientHistoryFormSection({
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
-                            {localCatalogs.surgicalProcedure?.map((cat) => (
+                            {(localCatalogs.surgicalProcedure || []).map((cat) => (
                               <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
                             ))}
                           </SelectContent>
@@ -238,7 +238,7 @@ export function PatientHistoryFormSection({
       {/* ANTECEDENTES TRAUMATICOS */}
       <CollapsibleSection defaultExpanded title="Antecedentes Traumáticos">
         <div className="space-y-4">
-          {formData.traumaHistory.map((t, index) => {
+          {(formData.traumaHistory || []).map((t, index) => {
             const original = findOriginal("traumaHistory", (orig) => orig.icd10CodeId === t.icd10CodeId);
             return (
               <div key={index} className="flex flex-col gap-2 p-3 border rounded-lg relative bg-card">
@@ -272,7 +272,7 @@ export function PatientHistoryFormSection({
       {/* HABITOS */}
       <CollapsibleSection defaultExpanded title="Hábitos">
         <div className="space-y-4">
-          {formData.habits.map((h, index) => {
+          {(formData.habits || []).map((h, index) => {
             const original = findOriginal("habits", (orig) => String(orig.habitCatalogId) === String(h.habitCatalogId));
             return (
               <div key={index} className="flex flex-col gap-2 p-3 border rounded-lg relative bg-card">
@@ -291,7 +291,7 @@ export function PatientHistoryFormSection({
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
-                            {localCatalogs.habitCatalog?.map((cat) => (
+                            {(localCatalogs.habitCatalog || []).map((cat) => (
                               <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
                             ))}
                           </SelectContent>
@@ -349,7 +349,7 @@ export function PatientHistoryFormSection({
       {/* ANTECEDENTES FAMILIARES */}
       <CollapsibleSection defaultExpanded title="Antecedentes Familiares">
         <div className="space-y-4">
-          {formData.familyHistory.map((f, index) => {
+          {(formData.familyHistory || []).map((f, index) => {
             const original = findOriginal("familyHistory", (orig) => orig.icd10CodeId === f.icd10CodeId);
             return (
               <div key={index} className="flex flex-col gap-2 p-3 border rounded-lg relative bg-card">
@@ -383,7 +383,7 @@ export function PatientHistoryFormSection({
       {/* EJERCICIOS */}
       <CollapsibleSection defaultExpanded title="Actividad Física">
         <div className="space-y-4">
-          {formData.exercises.map((e, index) => {
+          {(formData.exercises || []).map((e, index) => {
             const original = findOriginal("exercises", (orig) => String(orig.exerciseCatalogId) === String(e.exerciseCatalogId));
             return (
               <div key={index} className="flex flex-col gap-2 p-3 border rounded-lg relative bg-card">
@@ -402,7 +402,7 @@ export function PatientHistoryFormSection({
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
-                            {localCatalogs.exerciseCatalog?.map((cat) => (
+                            {(localCatalogs.exerciseCatalog || []).map((cat) => (
                               <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
                             ))}
                           </SelectContent>

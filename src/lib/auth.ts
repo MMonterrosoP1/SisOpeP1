@@ -38,6 +38,14 @@ export const auth = betterAuth({
       maxAge: 300,                    // 5 min cache
       strategy: "compact",
     },
+    additionalFields: {
+      practitionerId: {
+        type: "number",
+        required: false,
+        defaultValue: null,
+        input: false,
+      },
+    },
   },
   baseURL: process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL || "http://localhost:3000",
   trustedOrigins: process.env.BETTER_AUTH_TRUSTED_ORIGINS 
@@ -53,8 +61,9 @@ export const auth = betterAuth({
     session: {
       create: {
         after: async (session) => {
-          const sessionData = session as { id: string; userId: string; ipAddress?: string | null; userAgent?: string | null; };
+          const sessionData = session as { id: string; userId: string; ipAddress?: string | null; userAgent?: string | null; practitionerId?: number | null; };
           if (!sessionData) return;
+
           // Audit: LOGIN
           try {
             await prisma.auditLog.create({
@@ -69,6 +78,22 @@ export const auth = betterAuth({
             });
           } catch (e) {
             console.error("Failed to write audit log for login", e);
+          }
+
+          // Resolver practitionerId para usuarios DOCTOR
+          try {
+            const practitioner = await prisma.practitioner.findUnique({
+              where: { userId: sessionData.userId },
+              select: { id: true },
+            });
+            if (practitioner) {
+              await prisma.session.update({
+                where: { id: sessionData.id },
+                data: { practitionerId: practitioner.id },
+              });
+            }
+          } catch (e) {
+            console.error("Failed to resolve practitionerId for session", e);
           }
         },
       },

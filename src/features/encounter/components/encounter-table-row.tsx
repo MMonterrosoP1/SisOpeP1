@@ -2,13 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { Calendar, Clock, MoreHorizontal, Eye } from "lucide-react";
+import { Calendar, Clock, MoreHorizontal, Eye, Pencil } from "lucide-react";
 import Link from "next/link";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
 import { Button } from "@/components/ui/button";
 
+
 export function EncounterTableRow({ encounter }: { encounter: any }) {
+
   const router = useRouter();
   
   const medCert = encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE');
@@ -89,6 +91,11 @@ export function EncounterTableRow({ encounter }: { encounter: any }) {
               <span className="sr-only">Abrir menú</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => router.push(`/patients/${encounter.patientId}/encounters/${encounter.id}/edit`)} className="cursor-pointer">
+                <Pencil className="mr-2 h-4 w-4" />
+                <span>Editar Consulta</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DocumentActionMenuItem
                 encounterId={encounter.id}
                 documentTypeCode="MEDICAL_CERTIFICATE"
