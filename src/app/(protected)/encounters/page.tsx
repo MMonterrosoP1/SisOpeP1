@@ -41,11 +41,13 @@ async function EncountersContent({
 
   const session = await getAuthSession();
 
-  let defaultPractitionerId: string | undefined = resolvedParams.practitionerId as string;
   const currentSearch = resolvedParams.search as string;
 
+  let defaultPractitionerId: string | undefined = resolvedParams.practitionerId as string;
+  
   if (defaultPractitionerId === undefined && session?.user.role === 'DOCTOR') {
-    defaultPractitionerId = session.user.id;
+    const pid = (session.session as any).practitionerId;
+    if (pid) defaultPractitionerId = String(pid);
   } else if (defaultPractitionerId === 'all') {
     defaultPractitionerId = undefined;
   }

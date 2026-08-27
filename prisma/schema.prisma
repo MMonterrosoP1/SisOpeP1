@@ -112,6 +112,7 @@ model Session {
 
   user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   impersonatedBy String? @db.Text
+  practitionerId Int?
 
   @@map("session")
 }
