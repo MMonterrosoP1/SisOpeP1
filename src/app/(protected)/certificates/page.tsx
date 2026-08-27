@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getAuthSession } from "@/shared/auth/auth-guard";
 import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
 interface CertificatesPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
@@ -48,11 +49,18 @@ async function CertificatesContent({ searchParams }: CertificatesPageProps) {
 
   let defaultPractitionerId: string | undefined = resolvedParams.practitionerId as string;
   
-  if (defaultPractitionerId === undefined && session?.user.role === 'DOCTOR') {
-    const pid = (session.session as any).practitionerId;
-    if (pid) defaultPractitionerId = String(pid);
-  } else if (defaultPractitionerId === 'all') {
+  if (defaultPractitionerId === 'all') {
     defaultPractitionerId = undefined;
+  } else if (defaultPractitionerId === undefined) {
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { userId: session!.user.id },
+      select: { id: true },
+    });
+    if (practitioner) {
+      defaultPractitionerId = String(practitioner.id);
+    } else {
+      defaultPractitionerId = "-1";
+    }
   }
 
   const { data, meta } = await getDocuments(

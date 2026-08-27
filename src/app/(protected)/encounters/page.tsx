@@ -9,6 +9,7 @@ import { EncountersFilters } from "@/features/encounter/components/encounters-fi
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
 import { EncounterTableRow } from "@/features/encounter/components/encounter-table-row";
 import { getAuthSession } from "@/shared/auth/auth-guard";
+import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -44,12 +45,21 @@ async function EncountersContent({
   const currentSearch = resolvedParams.search as string;
 
   let defaultPractitionerId: string | undefined = resolvedParams.practitionerId as string;
-  
-  if (defaultPractitionerId === undefined && session?.user.role === 'DOCTOR') {
-    const pid = (session.session as any).practitionerId;
-    if (pid) defaultPractitionerId = String(pid);
-  } else if (defaultPractitionerId === 'all') {
+
+  if (defaultPractitionerId === 'all') {
+    // Filtro explícito: todos los médicos
     defaultPractitionerId = undefined;
+  } else if (defaultPractitionerId === undefined) {
+    // Sin filtro explícito: filtrar por su propio practitionerId.
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { userId: session!.user.id },
+      select: { id: true },
+    });
+    if (practitioner) {
+      defaultPractitionerId = String(practitioner.id);
+    } else {
+      defaultPractitionerId = "-1";
+    }
   }
 
   const { data: encounters, meta } = await getEncounters(
