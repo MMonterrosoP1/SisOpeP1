@@ -12,9 +12,11 @@ import { useSavedFilters } from "@/shared/hooks/use-saved-filters";
 interface EncountersFiltersProps {
   currentPractitionerId?: string;
   currentSearch?: string;
+  /** Rol del usuario autenticado ("DOCTOR" | "ADMIN" | …). */
+  userRole?: string;
 }
 
-export function EncountersFilters({ currentPractitionerId, currentSearch = "" }: EncountersFiltersProps) {
+export function EncountersFilters({ currentPractitionerId, currentSearch = "", userRole }: EncountersFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -22,7 +24,11 @@ export function EncountersFilters({ currentPractitionerId, currentSearch = "" }:
   const [searchTerm, setSearchTerm] = useState(currentSearch);
   const [prevSearchParam, setPrevSearchParam] = useState(currentSearch);
 
-  useSavedFilters("cookie_encounters_filters");
+  // Los doctores tienen un default manejado por el servidor (sus propias consultas).
+  // Ignorar 'practitionerId' de la cookie para que nunca se restaure un filtro
+  // 'all' de una sesión previa, lo cual mostraría consultas de otros médicos al entrar.
+  const cookieIgnoreKeys = userRole === "DOCTOR" ? ["practitionerId"] : [];
+  useSavedFilters("cookie_encounters_filters", cookieIgnoreKeys);
 
 
   if (currentSearch !== prevSearchParam) {

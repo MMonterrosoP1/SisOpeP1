@@ -70,11 +70,14 @@ async function EncountersContent({
     { page, pageSize }
   );
 
+  const userRole = session!.user.role as string;
+
   return (
     <>
       <EncountersFilters
         currentPractitionerId={resolvedParams.practitionerId as string}
         currentSearch={currentSearch}
+        userRole={userRole}
       />
 
       <div className="bg-background rounded-lg border shadow-sm flex flex-col flex-1 min-h-0">
