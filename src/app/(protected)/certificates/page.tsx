@@ -20,6 +20,9 @@ export const metadata: Metadata = {
 };
 
 export default async function CertificatesPage({ searchParams }: CertificatesPageProps) {
+  const session = await getAuthSession();
+  const role = (session?.user as any)?.role || "VIEWER";
+
   return (
     <div className="flex flex-col gap-4 md:gap-6 h-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -27,7 +30,7 @@ export default async function CertificatesPage({ searchParams }: CertificatesPag
           <h1 className="text-2xl font-bold">Constancias</h1>
           <p className="text-muted-foreground text-sm">Administra y genera las constancias médicas y de enfermedad.</p>
         </div>
-        <NewCertificateModal />
+        {role !== "VIEWER" && <NewCertificateModal />}
       </div>
 
       <Suspense fallback={<div className="h-96 flex items-center justify-center text-muted-foreground">Cargando constancias...</div>}>
@@ -48,18 +51,23 @@ async function CertificatesContent({ searchParams }: CertificatesPageProps) {
   const session = await getAuthSession();
 
   let defaultPractitionerId: string | undefined = resolvedParams.practitionerId as string;
+  const role = (session?.user as any)?.role || "VIEWER";
   
   if (defaultPractitionerId === 'all') {
     defaultPractitionerId = undefined;
   } else if (defaultPractitionerId === undefined) {
-    const practitioner = await prisma.practitioner.findUnique({
-      where: { userId: session!.user.id },
-      select: { id: true },
-    });
-    if (practitioner) {
-      defaultPractitionerId = String(practitioner.id);
+    if (role === "VIEWER") {
+      defaultPractitionerId = undefined; // VIEWER ve todas por defecto
     } else {
-      defaultPractitionerId = "-1";
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: session!.user.id },
+        select: { id: true },
+      });
+      if (practitioner) {
+        defaultPractitionerId = String(practitioner.id);
+      } else {
+        defaultPractitionerId = "-1";
+      }
     }
   }
 

@@ -46,19 +46,25 @@ async function EncountersContent({
 
   let defaultPractitionerId: string | undefined = resolvedParams.practitionerId as string;
 
+  const role = (session?.user as any)?.role || "VIEWER";
+
   if (defaultPractitionerId === 'all') {
     // Filtro explícito: todos los médicos
     defaultPractitionerId = undefined;
   } else if (defaultPractitionerId === undefined) {
-    // Sin filtro explícito: filtrar por su propio practitionerId.
-    const practitioner = await prisma.practitioner.findUnique({
-      where: { userId: session!.user.id },
-      select: { id: true },
-    });
-    if (practitioner) {
-      defaultPractitionerId = String(practitioner.id);
+    if (role === "VIEWER") {
+      defaultPractitionerId = undefined; // VIEWER ve todas por defecto
     } else {
-      defaultPractitionerId = "-1";
+      // Sin filtro explícito: filtrar por su propio practitionerId.
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: session!.user.id },
+        select: { id: true },
+      });
+      if (practitioner) {
+        defaultPractitionerId = String(practitioner.id);
+      } else {
+        defaultPractitionerId = "-1";
+      }
     }
   }
 

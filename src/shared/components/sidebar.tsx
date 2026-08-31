@@ -37,9 +37,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "DOCTOR", "VIEWER"] },
-  { name: "Pacientes", href: "/patients", icon: Users, roles: ["ADMIN", "DOCTOR"] },
-  { name: "Consultas", href: "/encounters", icon: Stethoscope, roles: ["ADMIN", "DOCTOR"] },
-  { name: "Constancias", href: "/certificates", icon: FileText, roles: ["ADMIN", "DOCTOR"] },
+  { name: "Pacientes", href: "/patients", icon: Users, roles: ["ADMIN", "DOCTOR", "VIEWER"] },
+  { name: "Consultas", href: "/encounters", icon: Stethoscope, roles: ["ADMIN", "DOCTOR", "VIEWER"] },
+  { name: "Constancias", href: "/certificates", icon: FileText, roles: ["ADMIN", "DOCTOR", "VIEWER"] },
   { name: "Catálogos", href: "/catalogs", icon: BookOpen, roles: ["ADMIN", "DOCTOR"] },
   { name: "Auditoría", href: "/audit", icon: Shield, roles: ["ADMIN"] },
   { name: "Usuarios", href: "/users", icon: UserCog, roles: ["ADMIN"] },
