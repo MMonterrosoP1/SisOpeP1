@@ -477,6 +477,7 @@ export function EncounterForm({
         suspensionHourId: toOptionalNumber(formData.suspensionHourId),
         referralLevelId: toOptionalNumber(formData.referralLevelId),
         medicalAptitudeId: toOptionalNumber(formData.medicalAptitudeId),
+        physicalExam: formData.physicalExam || undefined,
         internalObservation: formData.internalObservation || undefined,
         employerObservation: formData.employerObservation || undefined,
         followUpDate: formData.followUpDate ? new Date(formData.followUpDate) : undefined,

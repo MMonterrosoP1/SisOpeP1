@@ -79,7 +79,7 @@ export function EncounterDetailView({ encounter, patient, patientHistory }: { en
             </span>
             <span className="flex items-center gap-1.5">
               <Stethoscope className="h-4 w-4" />
-              Atendido por: <span className="font-medium text-foreground">{encounter.practitioner?.name}</span>
+              Atendido por: <span className="font-medium text-foreground">{encounter.practitioner ? `${encounter.practitioner.givenNames || ''} ${encounter.practitioner.familyNames || ''}`.trim() : "N/A"}</span>
             </span>
           </div>
         </div>
