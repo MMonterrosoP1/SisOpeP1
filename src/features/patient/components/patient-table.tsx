@@ -26,6 +26,7 @@ import { Eye, Edit2, ShieldAlert, ShieldCheck } from "lucide-react";
 import { PatientListItem } from "../types";
 import Link from "next/link";
 import { TogglePatientModal } from "./toggle-patient-modal";
+import { authClient } from "@/lib/auth-client";
 
 interface PatientTableProps {
   data: PatientListItem[];
@@ -35,6 +36,9 @@ interface PatientTableProps {
 export function PatientTable({ data }: PatientTableProps) {
   const [selectedPatient, setSelectedPatient] = useState<PatientListItem | null>(null);
   const [isToggleModalOpen, setIsToggleModalOpen] = useState(false);
+  
+  const { data: session } = authClient.useSession();
+  const role = (session?.user as any)?.role || "VIEWER";
 
   const columnHelper = createColumnHelper<PatientListItem>();
 
@@ -105,43 +109,47 @@ export function PatientTable({ data }: PatientTableProps) {
                 <TooltipContent>Ver detalles</TooltipContent>
               </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Link prefetch={false} href={`/patients/${patient.id}/edit`}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                    </Link>
-                  }
-                />
-                <TooltipContent>Editar paciente</TooltipContent>
-              </Tooltip>
+              {role !== "VIEWER" && (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Link prefetch={false} href={`/patients/${patient.id}/edit`}>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                    }
+                  />
+                  <TooltipContent>Editar paciente</TooltipContent>
+                </Tooltip>
+              )}
 
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={() => {
-                        setSelectedPatient(patient);
-                        setIsToggleModalOpen(true);
-                      }}
-                    >
-                      {patient.active ? (
-                        <ShieldAlert className="w-4 h-4 text-destructive" />
-                      ) : (
-                        <ShieldCheck className="w-4 h-4 text-green-600" />
-                      )}
-                    </Button>
-                  }
-                />
-                <TooltipContent>
+              {role !== "VIEWER" && (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => {
+                          setSelectedPatient(patient);
+                          setIsToggleModalOpen(true);
+                        }}
+                      >
+                        {patient.active ? (
+                          <ShieldAlert className="w-4 h-4 text-destructive" />
+                        ) : (
+                          <ShieldCheck className="w-4 h-4 text-green-600" />
+                        )}
+                      </Button>
+                    }
+                  />
+                  <TooltipContent>
                   {patient.active ? "Desactivar" : "Activar"}
                 </TooltipContent>
               </Tooltip>
+              )}
             </div>
           </div>
         );

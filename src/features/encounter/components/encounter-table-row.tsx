@@ -7,12 +7,14 @@ import Link from "next/link";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
 import { Button } from "@/components/ui/button";
-
+import { authClient } from "@/lib/auth-client";
 
 export function EncounterTableRow({ encounter }: { encounter: any }) {
-
   const router = useRouter();
   
+  const { data: session } = authClient.useSession();
+  const role = (session?.user as any)?.role || "VIEWER";
+
   const medCert = encounter.documents?.find((d: any) => d.documentType.code === 'MEDICAL_CERTIFICATE');
   const illnessCert = encounter.documents?.find((d: any) => d.documentType.code === 'ILLNESS_CERTIFICATE');
 
@@ -91,23 +93,27 @@ export function EncounterTableRow({ encounter }: { encounter: any }) {
               <span className="sr-only">Abrir menú</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => router.push(`/patients/${encounter.patientId}/encounters/${encounter.id}/edit`)} className="cursor-pointer">
-                <Pencil className="mr-2 h-4 w-4" />
-                <span>Editar Consulta</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DocumentActionMenuItem
-                encounterId={encounter.id}
-                documentTypeCode="MEDICAL_CERTIFICATE"
-                label="Constancia Médica"
-                initialPdfUrl={medCert?.pdfUrl}
-              />
-              <DocumentActionMenuItem
-                encounterId={encounter.id}
-                documentTypeCode="ILLNESS_CERTIFICATE"
-                label="Constancia de Enf."
-                initialPdfUrl={illnessCert?.pdfUrl}
-              />
+              {role !== "VIEWER" && (
+                <>
+                  <DropdownMenuItem onClick={() => router.push(`/patients/${encounter.patientId}/encounters/${encounter.id}/edit`)} className="cursor-pointer">
+                    <Pencil className="mr-2 h-4 w-4" />
+                    <span>Editar Consulta</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DocumentActionMenuItem
+                    encounterId={encounter.id}
+                    documentTypeCode="MEDICAL_CERTIFICATE"
+                    label="Constancia Médica"
+                    initialPdfUrl={medCert?.pdfUrl}
+                  />
+                  <DocumentActionMenuItem
+                    encounterId={encounter.id}
+                    documentTypeCode="ILLNESS_CERTIFICATE"
+                    label="Constancia de Enf."
+                    initialPdfUrl={illnessCert?.pdfUrl}
+                  />
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
