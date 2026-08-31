@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 12, fontFamily: 'Helvetica-Bold', textAlign: 'center', marginVertical: 8 },
   textStandard: { fontSize: 10, textAlign: 'center', lineHeight: 1.3, marginBottom: 8 },
   textLeft: { fontSize: 10, textAlign: 'left', lineHeight: 1.3, marginBottom: 8 },
-  
+
   table: {
     width: '100%',
     borderWidth: 1,
@@ -65,12 +65,12 @@ const styles = StyleSheet.create({
   headerCode: { width: '25%', justifyContent: 'center' },
   headerCodeTop: { borderBottomWidth: 1, borderColor: '#000', padding: 5, alignItems: 'center' },
   headerCodeBot: { padding: 5, alignItems: 'center' },
-  
+
   signatureBox: {
     marginTop: 35,
     alignItems: 'center',
   },
-  
+
   logoImage: {
     height: 35,
     objectFit: 'contain',
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
 export const IllnessCertificatePDF = ({ data }: { data: IllnessCertificateData }) => (
   <Document>
     <Page size="LETTER" style={styles.page}>
-      
+
       {/* --- ENCABEZADO --- */}
       <View style={styles.table}>
         <View style={styles.lastRow}>
@@ -102,13 +102,13 @@ export const IllnessCertificatePDF = ({ data }: { data: IllnessCertificateData }
       </View>
 
       <Text style={[styles.title, { marginTop: 10 }]}>A QUIEN CORRESPONDA</Text>
-      
+
       <Text style={styles.textStandard}>
         {data.practitionerPreamble || "El/La infrascrito/a Médico/a y Cirujano/a hace constar:"}
       </Text>
-      
+
       <Text style={styles.title}>HACE CONSTAR</Text>
-      
+
       <Text style={styles.textLeft}>
         Que en cumplimiento de los artículos 302 y 303 del Acuerdo Gubernativo 229-2014 y sus reformas 33-2016 y
       </Text>
@@ -157,22 +157,28 @@ export const IllnessCertificatePDF = ({ data }: { data: IllnessCertificateData }
 
       {/* --- DIAGNÓSTICOS --- */}
       <View style={styles.table}>
-        {data.diagnoses.map((diag, i) => (
-          <View key={i} style={i === data.diagnoses.length - 1 ? styles.lastRow : styles.row}>
-            <View style={[styles.cellData, { width: '50%' }]}>
-              <Text>{diag.name}</Text>
+        {(() => {
+          if (data.diagnoses.length === 0) {
+            return (
+              <View style={styles.lastRow}>
+                <View style={[styles.cellData, { width: '50%' }]}><Text>-</Text></View>
+                <View style={[styles.cellNoBorder, { width: '50%' }]}><Text>-</Text></View>
+              </View>
+            );
+          }
+          const primary = data.diagnoses.find(d => d.isPrimary) || data.diagnoses[0];
+          const others = data.diagnoses.filter(d => d !== primary);
+          return (
+            <View style={styles.lastRow}>
+              <View style={[styles.cellData, { width: '50%' }]}>
+                <Text>{primary.name}</Text>
+              </View>
+              <View style={[styles.cellNoBorder, { width: '50%' }]}>
+                <Text>{others.length > 0 ? others.map(d => d.name).join("\n") : "-"}</Text>
+              </View>
             </View>
-            <View style={[styles.cellNoBorder, { width: '50%' }]}>
-              <Text>{diag.observations || "-"}</Text>
-            </View>
-          </View>
-        ))}
-        {data.diagnoses.length === 0 && (
-          <View style={styles.lastRow}>
-            <View style={[styles.cellData, { width: '50%' }]}><Text>-</Text></View>
-            <View style={[styles.cellNoBorder, { width: '50%' }]}><Text>-</Text></View>
-          </View>
-        )}
+          );
+        })()}
       </View>
 
       <Text style={[styles.textLeft, { textAlign: 'justify' }]}>
@@ -184,32 +190,32 @@ export const IllnessCertificatePDF = ({ data }: { data: IllnessCertificateData }
         <View style={styles.row}>
           <View style={[styles.cellHeader, { width: '35%' }]}><Text style={styles.bold}>APTO CON RECOMENDACIÓN</Text></View>
           <View style={[styles.cellData, { width: '5%', alignItems: 'center' }]}><Text>{data.aptitude === 'APTO_REC' ? 'X' : ''}</Text></View>
-          
+
           <View style={[styles.cellHeader, { width: '35%' }]}><Text style={styles.bold}>APTO CON RESTRICCIÓN</Text></View>
           <View style={[styles.cellData, { width: '5%', alignItems: 'center' }]}><Text>{data.aptitude === 'APTO_RES' ? 'X' : ''}</Text></View>
-          
+
           <View style={{ width: '20%' }}></View>
         </View>
-        
+
         <View style={styles.row}>
           <View style={[styles.cellHeader, { width: '35%' }]}><Text style={styles.bold}>NO APTO TEMPORAL</Text></View>
           <View style={[styles.cellData, { width: '5%', alignItems: 'center' }]}><Text>{data.aptitude === 'NO_APTO_TEMP' ? 'X' : ''}</Text></View>
-          
+
           <View style={[styles.cellHeader, { width: '35%' }]}><Text style={styles.bold}>NO APTO</Text></View>
           <View style={[styles.cellData, { width: '5%', alignItems: 'center' }]}><Text>{data.aptitude === 'NO_APTO' ? 'X' : ''}</Text></View>
-          
+
           <View style={{ width: '20%' }}></View>
         </View>
 
         <View style={styles.lastRow}>
           <View style={[styles.cellHeader, { width: '15%' }]}><Text style={styles.bold}>REPOSO:</Text></View>
-          
+
           <View style={[styles.cellHeader, { width: '15%', backgroundColor: '#fff' }]}><Text style={styles.bold}>24 HORAS</Text></View>
           <View style={[styles.cellData, { width: '10%', alignItems: 'center' }]}><Text>{data.suspensionHour?.includes('24') ? 'X' : ''}</Text></View>
-          
+
           <View style={[styles.cellHeader, { width: '15%', backgroundColor: '#fff' }]}><Text style={styles.bold}>48 HORAS</Text></View>
           <View style={[styles.cellData, { width: '10%', alignItems: 'center' }]}><Text>{data.suspensionHour?.includes('48') ? 'X' : ''}</Text></View>
-          
+
           <View style={[styles.cellHeader, { width: '15%', backgroundColor: '#fff' }]}><Text style={styles.bold}>72 HORAS</Text></View>
           <View style={[styles.cellData, { width: '20%', alignItems: 'center' }]}><Text>{data.suspensionHour?.includes('72') ? 'X' : ''}</Text></View>
         </View>
