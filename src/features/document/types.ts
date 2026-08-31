@@ -18,6 +18,6 @@ export interface CertificateData {
 
 export interface IllnessCertificateData extends CertificateData {
   symptomatology: string;
-  diagnoses: { name: string; observations: string }[];
+  diagnoses: { name: string; observations: string; isPrimary?: boolean }[];
   suspensionHour: string | null;
 }

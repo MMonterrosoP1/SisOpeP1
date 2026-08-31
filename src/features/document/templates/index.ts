@@ -49,6 +49,7 @@ export function mapEncounterToIllnessCertificateData(encounter: any): IllnessCer
   const diagnoses = encounter.diagnoses?.map((diag: any) => ({
     name: diag.icd10Code ? `${diag.icd10Code.code} - ${diag.icd10Code.description}` : "Sin diagnóstico",
     observations: diag.observations || "",
+    isPrimary: diag.isPrimary,
   })) || [];
 
   return {
