@@ -4,9 +4,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { NewEncounterModal } from "./new-encounter-modal";
+import { authClient } from "@/lib/auth-client";
 
 export function EncountersHeader() {
   const [modalOpen, setModalOpen] = useState(false);
+  const { data: session } = authClient.useSession();
+  const role = (session?.user as any)?.role || "VIEWER";
 
   return (
     <>
@@ -17,10 +20,12 @@ export function EncountersHeader() {
         </div>
         
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <Button onClick={() => setModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Nueva Consulta
-          </Button>
+          {role !== "VIEWER" && (
+            <Button onClick={() => setModalOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Nueva Consulta
+            </Button>
+          )}
         </div>
       </div>
       

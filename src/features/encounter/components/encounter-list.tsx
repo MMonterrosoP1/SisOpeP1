@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Calendar, Clock, MoreHorizontal, Eye } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DocumentActionMenuItem } from "@/features/document/components/document-action-button";
+import { getAuthSession } from "@/shared/auth/auth-guard";
 
 export async function EncounterList({ 
   patientId,
@@ -13,6 +14,9 @@ export async function EncounterList({
   patientId: number;
   encountersPromise?: Promise<any>;
 }) {
+  const session = await getAuthSession();
+  const role = (session?.user as any)?.role || "VIEWER";
+
   // Fetch the last 10 encounters
   const promise = encountersPromise || getEncountersByPatient(patientId, { page: 1, pageSize: 10 });
   const { data: encounters } = await promise;
@@ -91,19 +95,23 @@ export async function EncounterList({
                         <span>Ver Detalle</span>
                       </DropdownMenuItem>
                     </Link>
-                    <DropdownMenuSeparator />
-                    <DocumentActionMenuItem 
-                      encounterId={encounter.id} 
-                      documentTypeCode="MEDICAL_CERTIFICATE"
-                      label="Constancia Médica"
-                      initialPdfUrl={medCert?.pdfUrl}
-                    />
-                    <DocumentActionMenuItem 
-                      encounterId={encounter.id} 
-                      documentTypeCode="ILLNESS_CERTIFICATE"
-                      label="Constancia de Enf."
-                      initialPdfUrl={illnessCert?.pdfUrl}
-                    />
+                    {role !== "VIEWER" && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DocumentActionMenuItem 
+                          encounterId={encounter.id} 
+                          documentTypeCode="MEDICAL_CERTIFICATE"
+                          label="Constancia Médica"
+                          initialPdfUrl={medCert?.pdfUrl}
+                        />
+                        <DocumentActionMenuItem 
+                          encounterId={encounter.id} 
+                          documentTypeCode="ILLNESS_CERTIFICATE"
+                          label="Constancia de Enf."
+                          initialPdfUrl={illnessCert?.pdfUrl}
+                        />
+                      </>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

@@ -10,6 +10,7 @@ import { ArrowLeft, Edit2, Plus } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { EncounterList } from "@/features/encounter/components/encounter-list";
+import { getAuthSession } from "@/shared/auth/auth-guard";
 
 export default async function PatientDetailPage({
   params,
@@ -19,6 +20,9 @@ export default async function PatientDetailPage({
   const resolvedParams = await params;
   const patientId = Number(resolvedParams.id);
   if (isNaN(patientId)) notFound();
+
+  const session = await getAuthSession();
+  const role = (session?.user as any)?.role || "VIEWER";
 
   // Iniciar la carga de consultas concurrentemente con la del paciente
   const encountersPromise = getEncountersByPatient(patientId, { page: 1, pageSize: 10 });
@@ -49,13 +53,15 @@ export default async function PatientDetailPage({
           </div>
         </div>
         <div className="flex gap-2">
-          <Link href={`/patients/${patient.id}/edit`}>
-            <Button variant="outline">
-              <Edit2 className="w-4 h-4 mr-2" />
-              Editar Paciente
-            </Button>
-          </Link>
-          {patient.active && (
+          {role !== "VIEWER" && (
+            <Link href={`/patients/${patient.id}/edit`}>
+              <Button variant="outline">
+                <Edit2 className="w-4 h-4 mr-2" />
+                Editar Paciente
+              </Button>
+            </Link>
+          )}
+          {patient.active && role !== "VIEWER" && (
             <Link href={`/patients/${patient.id}/encounters/new`}>
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
@@ -174,12 +180,14 @@ export default async function PatientDetailPage({
           <PatientHistorySummary 
             history={patientHistory} 
             action={
-              <Link href={`/patients/${patient.id}/history`}>
-                <Button variant="outline" size="sm">
-                  <Edit2 className="w-4 h-4 mr-2" />
-                  Actualizar Antecedentes
-                </Button>
-              </Link>
+              role !== "VIEWER" ? (
+                <Link href={`/patients/${patient.id}/history`}>
+                  <Button variant="outline" size="sm">
+                    <Edit2 className="w-4 h-4 mr-2" />
+                    Actualizar Antecedentes
+                  </Button>
+                </Link>
+              ) : undefined
             }
           />
         </div>

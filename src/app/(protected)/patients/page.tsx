@@ -8,6 +8,8 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { redirect } from "next/navigation";
 
+import { getAuthSession } from "@/shared/auth/auth-guard";
+
 export const metadata: Metadata = {
   title: "Pacientes",
   description: "Directorio y expedientes de pacientes",
@@ -18,6 +20,9 @@ export default async function PatientsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const session = await getAuthSession();
+  const role = (session?.user as any)?.role || "VIEWER";
+
   return (
     <div className="flex flex-col gap-4 md:gap-6 h-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -25,12 +30,14 @@ export default async function PatientsPage({
           <h1 className="text-2xl font-bold">Pacientes</h1>
           <p className="text-muted-foreground text-sm">Gestiona el directorio de pacientes y sus expedientes.</p>
         </div>
-        <Link href="/patients/new">
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo Paciente
-          </Button>
-        </Link>
+        {role !== "VIEWER" && (
+          <Link href="/patients/new">
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Nuevo Paciente
+            </Button>
+          </Link>
+        )}
       </div>
 
       <PatientsContent searchParams={searchParams} />
