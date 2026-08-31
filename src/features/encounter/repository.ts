@@ -59,6 +59,7 @@ export const encounterRepository = {
         vitalSign: true,
         anthropometry: true,
         diagnoses: { include: { icd10Code: true, diseaseType: true } },
+        affectedSystemEntries: { include: { affectedSystem: true } },
         occupationalExposureEntries: { include: { occupationalExposure: true } },
         workDisabilityEntries: { include: { workDisability: true } },
         documents: { include: { documentType: true } },
@@ -79,6 +80,7 @@ export const encounterRepository = {
         vitalSign: true,
         anthropometry: true,
         diagnoses: { include: { icd10Code: true, diseaseType: true } },
+        affectedSystemEntries: { include: { affectedSystem: true } },
         occupationalExposureEntries: { include: { occupationalExposure: true } },
         workDisabilityEntries: { include: { workDisability: true } },
         documents: { include: { documentType: true } },
@@ -92,6 +94,7 @@ export const encounterRepository = {
       vitalSign,
       anthropometry,
       diagnoses,
+      affectedSystems,
       occupationalExposures,
       workDisabilities,
       createdBy,
@@ -119,6 +122,13 @@ export const encounterRepository = {
         }))
       : undefined;
 
+    const affectedSystemCreates: Prisma.EncounterAffectedSystemUncheckedCreateWithoutEncounterInput[] | undefined = affectedSystems?.length
+      ? affectedSystems.map((entry) => ({
+          affectedSystemId: entry.affectedSystemId,
+          observations: entry.observations ?? undefined,
+        }))
+      : undefined;
+
     const workDisabilityCreates: Prisma.WorkDisabilityEntryUncheckedCreateWithoutEncounterInput[] | undefined = workDisabilities?.length
       ? workDisabilities.map((entry) => ({
           workDisabilityId: entry.workDisabilityId,
@@ -135,8 +145,21 @@ export const encounterRepository = {
         vitalSign: vitalSign ? { create: vitalSign } : undefined,
         anthropometry: anthropometry ? { create: anthropometry } : undefined,
         diagnoses: diagnosisCreates ? { create: diagnosisCreates } : undefined,
-        occupationalExposureEntries: occupationalExposureCreates ? { create: occupationalExposureCreates } : undefined,
-        workDisabilityEntries: workDisabilityCreates ? { create: workDisabilityCreates } : undefined,
+        ...(occupationalExposureCreates && {
+          occupationalExposureEntries: {
+            create: occupationalExposureCreates,
+          },
+        }),
+        ...(affectedSystemCreates && {
+          affectedSystemEntries: {
+            create: affectedSystemCreates,
+          },
+        }),
+        ...(workDisabilityCreates && {
+          workDisabilityEntries: {
+            create: workDisabilityCreates,
+          },
+        }),
       },
       include: {
         diagnoses: true,
@@ -150,6 +173,7 @@ export const encounterRepository = {
       vitalSign,
       anthropometry,
       diagnoses,
+      affectedSystems,
       occupationalExposures,
       workDisabilities,
       updatedBy,
@@ -217,6 +241,18 @@ export const encounterRepository = {
         });
       }
 
+      // 5.b Affected Systems (delete and recreate)
+      await tx.encounterAffectedSystem.deleteMany({ where: { encounterId: id } });
+      if (affectedSystems?.length) {
+        await tx.encounterAffectedSystem.createMany({
+          data: affectedSystems.map(a => ({
+            encounterId: id,
+            affectedSystemId: a.affectedSystemId,
+            observations: a.observations ?? undefined,
+          }))
+        });
+      }
+
       // 6. Work Disabilities (delete and recreate)
       await tx.workDisabilityEntry.deleteMany({ where: { encounterId: id } });
       if (workDisabilities?.length) {
@@ -241,6 +277,7 @@ export const encounterRepository = {
           vitalSign: true,
           anthropometry: true,
           diagnoses: { include: { icd10Code: true, diseaseType: true } },
+          affectedSystemEntries: { include: { affectedSystem: true } },
           occupationalExposureEntries: { include: { occupationalExposure: true } },
           workDisabilityEntries: { include: { workDisability: true } },
           documents: { include: { documentType: true } },

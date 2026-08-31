@@ -13,6 +13,7 @@ export const CATALOG_TYPES = [
   "allergyCategory",
   "allergenCatalog",
   "diseaseType",
+  "affectedSystem",
   "maritalStatus",
   "bloodType",
   "habitCatalog",

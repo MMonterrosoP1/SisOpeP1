@@ -61,7 +61,9 @@ export async function EncounterList({
                 {encounter.encounterType?.name || "N/A"}
               </TableCell>
               <TableCell>
-                {encounter.practitioner?.name || "N/A"}
+                {encounter.practitioner 
+                  ? `${encounter.practitioner.givenNames} ${encounter.practitioner.familyNames}`.trim() || encounter.practitioner.user?.name 
+                  : "N/A"}
               </TableCell>
               <TableCell>
                 <div className="max-w-[150px] truncate text-sm" title={encounter.medicationsAdministered}>

@@ -234,12 +234,13 @@ type EncounterFormState = {
   traumaHistory: { icd10CodeId: number | null; observations: string; }[];
   familyHistory: { icd10CodeId: number | null; observations: string; }[];
   occupationalExposures: { occupationalExposureId: string; observations: string; }[];
+  affectedSystems: { affectedSystemId: string; observations: string; }[];
   workDisabilities: { workDisabilityId: string; observations: string; }[];
 };
 
 import { PatientHistoryFormSection } from "@/features/patient-history/components/patient-history-form-section";
 
-export function EncounterForm({ 
+export function EncounterForm({
   patientId, patientSex, catalogs, patientSummary, previousDefaults, isFollowUp, previousEncounterDate, patientHistory,
   mode = "create", encounterId, initialData
 }: EncounterFormProps) {
@@ -333,6 +334,7 @@ export function EncounterForm({
     traumaHistory: patientHistory?.traumaHistory?.map((h: any) => ({ icd10CodeId: h.icd10CodeId, observations: h.observations || "" })) || [],
     familyHistory: patientHistory?.familyHistory?.map((h: any) => ({ icd10CodeId: h.icd10CodeId, observations: h.observations || "" })) || [],
     occupationalExposures: [],
+    affectedSystems: [],
     workDisabilities: []
   };
 
@@ -387,6 +389,7 @@ export function EncounterForm({
       traumaHistory: "icd10CodeId",
       familyHistory: "icd10CodeId",
       occupationalExposures: "occupationalExposureId",
+      affectedSystems: "affectedSystemId",
       workDisabilities: "workDisabilityId"
     };
 
@@ -548,13 +551,18 @@ export function EncounterForm({
           observations: e.observations || undefined
         })).filter((e) => e.occupationalExposureId),
 
+        affectedSystems: formData.affectedSystems.map((a) => ({
+          affectedSystemId: toOptionalNumber(a.affectedSystemId),
+          observations: a.observations || undefined
+        })).filter((a) => a.affectedSystemId),
+
         workDisabilities: formData.workDisabilities.map((w) => ({
           workDisabilityId: toOptionalNumber(w.workDisabilityId),
           observations: w.observations || undefined
         })).filter((w) => w.workDisabilityId),
       };
 
-      const res = mode === "edit" && encounterId 
+      const res = mode === "edit" && encounterId
         ? await updateEncounter({ ...payload, id: encounterId })
         : await createEncounter(payload);
 
@@ -703,17 +711,6 @@ export function EncounterForm({
             />
             <FieldError error={getFieldError("illnessHistory")} />
           </div>
-          <div className="col-span-2 flex flex-col gap-2">
-            <Label>Examen físico</Label>
-            <Textarea
-              className={getFieldError("physicalExam") ? "border-destructive ring-1 ring-destructive" : ""}
-              aria-invalid={!!getFieldError("physicalExam")}
-              value={formData.physicalExam || ""}
-              onChange={(e) => handleFieldChange("physicalExam", e.target.value)}
-              placeholder="Describa el examen físico..."
-            />
-            <FieldError error={getFieldError("physicalExam")} />
-          </div>
         </CardContent>
       </Card>
 
@@ -733,12 +730,12 @@ export function EncounterForm({
       <SectionDivider title="Datos de la Consulta" />
 
       <CollapsibleSection
-        title="Signos Vitales"
+        title="Signos Vitales y Examen Físico"
         defaultExpanded
         hasError={[
           "systolicBP", "diastolicBP", "heartRate",
           "respiratoryRate", "oxygenSaturation", "glucose", "temperature"
-        ].some((f) => !!getFieldError(`vitalSign.${f}`))}
+        ].some((f) => !!getFieldError(`vitalSign.${f}`)) || !!getFieldError("physicalExam")}
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
@@ -766,6 +763,18 @@ export function EncounterForm({
               </div>
             );
           })}
+        </div>
+
+        <div className="flex flex-col gap-2 mt-4 pt-4 border-t">
+          <Label>Examen físico</Label>
+          <Textarea
+            className={getFieldError("physicalExam") ? "border-destructive ring-1 ring-destructive" : ""}
+            aria-invalid={!!getFieldError("physicalExam")}
+            value={formData.physicalExam || ""}
+            onChange={(e) => handleFieldChange("physicalExam", e.target.value)}
+            placeholder="Describa el examen físico..."
+          />
+          <FieldError error={getFieldError("physicalExam")} />
         </div>
       </CollapsibleSection>
 
@@ -871,11 +880,65 @@ export function EncounterForm({
               </div>
             </div>
           ))}
-          <Button type="button" variant="outline" onClick={() => addArrayItem("diagnoses", { icd10CodeId: null, diseaseTypeId: "", observations: "", isPrimary: formData.diagnoses.length === 0 })}>
-            <Plus className="h-4 w-4 mr-2" /> Agregar Diagnóstico
-          </Button>
+          <div className="border-t pt-4 mt-2">
+            {getFieldError("affectedSystems") && <FieldError error={getFieldError("affectedSystems")} />}
+            <div className="flex flex-col gap-4">
+              {formData.affectedSystems.map((a, index: number) => (
+                <div key={index} className="flex flex-col gap-4 p-4 border rounded-lg relative bg-muted/20">
+                  <Button
+                    type="button"
+                    variant="ghost" size="icon"
+                    className="absolute right-2 top-2 text-destructive"
+                    onClick={() => removeArrayItem("affectedSystems", index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full md:w-[95%]">
+                    <CatalogSelectFieldWithAdd
+                      name={`sys-affected-${index}`}
+                      label="Sistema Afectado"
+                      value={String(a.affectedSystemId || "")}
+                      options={getCatalogOptions("affectedSystem")}
+                      placeholder="Seleccione..."
+                      onChange={(val) => handleArrayChange("affectedSystems", index, "affectedSystemId", val)}
+                      onAddClick={() => setQuickAddDialog({
+                        open: true,
+                        type: "affectedSystem",
+                        title: "Sistema Afectado",
+                        field: "affectedSystemId",
+                        arrayName: "affectedSystems",
+                        arrayIndex: index
+                      })}
+                    />
+                    <div className="flex flex-col gap-2">
+                      <Label>Observaciones</Label>
+                      <Input
+                        className={getFieldError(`affectedSystems.${index}.observations`) ? "border-destructive ring-1 ring-destructive" : ""}
+                        aria-invalid={!!getFieldError(`affectedSystems.${index}.observations`)}
+                        value={a.observations}
+                        onChange={(e) => handleArrayChange("affectedSystems", index, "observations", e.target.value)}
+                      />
+                      <FieldError error={getFieldError(`affectedSystems.${index}.observations`)} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <Button type="button" variant="outline" onClick={() => addArrayItem("affectedSystems", { affectedSystemId: "", observations: "" })}>
+                <Plus className="h-4 w-4 mr-2" /> Agregar Sistema Afectado
+              </Button>
+            </div>
+          </div>
+
+          <div className="border-t pt-4 mt-2">
+            <Button type="button" variant="outline" onClick={() => addArrayItem("diagnoses", { icd10CodeId: null, diseaseTypeId: "", observations: "", isPrimary: formData.diagnoses.length === 0 })}>
+              <Plus className="h-4 w-4 mr-2" /> Agregar Diagnóstico
+            </Button>
+          </div>
         </div>
       </CollapsibleSection>
+
+
+
 
 
       {patientSex === "FEMALE" && (
@@ -1134,7 +1197,7 @@ export function EncounterForm({
             <FieldError error={getFieldError("internalObservation")} />
           </div>
           <div className="col-span-2 flex flex-col gap-2">
-            <Label>Observación Patronal (Empresa)</Label>
+            <Label>Observación Patronal (Esta se imprimirá en las constancias médicas)</Label>
             <Textarea
               className={getFieldError("employerObservation") ? "border-destructive ring-1 ring-destructive" : ""}
               aria-invalid={!!getFieldError("employerObservation")}
@@ -1147,25 +1210,25 @@ export function EncounterForm({
       </CollapsibleSection>
 
       <div className="flex justify-end gap-4 mt-6">
-          {mode === "create" && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClearData}
-              disabled={isLoading}
-              className="w-full sm:w-auto"
-            >
-              Limpiar Formulario
-            </Button>
-          )}
+        {mode === "create" && (
           <Button
-            type="submit"
+            type="button"
+            variant="outline"
+            onClick={handleClearData}
             disabled={isLoading}
             className="w-full sm:w-auto"
           >
-            {isLoading ? "Guardando..." : mode === "edit" ? "Guardar Cambios" : "Crear Consulta"}
+            Limpiar Formulario
           </Button>
-        </div>
+        )}
+        <Button
+          type="submit"
+          disabled={isLoading}
+          className="w-full sm:w-auto"
+        >
+          {isLoading ? "Guardando..." : mode === "edit" ? "Guardar Cambios" : "Crear Consulta"}
+        </Button>
+      </div>
 
       <CatalogQuickAddDialog
         type={quickAddDialog.type as CatalogType}
