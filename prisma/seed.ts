@@ -313,6 +313,19 @@ async function main() {
     }
   }
 
+  // 7.5 Sistemas Afectados
+  const sistemasAfectados = readCSV("consulta/sistemas.csv");
+  for (const sa of sistemasAfectados) {
+    const name = sa["Nombre"];
+    if (name) {
+      await prisma.affectedSystem.upsert({
+        where: { name },
+        update: {},
+        create: { name }
+      });
+    }
+  }
+
   // 8. Alergia
   const alergias = readCSV("consulta/alergia.csv", " ");
   for (const a of alergias) {

@@ -125,6 +125,10 @@ export default async function PatientDetailPage({
                 <dt className="text-sm text-muted-foreground">Puesto</dt>
                 <dd className="font-medium">{patient.jobPosition?.name || "-"}</dd>
               </div>
+              <div>
+                <dt className="text-sm text-muted-foreground">Código de Empleado</dt>
+                <dd className="font-medium">{patient.employeeCode || "-"}</dd>
+              </div>
             </dl>
           </CardContent>
         </Card>

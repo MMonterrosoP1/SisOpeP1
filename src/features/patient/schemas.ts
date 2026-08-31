@@ -29,6 +29,7 @@ export const basePatientSchema = z.object({
   workAreaId: idParamSchema.optional(),
   jobPositionId: idParamSchema,
   bloodTypeId: idParamSchema.optional(),
+  employeeCode: z.string().trim().max(10, "Máximo 10 caracteres").regex(/^[a-zA-Z0-9]*$/, "Solo números y letras").optional().or(z.literal("")),
   emergencyContacts: z.array(emergencyContactSchema).optional(),
 });
 

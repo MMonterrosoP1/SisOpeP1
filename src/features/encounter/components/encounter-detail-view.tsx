@@ -260,6 +260,37 @@ export function EncounterDetailView({ encounter, patient, patientHistory }: { en
           <Card>
             <CardHeader className="pb-3 border-b mb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
+                <Activity className="h-5 w-5 text-primary" />
+                Revisión por Sistemas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {encounter.affectedSystemEntries && encounter.affectedSystemEntries.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Sistema Afectado</TableHead>
+                      <TableHead>Observaciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {encounter.affectedSystemEntries.map((a: any) => (
+                      <TableRow key={a.id}>
+                        <TableCell className="font-medium text-sm">
+                          {a.affectedSystem?.name || '-'}
+                        </TableCell>
+                        <TableCell className="text-sm">{a.observations || '-'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : <EmptyState />}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3 border-b mb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
                 <FileText className="h-5 w-5 text-primary" />
                 Plan y Observaciones Finales
               </CardTitle>

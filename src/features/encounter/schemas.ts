@@ -61,6 +61,11 @@ export const occupationalExposureSchema = z.object({
   observations: z.string().max(2000, "Máximo 2000 caracteres").optional().nullable(),
 });
 
+export const affectedSystemEntrySchema = z.object({
+  affectedSystemId: idParamSchema,
+  observations: z.string().max(2000, "Máximo 2000 caracteres").optional().nullable(),
+});
+
 export const workDisabilitySchema = z.object({
   workDisabilityId: idParamSchema,
   observations: z.string().max(2000, "Máximo 2000 caracteres").optional().nullable(),
@@ -96,6 +101,7 @@ export const createEncounterSchema = z.object({
   traumaHistory: z.any().optional(),
   familyHistory: z.any().optional(),
   occupationalExposures: z.array(occupationalExposureSchema).optional(),
+  affectedSystems: z.array(affectedSystemEntrySchema).optional(),
   workDisabilities: z.array(workDisabilitySchema).optional(),
 }).superRefine((data, ctx) => {
   if (data.diagnoses && data.diagnoses.length > 0) {
@@ -131,6 +137,19 @@ export const createEncounterSchema = z.object({
         code: z.ZodIssueCode.custom,
         message: "No puede agregar incapacidades laborales duplicadas",
         path: ["workDisabilities"],
+      });
+    }
+  }
+
+  // Validar duplicados en affectedSystems
+  if (data.affectedSystems) {
+    const ids = data.affectedSystems.map(a => a.affectedSystemId);
+    const hasDuplicates = new Set(ids).size !== ids.length;
+    if (hasDuplicates) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "No puede agregar sistemas afectados duplicados",
+        path: ["affectedSystems"],
       });
     }
   }

@@ -424,6 +424,21 @@ model DiseaseTypeCatalog {
   @@map("disease_type_catalog")
 }
 
+model AffectedSystem {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  active Boolean @default(true)
+
+  entries EncounterAffectedSystem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  @@map("affected_system")
+}
+
 model MaritalStatusCatalog {
   id     Int     @id @default(autoincrement())
   name   String
@@ -524,6 +539,7 @@ model Patient {
   workAreaId      Int?
   jobPositionId   Int
   bloodTypeId     Int?
+  employeeCode    String?  @db.VarChar(10)
   active          Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -748,6 +764,7 @@ model Encounter {
   vitalSign                   VitalSign?
   anthropometry               Anthropometry?
   occupationalExposureEntries OccupationalExposureEntry[]
+  affectedSystemEntries       EncounterAffectedSystem[]
   workDisabilityEntries       WorkDisabilityEntry[]
   diagnoses                   Diagnosis[]
   documents                   Document[]
@@ -808,6 +825,21 @@ model OccupationalExposureEntry {
 
   @@unique([encounterId, occupationalExposureId])
   @@map("occupational_exposure_entry")
+}
+
+/// Sistema Afectado por consulta (Revisión de Sistemas)
+
+model EncounterAffectedSystem {
+  id               Int     @id @default(autoincrement())
+  encounterId      Int
+  affectedSystemId Int
+  observations     String? @db.Text
+
+  encounter      Encounter      @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  affectedSystem AffectedSystem @relation(fields: [affectedSystemId], references: [id])
+
+  @@unique([encounterId, affectedSystemId])
+  @@map("encounter_affected_system")
 }
 
 /// Incapacidad laboral por consulta

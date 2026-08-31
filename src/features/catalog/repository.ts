@@ -99,6 +99,7 @@ export const allergenCatalogRepo = {
   }
 };
 export const diseaseTypeRepo = createCatalogRepo(prisma.diseaseTypeCatalog);
+export const affectedSystemRepo = createCatalogRepo(prisma.affectedSystem);
 export const maritalStatusRepo = createCatalogRepo(prisma.maritalStatusCatalog);
 export const bloodTypeRepo = createCatalogRepo(prisma.bloodTypeCatalog);
 export const habitCatalogRepo = createCatalogRepo(prisma.habitCatalog);
@@ -127,6 +128,7 @@ export const getCatalogRepo = (type: string) => {
     allergyCategory: allergyCategoryRepo,
     allergenCatalog: allergenCatalogRepo,
     diseaseType: diseaseTypeRepo,
+    affectedSystem: affectedSystemRepo,
     maritalStatus: maritalStatusRepo,
     bloodType: bloodTypeRepo,
     habitCatalog: habitCatalogRepo,

@@ -31,7 +31,7 @@ export function mapEncounterToCertificateData(encounter: any): CertificateData {
     workplaceName: patient.workplace?.name || "",
     fullName: `${patient.person?.givenNames} ${patient.person?.familyNames}`,
     age,
-    employeeCode: "", // Dejalo vacio por el momento
+    employeeCode: patient.employeeCode || "",
     identityDocument: patient.person?.identityDocument || "",
     sex: patient.person?.sex === 'MALE' ? 'Masculino' : 'Femenino',
     jobPositionName: patient.jobPosition?.name || "",

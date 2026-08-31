@@ -66,6 +66,7 @@ type PatientFormData = {
   workplaceId: string;
   workAreaId: string;
   jobPositionId: string;
+  employeeCode: string;
   emergencyContacts: EmergencyContactFormData[];
 };
 
@@ -262,6 +263,7 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
     workplaceId: initialData?.workplaceId ? String(initialData.workplaceId) : "",
     workAreaId: initialData?.workAreaId ? String(initialData.workAreaId) : "",
     jobPositionId: initialData?.jobPositionId ? String(initialData.jobPositionId) : "",
+    employeeCode: initialData?.employeeCode || "",
     emergencyContacts:
       initialData?.emergencyContacts?.map((contact) => ({
         id: contact.id,
@@ -385,6 +387,7 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
         workplaceId: toOptionalNumber(formData.workplaceId),
         workAreaId: toOptionalNumber(formData.workAreaId),
         jobPositionId: toOptionalNumber(formData.jobPositionId),
+        employeeCode: formData.employeeCode || undefined,
         emergencyContacts: normalizedEmergencyContacts.length > 0 ? normalizedEmergencyContacts : undefined,
       };
 
@@ -679,6 +682,24 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
                   field: "jobPositionId"
                 })}
               />
+            </div>
+            
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="employeeCode" className="font-medium text-slate-700">
+                Código de Empleado
+              </Label>
+              <Input
+                id="employeeCode"
+                name="employeeCode"
+                value={formData.employeeCode}
+                onChange={(e) => handleChange("employeeCode", e.target.value)}
+                placeholder="Ej. EMP123"
+                className="w-full"
+                maxLength={10}
+              />
+              {getFieldError("employeeCode") && (
+                <p className="text-sm text-red-500">{getFieldError("employeeCode")}</p>
+              )}
             </div>
           </div>
         </CardContent>

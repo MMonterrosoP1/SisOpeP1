@@ -60,6 +60,11 @@ export function mapEncounterToFormDefaults(encounter: EncounterData, patientId: 
       observations: e.observations || "",
     })) || [],
 
+    affectedSystems: encounter.affectedSystemEntries?.map((a) => ({
+      affectedSystemId: String(a.affectedSystemId),
+      observations: a.observations || "",
+    })) || [],
+
     workDisabilities: encounter.workDisabilityEntries?.map((w) => ({
       workDisabilityId: String(w.workDisabilityId),
       observations: w.observations || "",

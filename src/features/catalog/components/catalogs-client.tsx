@@ -24,6 +24,7 @@ interface CatalogsData {
   surgicalProcedure: CatalogItem[];
   referralLevel: CatalogItem[];
   medicalAptitude: CatalogItem[];
+  affectedSystem: CatalogItem[];
   allergyCategory: CatalogItem[];
   allergenCatalog: CatalogItem[];
   diseaseType: CatalogItem[];
@@ -227,6 +228,12 @@ export function CatalogsClient({ initialData }: CatalogsClientProps) {
                   title="Tipos de Enfermedad"
                   description="Clasificación de padecimientos"
                   items={filterItems(initialData.diseaseType)}
+                />
+                <CatalogSection
+                  type="affectedSystem"
+                  title="Sistemas Afectados"
+                  description="Revisión por Sistemas"
+                  items={filterItems(initialData.affectedSystem)}
                 />
                 <CatalogSection
                   type="allergyCategory"
