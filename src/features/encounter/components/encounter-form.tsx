@@ -340,7 +340,17 @@ export function EncounterForm({
 
   const [formData, setFormData] = useState<EncounterFormState>(() => {
     if (mode === "edit" && initialData) {
-      return initialData;
+      return {
+        ...defaultFormData,
+        ...initialData,
+        allergies: defaultFormData.allergies,
+        habits: defaultFormData.habits,
+        exercises: defaultFormData.exercises,
+        medicalHistory: defaultFormData.medicalHistory,
+        surgicalHistory: defaultFormData.surgicalHistory,
+        traumaHistory: defaultFormData.traumaHistory,
+        familyHistory: defaultFormData.familyHistory,
+      } as EncounterFormState;
     }
     if (!previousDefaults) return defaultFormData;
     // En modo reconsulta: los campos clínicos de la consulta vienen de previousDefaults,
