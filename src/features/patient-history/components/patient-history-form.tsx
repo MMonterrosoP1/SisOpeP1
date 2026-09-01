@@ -11,6 +11,7 @@ import { Save, Plus, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Icd10SearchModal } from "@/features/encounter/components/icd10-search-modal";
 import { SimpleCatalogAddDialog } from "@/features/catalog/components/typed-catalog-dialogs";
+import { AllergenQuickAddDialog } from "@/features/catalog/components/allergen-quick-add-dialog";
 import { upsertPatientHistoryAction } from "../actions";
 import { CatalogType } from "@/features/catalog/types";
 
@@ -551,16 +552,27 @@ export function PatientHistoryForm({
         </Button>
       </div>
 
-      {/* Quick Add Dialog */}
-      <SimpleCatalogAddDialog
-        open={quickAddDialog.open}
-        onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}
-        catalogType={quickAddDialog.catalogType}
-        title={quickAddDialog.title}
-        onSuccess={(item) => {
-          quickAddDialog.onSuccess(item);
-        }}
-      />
+      {/* Quick Add Dialogs */}
+      {quickAddDialog.catalogType === "allergenCatalog" ? (
+        <AllergenQuickAddDialog
+          open={quickAddDialog.open}
+          allergyCategories={catalogs.allergyCategory ?? []}
+          onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}
+          onSuccess={(item) => {
+            quickAddDialog.onSuccess(item);
+          }}
+        />
+      ) : (
+        <SimpleCatalogAddDialog
+          open={quickAddDialog.open}
+          onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}
+          catalogType={quickAddDialog.catalogType as CatalogType}
+          title={quickAddDialog.title}
+          onSuccess={(item) => {
+            quickAddDialog.onSuccess(item);
+          }}
+        />
+      )}
     </form>
   );
 }

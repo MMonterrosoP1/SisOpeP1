@@ -14,10 +14,11 @@ export default async function EditPatientHistoryPage({
   const patientId = Number(resolvedParams.id);
   if (isNaN(patientId)) notFound();
 
-  const [patient, patientHistory, allergenCatalog, surgicalProcedure, habitCatalog, exerciseCatalog] = await Promise.all([
+  const [patient, patientHistory, allergenCatalog, allergyCategory, surgicalProcedure, habitCatalog, exerciseCatalog] = await Promise.all([
     getPatientById(patientId),
     getPatientHistory(patientId),
     getCatalogs("allergenCatalog"),
+    getCatalogs("allergyCategory"),
     getCatalogs("surgicalProcedure"),
     getCatalogs("habitCatalog"),
     getCatalogs("exerciseCatalog"),
@@ -27,6 +28,7 @@ export default async function EditPatientHistoryPage({
 
   const catalogs = {
     allergenCatalog,
+    allergyCategory,
     surgicalProcedure,
     habitCatalog,
     exerciseCatalog,
