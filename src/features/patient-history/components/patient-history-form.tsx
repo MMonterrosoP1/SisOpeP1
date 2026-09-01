@@ -11,6 +11,7 @@ import { Save, Plus, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Icd10SearchModal } from "@/features/encounter/components/icd10-search-modal";
 import { SimpleCatalogAddDialog } from "@/features/catalog/components/typed-catalog-dialogs";
+import { AllergenQuickAddDialog } from "@/features/catalog/components/allergen-quick-add-dialog";
 import { upsertPatientHistoryAction } from "../actions";
 import { CatalogType } from "@/features/catalog/types";
 
@@ -191,7 +192,14 @@ export function PatientHistoryForm({
                   <div className="flex gap-2">
                     <div className="flex-1">
                       <Select value={String(allergy.allergenCatalogId || "")} onValueChange={(val) => handleArrayChange("allergies", index, "allergenCatalogId", val)}>
-                        <SelectTrigger><SelectValue placeholder="Seleccione..." /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione...">
+                            {() => {
+                              const opt = getCatalogOptions("allergenCatalog").find(o => o.key === String(allergy.allergenCatalogId));
+                              return opt ? opt.label : "Seleccione...";
+                            }}
+                          </SelectValue>
+                        </SelectTrigger>
                         <SelectContent>
                           {getCatalogOptions("allergenCatalog").map(opt => (
                             <SelectItem key={opt.key} value={opt.key}>{opt.label}</SelectItem>
@@ -276,7 +284,14 @@ export function PatientHistoryForm({
                   <div className="flex gap-2">
                     <div className="flex-1">
                       <Select value={String(item.surgicalProcedureId || "")} onValueChange={(val) => handleArrayChange("surgicalHistory", index, "surgicalProcedureId", val)}>
-                        <SelectTrigger><SelectValue placeholder="Seleccione..." /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione...">
+                            {() => {
+                              const opt = getCatalogOptions("surgicalProcedure").find(o => o.key === String(item.surgicalProcedureId));
+                              return opt ? opt.label : "Seleccione...";
+                            }}
+                          </SelectValue>
+                        </SelectTrigger>
                         <SelectContent>
                           {getCatalogOptions("surgicalProcedure").map(opt => (
                             <SelectItem key={opt.key} value={opt.key}>{opt.label}</SelectItem>
@@ -400,7 +415,14 @@ export function PatientHistoryForm({
                   <div className="flex gap-2">
                     <div className="flex-1">
                       <Select value={String(habit.habitCatalogId || "")} onValueChange={(val) => handleArrayChange("habits", index, "habitCatalogId", val)}>
-                        <SelectTrigger><SelectValue placeholder="Seleccione..." /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione...">
+                            {() => {
+                              const opt = getCatalogOptions("habitCatalog").find(o => o.key === String(habit.habitCatalogId));
+                              return opt ? opt.label : "Seleccione...";
+                            }}
+                          </SelectValue>
+                        </SelectTrigger>
                         <SelectContent>
                           {getCatalogOptions("habitCatalog").map(opt => (
                             <SelectItem key={opt.key} value={opt.key}>{opt.label}</SelectItem>
@@ -471,7 +493,14 @@ export function PatientHistoryForm({
                   <div className="flex gap-2">
                     <div className="flex-1">
                       <Select value={String(exercise.exerciseCatalogId || "")} onValueChange={(val) => handleArrayChange("exercises", index, "exerciseCatalogId", val)}>
-                        <SelectTrigger><SelectValue placeholder="Seleccione..." /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione...">
+                            {() => {
+                              const opt = getCatalogOptions("exerciseCatalog").find(o => o.key === String(exercise.exerciseCatalogId));
+                              return opt ? opt.label : "Seleccione...";
+                            }}
+                          </SelectValue>
+                        </SelectTrigger>
                         <SelectContent>
                           {getCatalogOptions("exerciseCatalog").map(opt => (
                             <SelectItem key={opt.key} value={opt.key}>{opt.label}</SelectItem>
@@ -523,16 +552,27 @@ export function PatientHistoryForm({
         </Button>
       </div>
 
-      {/* Quick Add Dialog */}
-      <SimpleCatalogAddDialog
-        open={quickAddDialog.open}
-        onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}
-        catalogType={quickAddDialog.catalogType}
-        title={quickAddDialog.title}
-        onSuccess={(item) => {
-          quickAddDialog.onSuccess(item);
-        }}
-      />
+      {/* Quick Add Dialogs */}
+      {quickAddDialog.catalogType === "allergenCatalog" ? (
+        <AllergenQuickAddDialog
+          open={quickAddDialog.open}
+          allergyCategories={catalogs.allergyCategory ?? []}
+          onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}
+          onSuccess={(item) => {
+            quickAddDialog.onSuccess(item);
+          }}
+        />
+      ) : (
+        <SimpleCatalogAddDialog
+          open={quickAddDialog.open}
+          onOpenChange={(open) => setQuickAddDialog((prev) => ({ ...prev, open }))}
+          catalogType={quickAddDialog.catalogType as CatalogType}
+          title={quickAddDialog.title}
+          onSuccess={(item) => {
+            quickAddDialog.onSuccess(item);
+          }}
+        />
+      )}
     </form>
   );
 }

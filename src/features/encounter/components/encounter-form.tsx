@@ -375,7 +375,18 @@ export function EncounterForm({
   };
 
   const handleNestedChange = (section: string, field: string, value: unknown) => {
-    setFormData((prev: any) => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
+    let normalizedValue = value;
+    if (typeof value === "string") {
+      const decimalFields = ["weight", "height", "abdominalCircumference", "temperature", "oxygenSaturation", "respiratoryRate", "glucose", "systolicBP", "diastolicBP", "heartRate"];
+      if (decimalFields.includes(field)) {
+        normalizedValue = value.replace(',', '.');
+        // Solo permitir números y un punto decimal
+        if (normalizedValue !== "" && !/^\d*\.?\d*$/.test(normalizedValue as string)) {
+          return;
+        }
+      }
+    }
+    setFormData((prev: any) => ({ ...prev, [section]: { ...prev[section], [field]: normalizedValue } }));
   };
 
   const handleArrayChange = (section: string, index: number, field: string, value: unknown) => {
@@ -752,9 +763,9 @@ export function EncounterForm({
               <div key={field} className="flex flex-col gap-2">
                 <Label>{label}</Label>
                 <Input
-                  type="number"
-                  className={`[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none${err ? " border-destructive ring-1 ring-destructive" : ""
-                    }`}
+                  type="text"
+                  inputMode="decimal"
+                  className={err ? "border-destructive ring-1 ring-destructive" : ""}
                   aria-invalid={!!err}
                   value={(formData.vitalSign as any)[field]}
                   onChange={(e) => handleNestedChange("vitalSign", field, e.target.value)}
@@ -784,7 +795,8 @@ export function EncounterForm({
             <div key={field} className="flex flex-col gap-2">
               <Label>{field === "weight" ? "Peso (lb)" : field === "height" ? "Talla (cm)" : "Circ. Abdominal (cm)"}</Label>
               <Input
-                type="number" step="0.1"
+                type="text"
+                inputMode="decimal"
                 className={getFieldError(`anthropometry.${field}`) ? "border-destructive ring-1 ring-destructive" : ""}
                 aria-invalid={!!getFieldError(`anthropometry.${field}`)}
                 value={(formData.anthropometry as any)[field]}
