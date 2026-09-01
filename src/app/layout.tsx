@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -16,7 +16,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#0f172a", // Configura el color de la cabecera en dispositivos móviles y tarjetas de MS Teams
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://clinicapremed.grupoprecon.com"),
   title: {
     template: "%s | PREMED",
     default: "PREMED | Gestión Clínica Médica",
