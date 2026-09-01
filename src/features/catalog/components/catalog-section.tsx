@@ -59,6 +59,7 @@ export function CatalogSection({ type, title, description, items, hasActiveField
       if (res.success) {
         toast.success("Catálogo actualizado correctamente");
         setEditingId(null);
+        router.refresh();
       } else {
         toast.error(res.error || "Error al actualizar");
       }
@@ -75,6 +76,7 @@ export function CatalogSection({ type, title, description, items, hasActiveField
       const res = await toggleCatalogActive(type, id);
       if (res.success) {
         toast.success(`Catálogo ${currentActive ? "desactivado" : "activado"}`);
+        router.refresh();
       } else {
         toast.error(res.error || "Error al cambiar el estado");
       }
