@@ -6,7 +6,7 @@ const {
   createMock,
   updateMock,
   toggleMock,
-  revalidateTagMock,
+  updateTagMock,
   handleActionErrorMock,
 } = vi.hoisted(() => ({
   withAuthMock: vi.fn(),
@@ -14,7 +14,7 @@ const {
   createMock: vi.fn(),
   updateMock: vi.fn(),
   toggleMock: vi.fn(),
-  revalidateTagMock: vi.fn(),
+  updateTagMock: vi.fn(),
   handleActionErrorMock: vi.fn(),
 }));
 
@@ -39,7 +39,7 @@ vi.mock("./service", () => ({
 }));
 
 vi.mock("next/cache", () => ({
-  revalidateTag: revalidateTagMock,
+  updateTag: updateTagMock,
 }));
 
 vi.mock("@/shared/errors/app-error", () => ({
@@ -68,7 +68,7 @@ describe("patient actions", () => {
 
     expect(withAuthMock).toHaveBeenCalledWith(["ADMIN", "DOCTOR"], expect.any(Function));
     expect(createMock).toHaveBeenCalledWith({ identityDocument: "123" }, { id: "user-1", email: "test@example.com" });
-    expect(revalidateTagMock).toHaveBeenCalledWith("patients", "max");
+    expect(updateTagMock).toHaveBeenCalledWith("patients");
     expect(result).toEqual({ success: true, data: { id: 10 } });
   });
 
@@ -82,7 +82,7 @@ describe("patient actions", () => {
     const result = await createPatient({});
 
     expect(createMock).not.toHaveBeenCalled();
-    expect(revalidateTagMock).not.toHaveBeenCalled();
+    expect(updateTagMock).not.toHaveBeenCalled();
     expect(result).toEqual({
       success: false,
       error: "Validación fallida",
@@ -97,8 +97,8 @@ describe("patient actions", () => {
     const result = await updatePatient(25, { givenNames: "Nuevo" });
 
     expect(updateMock).toHaveBeenCalledWith(25, { givenNames: "Nuevo" }, { id: "user-1", email: "test@example.com" });
-    expect(revalidateTagMock).toHaveBeenCalledWith("patients", "max");
-    expect(revalidateTagMock).toHaveBeenCalledWith("patient-25", "max");
+    expect(updateTagMock).toHaveBeenCalledWith("patients");
+    expect(updateTagMock).toHaveBeenCalledWith("patient-25");
     expect(result).toEqual({ success: true, data: { id: 25 } });
   });
 
@@ -108,8 +108,8 @@ describe("patient actions", () => {
     const result = await togglePatientActive(25);
 
     expect(toggleMock).toHaveBeenCalledWith(25, { id: "user-1", email: "test@example.com" });
-    expect(revalidateTagMock).toHaveBeenCalledWith("patients", "max");
-    expect(revalidateTagMock).toHaveBeenCalledWith("patient-25", "max");
+    expect(updateTagMock).toHaveBeenCalledWith("patients");
+    expect(updateTagMock).toHaveBeenCalledWith("patient-25");
     expect(result).toEqual({ success: true, data: { id: 25, active: false } });
   });
 

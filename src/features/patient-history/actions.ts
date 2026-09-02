@@ -4,7 +4,7 @@ import { withAuth } from "@/shared/auth/auth-guard";
 import { ActionResponse } from "@/shared/schemas/action-response";
 import { patientHistoryService } from "./service";
 import { upsertPatientHistorySchema } from "./schemas";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 
 export async function upsertPatientHistoryAction(data: unknown): Promise<ActionResponse<boolean>> {
   try {
@@ -13,10 +13,10 @@ export async function upsertPatientHistoryAction(data: unknown): Promise<ActionR
     
     await patientHistoryService.upsert(parsedData.patientId, parsedData, { id: session.user.id, email: session.user.email });
     
-    revalidateTag(`patient-history-${parsedData.patientId}`, "max");
-    revalidateTag(`patient-${parsedData.patientId}`, "max");
-    revalidateTag("patients", "max");
-    revalidateTag("encounters", "max");
+    updateTag(`patient-history-${parsedData.patientId}`);
+    updateTag(`patient-${parsedData.patientId}`);
+    updateTag("patients");
+    updateTag("encounters");
     
     return { success: true, data: true };
   } catch (error) {

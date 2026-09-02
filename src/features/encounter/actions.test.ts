@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { withAuthMock, safeParseActionMock, createMock, handleActionErrorMock, revalidateTagMock } = vi.hoisted(() => ({
+const { withAuthMock, safeParseActionMock, createMock, handleActionErrorMock, updateTagMock } = vi.hoisted(() => ({
   withAuthMock: vi.fn(),
   safeParseActionMock: vi.fn(),
   createMock: vi.fn(),
   handleActionErrorMock: vi.fn(),
-  revalidateTagMock: vi.fn(),
+  updateTagMock: vi.fn(),
 }));
 
 vi.mock("@/shared/auth/auth-guard", () => ({
@@ -13,7 +13,7 @@ vi.mock("@/shared/auth/auth-guard", () => ({
 }));
 
 vi.mock("next/cache", () => ({
-  revalidateTag: revalidateTagMock,
+  updateTag: updateTagMock,
 }));
 
 vi.mock("@/shared/utils/zod-helpers", async (importOriginal) => {
@@ -54,8 +54,8 @@ describe("encounter actions", () => {
     const result = await createEncounter({ any: "payload" });
 
     expect(withAuthMock).toHaveBeenCalledWith(["ADMIN", "DOCTOR"], expect.any(Function));
-    expect(revalidateTagMock).toHaveBeenCalledWith("encounters", "max");
-    expect(revalidateTagMock).toHaveBeenCalledWith("patient-1", "max");
+    expect(updateTagMock).toHaveBeenCalledWith("encounters");
+    expect(updateTagMock).toHaveBeenCalledWith("patient-1");
     expect(createMock).toHaveBeenCalledWith({ patientId: 1 }, { id: "user-1", email: "test@example.com" });
     expect(result).toEqual({ success: true, data: { id: 50 } });
   });
@@ -70,7 +70,7 @@ describe("encounter actions", () => {
     const result = await createEncounter({});
 
     expect(createMock).not.toHaveBeenCalled();
-    expect(revalidateTagMock).not.toHaveBeenCalled();
+    expect(updateTagMock).not.toHaveBeenCalled();
     expect(result).toEqual({
       success: false,
       error: "Validación fallida",
