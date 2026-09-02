@@ -282,9 +282,6 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
       if (catalogKey === "company" && item.acronym) {
         label = item.acronym; // The user requested to show the acronym for companies
       }
-      if ((catalogKey === "workArea" || catalogKey === "jobPosition") && !item.type) {
-        label = `${label} (General)`;
-      }
       return {
         key: String(item.id),
         label,
