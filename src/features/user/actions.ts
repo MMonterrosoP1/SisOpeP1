@@ -1,6 +1,6 @@
-"use server";
+﻿"use server";
 
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -54,7 +54,7 @@ export async function createUser(data: unknown): Promise<ActionResponse<any>> {
       });
     }
 
-    revalidateTag("users", "max");
+    updateTag("users");
     return { success: true, data: newUser.user };
   } catch (error) {
     return handleActionError(error);
@@ -104,7 +104,7 @@ export async function updateDoctorInfo(data: unknown): Promise<ActionResponse<an
       });
     }
 
-    revalidateTag("users", "max");
+    updateTag("users");
     return { success: true, data: { success: true } };
   } catch (error) {
     return handleActionError(error);
@@ -134,7 +134,7 @@ export async function setUserRole(data: unknown): Promise<ActionResponse<any>> {
       data: { role: role as UserRole }
     });
 
-    revalidateTag("users", "max");
+    updateTag("users");
     return { success: true, data: { success: true } };
   } catch (error) {
     return handleActionError(error);
@@ -163,7 +163,7 @@ export async function banUser(data: unknown): Promise<ActionResponse<any>> {
       }
     });
 
-    revalidateTag("users", "max");
+    updateTag("users");
     return { success: true, data: { success: true } };
   } catch (error) {
     return handleActionError(error);
@@ -181,7 +181,7 @@ export async function unbanUser(userId: string): Promise<ActionResponse<any>> {
       }
     });
 
-    revalidateTag("users", "max");
+    updateTag("users");
     return { success: true, data: { success: true } };
   } catch (error) {
     return handleActionError(error);
@@ -210,7 +210,7 @@ export async function toggleUserActive(userId: string): Promise<ActionResponse<a
       data: { active: !user.active }
     });
 
-    revalidateTag("users", "max");
+    updateTag("users");
     return { success: true, data: { active: !user.active } };
   } catch (error) {
     return handleActionError(error);
@@ -222,7 +222,7 @@ export async function revokeAllUserSessions(userId: string): Promise<ActionRespo
     const session = await withAuth(["ADMIN"], async (s) => s);
 
     if (userId === session.user.id) {
-      throw new AppError("No puedes revocar tus propias sesiones desde aquí", "BAD_REQUEST", 400);
+      throw new AppError("No puedes revocar tus propias sesiones desde aquÃ­", "BAD_REQUEST", 400);
     }
 
     await auth.api.revokeUserSessions({
@@ -260,3 +260,4 @@ export async function setUserPassword(data: unknown): Promise<ActionResponse<any
     return handleActionError(error);
   }
 }
+

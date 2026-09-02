@@ -8,6 +8,7 @@ const { catalogServiceMock, withAuthMock } = vi.hoisted(() => ({
 vi.mock("./service", () => ({ catalogService: catalogServiceMock }));
 vi.mock("@/shared/auth/auth-guard", () => ({ withAuth: withAuthMock }));
 vi.mock("next/headers", () => ({ headers: vi.fn().mockResolvedValue(new Headers()) }));
+vi.mock("next/cache", () => ({ updateTag: vi.fn(), revalidatePath: vi.fn() }));
 
 import { createCatalogItem, updateCatalogItem } from "./actions";
 

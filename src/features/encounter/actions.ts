@@ -6,7 +6,7 @@ import { encounterService } from "./service";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { handleActionError } from "@/shared/errors/app-error";
 import { ActionResponse } from "@/shared/schemas/action-response";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 
 export async function createEncounter(data: unknown): Promise<ActionResponse<unknown>> {
   try {
@@ -19,9 +19,9 @@ export async function createEncounter(data: unknown): Promise<ActionResponse<unk
     
     // Invalidar caché: consultas, paciente específico y lista de pacientes
     // (el dashboard usa los mismos tags "encounters" y "patients")
-    revalidateTag("encounters", "max");
-    revalidateTag(`patient-${parseResult.data.patientId}`, "max");
-    revalidateTag("patients", "max");
+    updateTag("encounters");
+    updateTag(`patient-${parseResult.data.patientId}`);
+    updateTag("patients");
     
     return { success: true, data: created };
   } catch (error) {
@@ -38,10 +38,10 @@ export async function updateEncounter(data: unknown): Promise<ActionResponse<unk
 
     const updated = await encounterService.update(parseResult.data, { id: session.user.id, email: session.user.email });
     
-    revalidateTag("encounters", "max");
-    revalidateTag(`encounter-${parseResult.data.id}`, "max");
-    revalidateTag(`patient-${parseResult.data.patientId}`, "max");
-    revalidateTag("patients", "max");
+    updateTag("encounters");
+    updateTag(`encounter-${parseResult.data.id}`);
+    updateTag(`patient-${parseResult.data.patientId}`);
+    updateTag("patients");
     
     return { success: true, data: updated };
   } catch (error) {

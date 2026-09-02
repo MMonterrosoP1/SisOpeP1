@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function getCatalogs(type: CatalogType, activeOnly: boolean = true) {
   "use cache";
-  cacheLife("days");
+  cacheLife("hours");
   cacheTag(`catalog-${type}`);
   const repo = getCatalogRepo(type);
   if (!repo) return [];
@@ -14,7 +14,7 @@ export async function getCatalogs(type: CatalogType, activeOnly: boolean = true)
 
 export async function getCatalogById(type: CatalogType, id: number) {
   "use cache";
-  cacheLife("days");
+  cacheLife("hours");
   cacheTag(`catalog-${type}`, `catalog-${type}-${id}`);
   const repo = getCatalogRepo(type);
   if (!repo) return null;

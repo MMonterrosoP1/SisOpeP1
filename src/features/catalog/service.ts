@@ -1,4 +1,4 @@
-import { revalidateTag } from "next/cache";
+
 import { getCatalogRepo } from "./repository";
 import { CatalogType } from "./types";
 import { auditService } from "@/shared/audit/audit.service";
@@ -30,8 +30,6 @@ export const catalogService = {
       entityId: created.id,
       newData: created,
     });
-
-    revalidateTag(`catalog-${type}`, "max");
 
     return created;
   },
@@ -68,9 +66,6 @@ export const catalogService = {
       newData: updated,
     });
 
-    revalidateTag(`catalog-${type}`, "max");
-    revalidateTag(`catalog-${type}-${id}`, "max");
-
     return updated;
   },
 
@@ -100,9 +95,6 @@ export const catalogService = {
       newData: updated,
       description: `Toggled active status to ${updated.active}`,
     });
-
-    revalidateTag(`catalog-${type}`, "max");
-    revalidateTag(`catalog-${type}-${id}`, "max");
 
     return updated;
   },

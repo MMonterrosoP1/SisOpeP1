@@ -87,6 +87,32 @@ const EMPTY_CONTACT: EmergencyContactFormData = {
   relationshipTypeId: "",
 };
 
+function buildInitialFormData(initialData?: PatientWithRelations): PatientFormData {
+  return {
+    givenNames: initialData?.person?.givenNames || "",
+    familyNames: initialData?.person?.familyNames || "",
+    documentType: initialData?.person?.documentType || "DPI",
+    identityDocument: initialData?.person?.identityDocument || "",
+    birthDate: formatDateInputValue(initialData?.person?.birthDate),
+    sex: initialData?.person?.sex || "MALE",
+    phone: initialData?.person?.phone || "",
+    maritalStatusId: initialData?.maritalStatusId ? String(initialData.maritalStatusId) : "",
+    bloodTypeId: initialData?.bloodTypeId ? String(initialData.bloodTypeId) : "",
+    companyId: initialData?.companyId ? String(initialData.companyId) : "",
+    workplaceId: initialData?.workplaceId ? String(initialData.workplaceId) : "",
+    workAreaId: initialData?.workAreaId ? String(initialData.workAreaId) : "",
+    jobPositionId: initialData?.jobPositionId ? String(initialData.jobPositionId) : "",
+    employeeCode: initialData?.employeeCode || "",
+    emergencyContacts:
+      initialData?.emergencyContacts?.map((contact) => ({
+        id: contact.id,
+        fullName: contact.fullName,
+        phone: contact.phone,
+        relationshipTypeId: String(contact.relationshipTypeId),
+      })) || [],
+  };
+}
+
 function formatDateInputValue(value?: Date | string | null): string {
   if (!value) return "";
 
@@ -249,29 +275,7 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
     field: "workplaceId",
   });
 
-  const [formData, setFormData] = useState<PatientFormData>({
-    givenNames: initialData?.person?.givenNames || "",
-    familyNames: initialData?.person?.familyNames || "",
-    documentType: initialData?.person?.documentType || "DPI",
-    identityDocument: initialData?.person?.identityDocument || "",
-    birthDate: formatDateInputValue(initialData?.person?.birthDate),
-    sex: initialData?.person?.sex || "MALE",
-    phone: initialData?.person?.phone || "",
-    maritalStatusId: initialData?.maritalStatusId ? String(initialData.maritalStatusId) : "",
-    bloodTypeId: initialData?.bloodTypeId ? String(initialData.bloodTypeId) : "",
-    companyId: initialData?.companyId ? String(initialData.companyId) : "",
-    workplaceId: initialData?.workplaceId ? String(initialData.workplaceId) : "",
-    workAreaId: initialData?.workAreaId ? String(initialData.workAreaId) : "",
-    jobPositionId: initialData?.jobPositionId ? String(initialData.jobPositionId) : "",
-    employeeCode: initialData?.employeeCode || "",
-    emergencyContacts:
-      initialData?.emergencyContacts?.map((contact) => ({
-        id: contact.id,
-        fullName: contact.fullName,
-        phone: contact.phone,
-        relationshipTypeId: String(contact.relationshipTypeId),
-      })) || [],
-  });
+  const [formData, setFormData] = useState<PatientFormData>(() => buildInitialFormData(initialData));
 
   const getFieldError = (path: string): string | undefined => fieldErrors[path]?.join(", ");
 
@@ -396,6 +400,11 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
         : await createPatient(payload);
 
       if (res.success) {
+        // Resetear el formulario antes de navegar para evitar que el router cache
+        // de Next.js muestre los datos del paciente anterior al volver a /patients/new
+        setFormData(buildInitialFormData(undefined));
+        setFieldErrors({});
+
         if (!initialData && res.data && typeof res.data === "object" && "id" in res.data) {
           const newPatientId = (res.data as { id: string | number }).id;
           toast.success("Paciente registrado exitosamente", {

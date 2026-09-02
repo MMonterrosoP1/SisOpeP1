@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ConflictError, NotFoundError } from "@/shared/errors/app-error";
 
-const { getCatalogRepoMock, revalidateTagMock, auditLogMock } = vi.hoisted(() => ({
+const { getCatalogRepoMock, auditLogMock } = vi.hoisted(() => ({
   getCatalogRepoMock: vi.fn(),
-  revalidateTagMock: vi.fn(),
   auditLogMock: vi.fn(),
 }));
 
@@ -11,9 +10,7 @@ vi.mock("./repository", () => ({
   getCatalogRepo: getCatalogRepoMock,
 }));
 
-vi.mock("next/cache", () => ({
-  revalidateTag: revalidateTagMock,
-}));
+
 
 vi.mock("@/shared/audit/audit.service", () => ({
   auditService: {
@@ -72,7 +69,6 @@ describe("catalogService", () => {
         entityId: 10,
       })
     );
-    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company", "max");
   });
 
   it("update: throws NotFoundError when item does not exist", async () => {
@@ -104,8 +100,6 @@ describe("catalogService", () => {
 
     expect(result).toEqual({ id: 5, name: "NEW", active: true });
     expect(repo.update).toHaveBeenCalledWith(5, { name: "NEW", updatedBy: "test@example.com" });
-    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company", "max");
-    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company-5", "max");
   });
 
   it("toggleActive: throws ConflictError for catalogs without active field", async () => {
@@ -134,7 +128,5 @@ describe("catalogService", () => {
         description: "Toggled active status to false",
       })
     );
-    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company", "max");
-    expect(revalidateTagMock).toHaveBeenCalledWith("catalog-company-5", "max");
   });
 });
