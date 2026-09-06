@@ -16,7 +16,7 @@ function createPrismaClient() {
     user: url.username,
     password: url.password,
     database: url.pathname.slice(1),
-    ssl: { rejectUnauthorized: false },
+
     connectionLimit: 10
   });
   return new PrismaClient({ adapter });
