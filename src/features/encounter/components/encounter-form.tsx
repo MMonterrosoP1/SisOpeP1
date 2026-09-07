@@ -588,10 +588,18 @@ export function EncounterForm({
         : await createEncounter(payload);
 
       if (res.success) {
-        toast.success(mode === "edit" ? "Consulta actualizada correctamente" : "Consulta creada correctamente");
         if (mode === "edit" && encounterId) {
+          toast.success("Consulta actualizada correctamente");
           router.push(`/patients/${patientId}/encounters/${encounterId}`);
         } else {
+          const data = res.data as any;
+          if (data && data.emailStatus === "success") {
+            toast.success("Consulta creada correctamente. Se ha enviado un correo al paciente con la confirmación.", { duration: 6000 });
+          } else if (data && data.emailStatus === "error") {
+            toast.error(`Consulta creada, pero hubo un error al enviar el correo: ${data.emailErrorMessage}`, { duration: 8000 });
+          } else {
+            toast.success("Consulta creada correctamente");
+          }
           router.push(`/patients/${patientId}`);
         }
       } else {
