@@ -1,3 +1,4 @@
+import "server-only";
 import nodemailer from "nodemailer";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
