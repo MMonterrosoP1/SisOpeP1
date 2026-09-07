@@ -60,6 +60,7 @@ type PatientFormData = {
   birthDate: string;
   sex: "MALE" | "FEMALE";
   phone: string;
+  email: string;
   maritalStatusId: string;
   bloodTypeId: string;
   companyId: string;
@@ -96,6 +97,7 @@ function buildInitialFormData(initialData?: PatientWithRelations): PatientFormDa
     birthDate: formatDateInputValue(initialData?.person?.birthDate),
     sex: initialData?.person?.sex || "MALE",
     phone: initialData?.person?.phone || "",
+    email: initialData?.person?.email || "",
     maritalStatusId: initialData?.maritalStatusId ? String(initialData.maritalStatusId) : "",
     bloodTypeId: initialData?.bloodTypeId ? String(initialData.bloodTypeId) : "",
     companyId: initialData?.companyId ? String(initialData.companyId) : "",
@@ -382,6 +384,7 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
         birthDate: formData.birthDate ? new Date(formData.birthDate) : undefined,
         sex: formData.sex,
         phone: formData.phone.trim() || undefined,
+        email: formData.email.trim() || undefined,
         maritalStatusId: toOptionalNumber(formData.maritalStatusId),
         bloodTypeId: toOptionalNumber(formData.bloodTypeId),
         companyId: toOptionalNumber(formData.companyId),
@@ -586,6 +589,19 @@ export function PatientForm({ initialData, catalogs }: PatientFormProps) {
                 className={getFieldError("phone") ? "border-destructive" : ""}
               />
               {getFieldError("phone") && <FieldError error={getFieldError("phone")} />}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="email">Correo electrónico</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleChange("email", e.target.value)}
+                placeholder="Ej. correo@ejemplo.com"
+                className={getFieldError("email") ? "border-destructive" : ""}
+              />
+              {getFieldError("email") && <FieldError error={getFieldError("email")} />}
             </div>
 
             <CatalogComboboxField
