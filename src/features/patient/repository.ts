@@ -92,7 +92,7 @@ export const patientRepository = {
   },
 
   async create(data: PatientCreateInput, auditFields?: { createdBy?: string; updatedBy?: string }) {
-    const { emergencyContacts, givenNames, familyNames, documentType, identityDocument, birthDate, sex, phone, ...patientData } = data;
+    const { emergencyContacts, givenNames, familyNames, documentType, identityDocument, birthDate, sex, phone, email, ...patientData } = data;
 
     try {
       return await prisma.$transaction(async (tx) => {
@@ -103,13 +103,13 @@ export const patientRepository = {
 
         if (!person) {
           person = await tx.person.create({
-            data: { givenNames, familyNames, documentType, identityDocument, birthDate, sex, phone, ...auditFields }
+            data: { givenNames, familyNames, documentType, identityDocument, birthDate, sex, phone, email, ...auditFields }
           });
         } else {
           person = await tx.person.update({
             where: { id: person.id },
             data: { 
-              givenNames, familyNames, documentType, birthDate, sex, phone, 
+              givenNames, familyNames, documentType, birthDate, sex, phone, email,
               ...(auditFields?.createdBy && { createdBy: auditFields.createdBy }),
               ...(auditFields?.updatedBy && { updatedBy: auditFields.updatedBy }) 
             }
@@ -146,7 +146,7 @@ export const patientRepository = {
   },
 
   async update(id: number, data: PatientUpdateInput, auditFields?: { updatedBy?: string }) {
-    const { emergencyContacts, givenNames, familyNames, documentType, identityDocument, birthDate, sex, phone, ...patientData } = data;
+    const { emergencyContacts, givenNames, familyNames, documentType, identityDocument, birthDate, sex, phone, email, ...patientData } = data;
     
     return prisma.$transaction(async (tx) => {
       // Very basic emergency contacts sync: delete all and recreate
@@ -168,6 +168,7 @@ export const patientRepository = {
       if (birthDate !== undefined) personDataToUpdate.birthDate = birthDate;
       if (sex !== undefined) personDataToUpdate.sex = sex;
       if (phone !== undefined) personDataToUpdate.phone = phone;
+      if (email !== undefined) personDataToUpdate.email = email;
       if (auditFields?.updatedBy) personDataToUpdate.updatedBy = auditFields.updatedBy;
 
       if (Object.keys(personDataToUpdate).length > 0) {

@@ -103,7 +103,30 @@ export const encounterService = {
       newData: created,
     });
 
-    return created;
+    let emailStatus: "success" | "error" | "none" = "none";
+    let emailErrorMessage: string | undefined = undefined;
+
+    if (patient.person?.email) {
+      const practitionerName = `${practitioner.givenNames} ${practitioner.familyNames}`;
+      const patientName = `${patient.person.givenNames} ${patient.person.familyNames}`;
+      
+      try {
+        const fullEncounter = await encounterRepository.findById(created.id);
+        const { emailService } = await import("@/lib/email");
+        await emailService.sendAppointmentEmail(
+          patient.person.email,
+          { date: created.createdAt, practitionerName, patientName },
+          fullEncounter || created
+        );
+        emailStatus = "success";
+      } catch (error: any) {
+        console.error("Error al enviar el correo:", error);
+        emailStatus = "error";
+        emailErrorMessage = error.message || "Error desconocido al enviar el correo";
+      }
+    }
+
+    return { ...created, emailStatus, emailErrorMessage };
   },
 
   async getDetail(id: number) {

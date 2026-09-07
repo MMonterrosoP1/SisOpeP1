@@ -519,6 +519,7 @@ model Person {
   birthDate        DateTime?    @db.Date
   sex              Sex
   phone            String?
+  email            String?
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   createdBy        String?
