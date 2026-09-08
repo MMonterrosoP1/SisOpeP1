@@ -8,6 +8,8 @@ import { handleActionError } from "@/shared/errors/app-error";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { ActionResponse } from "@/shared/schemas/action-response";
 import { updateTag, revalidatePath } from "next/cache";
+import { invalidateCatalogCache } from "@/lib/cache";
+
 
 
 export async function createCatalogItem(
@@ -31,6 +33,7 @@ export async function createCatalogItem(
 
     const created = await catalogService.create(type, parseResult.data, { id: session.user.id, email: session.user.email });
     updateTag(`catalog-${type}`);
+    await invalidateCatalogCache(type);
     revalidatePath("/catalogs");
     return { success: true, data: created };
   } catch (error) {
@@ -57,6 +60,7 @@ export async function updateCatalogItem(
 
     const updated = await catalogService.update(type, id, parseResult.data, { id: session.user.id, email: session.user.email });
     updateTag(`catalog-${type}`);
+    await invalidateCatalogCache(type, id);
     revalidatePath("/catalogs");
     return { success: true, data: updated };
   } catch (error) {
@@ -73,6 +77,7 @@ export async function toggleCatalogActive(
 
     const toggled = await catalogService.toggleActive(type, id, { id: session.user.id, email: session.user.email });
     updateTag(`catalog-${type}`);
+    await invalidateCatalogCache(type, id);
     revalidatePath("/catalogs");
     return { success: true, data: toggled };
   } catch (error) {
