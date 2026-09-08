@@ -6,7 +6,7 @@ const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 // Following redis-connections skill guidelines:
 // - Never open a connection per request
 // - Set explicit timeouts for fail-fast
-const globalForRedis = global as unknown as { redis: Redis };
+const globalForRedis = global as unknown as { redis?: Redis };
 
 export const redis =
   globalForRedis.redis ||
