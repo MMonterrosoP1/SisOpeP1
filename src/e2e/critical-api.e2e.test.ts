@@ -35,6 +35,18 @@ const {
   };
 
   const prismaMock = {
+    $transaction: vi.fn(async (callback) => callback(prismaMock)),
+    practitioner: {
+      findUnique: vi.fn(async () => ({ id: 20 })),
+    },
+    patientMedicalHistory: { findMany: vi.fn(async () => []), create: vi.fn(), update: vi.fn(), upsert: vi.fn() },
+    patientFamilyHistory: { findMany: vi.fn(async () => []), create: vi.fn(), update: vi.fn(), upsert: vi.fn() },
+    patientSurgicalHistory: { findMany: vi.fn(async () => []), create: vi.fn(), update: vi.fn(), upsert: vi.fn() },
+    patientTraumaHistory: { findMany: vi.fn(async () => []), create: vi.fn(), update: vi.fn(), upsert: vi.fn() },
+    patientAllergy: { findMany: vi.fn(async () => []), create: vi.fn(), update: vi.fn(), upsert: vi.fn() },
+    patientHabit: { findMany: vi.fn(async () => []), create: vi.fn(), update: vi.fn(), upsert: vi.fn() },
+    patientExercise: { findMany: vi.fn(async () => []), create: vi.fn(), update: vi.fn(), upsert: vi.fn() },
+    patientGynecologicalHistory: { findFirst: vi.fn(async () => null), create: vi.fn(), update: vi.fn(), upsert: vi.fn() },
     patient: {
       findUnique: vi.fn(async ({ where }: any) => {
         if (where?.id === state.patient.id) return state.patient;
@@ -160,9 +172,9 @@ vi.mock("@react-pdf/renderer", () => ({
   renderToBuffer: renderToBufferMock,
 }));
 
-vi.mock("@vercel/blob", () => ({
-  put: putMock,
-  get: getMock,
+vi.mock("@/lib/sftp", () => ({
+  sftpPut: putMock,
+  sftpGet: getMock,
 }));
 
 vi.mock("@/features/document/templates", () => ({
@@ -176,6 +188,10 @@ vi.mock("@/features/document/templates", () => ({
 
 vi.mock("next/cache", () => ({
   revalidateTag: vi.fn(),
+  updateTag: vi.fn(),
+  cacheTag: vi.fn(),
+  revalidatePath: vi.fn(),
+  cacheLife: vi.fn(),
 }));
 
 import { createEncounter } from "@/features/encounter/actions";
@@ -193,14 +209,14 @@ describe("phase 4.5 critical API-first e2e", () => {
     withAuthMock.mockImplementation(async (_roles, handler) => handler({ user: { id: "user-cuid-1" } }));
     mapDataMock.mockReturnValue({ patient: "Ana" });
     renderToBufferMock.mockResolvedValue(Buffer.from("pdf-binary"));
-    putMock.mockResolvedValue({ url: "https://blob.test/generated.pdf" });
+    putMock.mockResolvedValue("ruta/generada.pdf");
     const stream = new ReadableStream({
       start(controller) {
         controller.enqueue(new Uint8Array([1, 2, 3, 4]));
         controller.close();
       },
     });
-    getMock.mockResolvedValue({ stream, headers: new Headers({ "x-blob": "private" }) });
+    getMock.mockResolvedValue(stream);
   });
 
   it("critical #1: creates encounter, generates document and downloads PDF", async () => {
@@ -226,7 +242,7 @@ describe("phase 4.5 critical API-first e2e", () => {
     expect(documentResult.data).toMatchObject({
       encounterId: 101,
       documentTypeId: 77,
-      pdfUrl: "https://blob.test/generated.pdf",
+      pdfUrl: expect.stringContaining("documentos/"),
     });
 
     const response = await getDocumentRoute(
@@ -238,7 +254,6 @@ describe("phase 4.5 critical API-first e2e", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Type")).toBe("application/pdf");
-    expect(response.headers.get("x-blob")).toBe("private");
 
     const bytes = await response.arrayBuffer();
     expect(bytes.byteLength).toBeGreaterThan(0);
@@ -276,7 +291,7 @@ describe("phase 4.5 critical API-first e2e", () => {
     const actionResponse = await createEncounter({
       patientId: 1,
       encounterTypeId: 2,
-      diagnoses: [],
+      diagnoses: [{ icd10CodeId: 123, isPrimary: false }],
       anthropometry: { weight: 70, height: 170 },
     });
 
