@@ -35,10 +35,11 @@ export const getCatalogById = cache(async (type: CatalogType, id: number) => {
   return data;
 });
 
-export const searchIcd10 = cache(async (query: string, page: number = 1, pageSize: number = 50) => {
-  const key = `catalog:icd10:search:${query || "all"}:${page}:${pageSize}`;
+export async function searchIcd10(query: string, page: number = 1, pageSize: number = 50) {
+  const normalizedQuery = (query ?? "").trim();
+  const key = `catalog:icd10:search:${normalizedQuery || "all"}:${page}:${pageSize}`;
   const cached = await getCachedData<any>(key);
-  if (cached) return cached;
+  if (cached !== null) return cached;
   const skip = (page - 1) * pageSize;
   let items, totalCount;
 
