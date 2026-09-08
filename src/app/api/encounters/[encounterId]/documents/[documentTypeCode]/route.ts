@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { get } from "@vercel/blob";
+import { sftpGet } from "@/lib/sftp";
 import { withAuth } from "@/shared/auth/auth-guard";
 import { getDocumentByEncounterAndType } from "@/features/document/queries";
 import { AppError } from "@/shared/errors/app-error";
@@ -36,19 +36,22 @@ export async function GET(
       return NextResponse.json({ error: "Documento no encontrado" }, { status: 404 });
     }
 
-    // 3. Fetch blob from Vercel (private access)
-    const { stream, headers } = await get(documentRecord.pdfUrl, { access: 'private' }) as any;
-
-    if (!stream) {
-      return NextResponse.json({ error: "Documento inaccesible" }, { status: 404 });
+    // 3. Fetch from SFTP
+    let stream: ReadableStream;
+    try {
+      stream = await sftpGet(documentRecord.pdfUrl);
+    } catch (err: any) {
+      if (err.message === "File not found on SFTP server" || err.code === 2) {
+        return NextResponse.json({ error: "Documento inaccesible" }, { status: 404 });
+      }
+      throw err;
     }
 
     // 4. Return proxy response
-    const newHeaders = new Headers(headers);
-    newHeaders.set("Content-Type", "application/pdf");
-    
     return new Response(stream, {
-      headers: newHeaders,
+      headers: {
+        "Content-Type": "application/pdf",
+      },
     });
   } catch (error) {
     if (error instanceof AppError) {
