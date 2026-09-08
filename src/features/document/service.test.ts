@@ -39,12 +39,20 @@ vi.mock("@/shared/audit/audit.service", () => ({
   auditService: auditServiceMock,
 }));
 
-vi.mock("@vercel/blob", () => ({
-  put: putMock,
+vi.mock("@/lib/sftp", () => ({
+  sftpPut: putMock,
 }));
 
 vi.mock("@react-pdf/renderer", () => ({
   renderToBuffer: renderToBufferMock,
+}));
+
+vi.mock("@/lib/prisma", () => ({
+  prisma: {
+    practitioner: {
+      findUnique: vi.fn().mockResolvedValue({ id: 100 }),
+    },
+  },
 }));
 
 vi.mock("./templates", () => ({
@@ -125,23 +133,22 @@ describe("documentService", () => {
     documentRepositoryMock.findByEncounterAndType.mockResolvedValueOnce(documentRecord);
     templateRegistryMock.MEDICAL_CERTIFICATE.mapData.mockReturnValueOnce(mappedData);
     renderToBufferMock.mockResolvedValueOnce(Buffer.from("pdf-data"));
-    putMock.mockResolvedValueOnce({ url: "https://blob.test/file.pdf" });
+    putMock.mockResolvedValueOnce(undefined);
     documentRepositoryMock.updatePdfUrl.mockResolvedValueOnce(updatedDocument);
 
     const result = await documentService.generateDocument(100, "user-9", "MEDICAL_CERTIFICATE");
 
-    expect(documentRepositoryMock.create).toHaveBeenCalledWith(100, 200, "user-9", "MEDICAL_CERTIFICATE");
+    expect(documentRepositoryMock.create).toHaveBeenCalledWith(100, 200, 100, "MEDICAL_CERTIFICATE");
     expect(templateRegistryMock.MEDICAL_CERTIFICATE.mapData).toHaveBeenCalledWith(encounter);
     expect(renderToBufferMock).toHaveBeenCalled();
     expect(putMock).toHaveBeenCalledWith(
       expect.stringContaining("MEDICAL_CERTIFICATE-100-"),
-      expect.any(Buffer),
-      {
-        access: "private",
-        contentType: "application/pdf",
-      }
+      expect.any(Buffer)
     );
-    expect(documentRepositoryMock.updatePdfUrl).toHaveBeenCalledWith(33, "https://blob.test/file.pdf");
+    expect(documentRepositoryMock.updatePdfUrl).toHaveBeenCalledWith(
+      33,
+      expect.stringContaining("documentos/1234567890123/MEDICAL_CERTIFICATE-100-")
+    );
     expect(auditServiceMock.log).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "user-9",

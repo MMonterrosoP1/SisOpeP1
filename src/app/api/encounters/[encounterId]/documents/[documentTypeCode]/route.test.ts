@@ -18,8 +18,8 @@ vi.mock("@/features/document/queries", () => ({
   getDocumentByEncounterAndType: getDocumentByEncounterAndTypeMock,
 }));
 
-vi.mock("@vercel/blob", () => ({
-  get: blobGetMock,
+vi.mock("@/lib/sftp", () => ({
+  sftpGet: blobGetMock,
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -64,7 +64,7 @@ describe("GET /api/encounters/[encounterId]/documents/[documentTypeCode]", () =>
 
   it("returns 404 when blob stream is not accessible", async () => {
     getDocumentByEncounterAndTypeMock.mockResolvedValueOnce({ id: 1, pdfUrl: "https://blob.test/private.pdf" });
-    blobGetMock.mockResolvedValueOnce({ stream: null, headers: new Headers() });
+    blobGetMock.mockRejectedValueOnce({ message: "File not found on SFTP server" });
 
     const request = new NextRequest("http://localhost/api/encounters/10/documents/MEDICAL_CERTIFICATE");
     const response = await GET(request, {
@@ -72,7 +72,7 @@ describe("GET /api/encounters/[encounterId]/documents/[documentTypeCode]", () =>
     });
     const body = await response.json();
 
-    expect(blobGetMock).toHaveBeenCalledWith("https://blob.test/private.pdf", { access: "private" });
+    expect(blobGetMock).toHaveBeenCalledWith("https://blob.test/private.pdf");
     expect(response.status).toBe(404);
     expect(body).toEqual({ error: "Documento inaccesible" });
   });
@@ -85,7 +85,7 @@ describe("GET /api/encounters/[encounterId]/documents/[documentTypeCode]", () =>
         controller.close();
       },
     });
-    blobGetMock.mockResolvedValueOnce({ stream, headers: new Headers({ "x-proxy": "ok" }) });
+    blobGetMock.mockResolvedValueOnce(stream);
 
     const request = new NextRequest("http://localhost/api/encounters/10/documents/MEDICAL_CERTIFICATE");
     const response = await GET(request, {
@@ -95,7 +95,6 @@ describe("GET /api/encounters/[encounterId]/documents/[documentTypeCode]", () =>
     expect(withAuthMock).toHaveBeenCalledWith(["ADMIN", "DOCTOR"], expect.any(Function));
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Type")).toBe("application/pdf");
-    expect(response.headers.get("x-proxy")).toBe("ok");
   });
 
   it("returns 500 when an exception is thrown", async () => {
