@@ -13,6 +13,12 @@ vi.mock("next/cache", () => ({
   cacheTag: cacheTagMock,
 }));
 
+vi.mock("@/lib/cache", () => ({
+  getCachedData: vi.fn().mockResolvedValue(null),
+  setCachedData: vi.fn().mockResolvedValue(undefined),
+  invalidateCatalogCache: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("./repository", () => ({
   getCatalogRepo: getCatalogRepoMock,
 }));
@@ -27,6 +33,7 @@ vi.mock("@/lib/prisma", () => ({
 }));
 
 import { prisma } from "@/lib/prisma";
+import { setCachedData } from "@/lib/cache";
 
 import { getCatalogById, getCatalogs, searchIcd10 } from "./queries";
 
@@ -51,7 +58,7 @@ describe("catalog queries", () => {
 
     expect(findAll).toHaveBeenCalledWith({ active: true });
     expect(result).toEqual([{ id: 1 }]);
-    expect(cacheTagMock).toHaveBeenCalledWith("catalog-company");
+    expect(setCachedData).toHaveBeenCalledWith("catalog:company:list:true", [{ id: 1 }], 3600);
   });
 
   it("getCatalogs: omits active filter when activeOnly=false", async () => {
