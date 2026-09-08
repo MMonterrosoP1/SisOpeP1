@@ -82,4 +82,4 @@ export async function searchIcd10(query: string, page: number = 1, pageSize: num
   const result = { items, totalCount, page, pageSize };
   await setCachedData(key, result, THIRTY_DAYS);
   return result;
-});
+}
