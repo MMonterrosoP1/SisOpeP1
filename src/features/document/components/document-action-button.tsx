@@ -42,6 +42,8 @@ export function DocumentActionButton({
       return;
     }
 
+    const newWindow = window.open('about:blank', '_blank');
+
     setIsGenerating(true);
     try {
       const response = await generateDocumentAction({ encounterId, documentTypeCode });
@@ -50,13 +52,20 @@ export function DocumentActionButton({
         setHasDocument(true);
         toast.success(`${label} generado exitosamente`);
         router.refresh();
-        window.open(proxyUrl, "_blank");
+        if (newWindow) {
+          newWindow.location.href = proxyUrl;
+        } else {
+          window.open(proxyUrl, "_blank");
+        }
       } else if (!response.success) {
+        if (newWindow) newWindow.close();
         toast.error(response.error || `Error al generar ${label}`);
       } else {
+        if (newWindow) newWindow.close();
         toast.error("No se obtuvo respuesta válida");
       }
     } catch (error) {
+      if (newWindow) newWindow.close();
       toast.error(`Ocurrió un error inesperado al generar ${label}`);
       console.error(error);
     } finally {
@@ -105,6 +114,8 @@ export function DocumentActionMenuItem({
       return;
     }
 
+    const newWindow = window.open('about:blank', '_blank');
+
     setIsGenerating(true);
     try {
       const response = await generateDocumentAction({ encounterId, documentTypeCode });
@@ -113,13 +124,20 @@ export function DocumentActionMenuItem({
         setHasDocument(true);
         toast.success(`${label} generado exitosamente`);
         router.refresh();
-        window.open(proxyUrl, "_blank");
+        if (newWindow) {
+          newWindow.location.href = proxyUrl;
+        } else {
+          window.open(proxyUrl, "_blank");
+        }
       } else if (!response.success) {
+        if (newWindow) newWindow.close();
         toast.error(response.error || `Error al generar ${label}`);
       } else {
+        if (newWindow) newWindow.close();
         toast.error("No se obtuvo respuesta válida");
       }
     } catch (error) {
+      if (newWindow) newWindow.close();
       toast.error(`Ocurrió un error inesperado al generar ${label}`);
       console.error(error);
     } finally {
