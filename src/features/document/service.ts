@@ -2,7 +2,7 @@ import { documentRepository } from "./repository";
 import { prisma } from "@/lib/prisma";
 import { auditService } from "@/shared/audit/audit.service";
 import { ConflictError, NotFoundError, ValidationError } from "@/shared/errors/app-error";
-import { put } from "@vercel/blob";
+import { sftpPut } from "@/lib/sftp";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { templateRegistry } from "./templates";
 import React from "react";
@@ -61,17 +61,14 @@ export const documentService = {
       React.createElement(template.component, { data: certificateData }) as any
     );
 
-    // 4. Subir el archivo a Vercel Blob
-    const filename = `documentos/${encounter.patient.person.identityDocument}/${documentTypeCode}-${encounterId}-${Date.now()}.pdf`;
-    const blob = await put(filename, pdfBuffer, {
-      access: 'private',
-      contentType: 'application/pdf',
-    });
+    // 4. Subir el archivo vía SFTP
+    const relativePath = `documentos/${encounter.patient.person.identityDocument}/${documentTypeCode}-${encounterId}-${Date.now()}.pdf`;
+    await sftpPut(relativePath, pdfBuffer);
 
-    // 5. Actualizar la base de datos con la URL
+    // 5. Actualizar la base de datos con la ruta relativa
     const updatedDocument = await documentRepository.updatePdfUrl(
       documentRecord.id, 
-      blob.url
+      relativePath
     );
 
     // 6. Registro de auditoría
