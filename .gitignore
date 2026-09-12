@@ -71,3 +71,6 @@ generate-test-data.sql
 # Private keys
 *.key
 *.pem
+
+# Docs
+docs/
