@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 360" width="100%" height="100%" style="background-color: #ffffff; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <filter id="shadow-active" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#7c3aed" flood-opacity="0.2"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#7c3aed"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <!-- ==================== ORIGEN: CT 102 (NEXT.JS BACKEND) ==================== -->
+  <g transform="translate(20, 90)" filter="url(#shadow)">
+    <rect width="135" height="180" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+    <rect width="135" height="24" rx="8" fill="#dcfce7"/>
+    <text x="67" y="16" font-size="8.5" font-weight="700" fill="#15803d" text-anchor="middle">⚙️ CT 102: BACKEND</text>
+    
+    <text x="67" y="44" font-size="8" font-weight="700" fill="#334155" text-anchor="middle">Acción Clínica</text>
+    <text x="67" y="58" font-size="7.5" fill="#64748b" text-anchor="middle">Disparos del Sistema</text>
+    
+    <rect x="10" y="70" width="115" height="42" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="15" y="85" font-size="7.5" font-weight="700" fill="#2563eb">1. SMTP Socket</text>
+    <text x="15" y="98" font-size="7" fill="#64748b">TCP :25 hacia Postfix</text>
+
+    <rect x="10" y="122" width="115" height="42" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="15" y="137" font-size="7.5" font-weight="700" fill="#7c3aed">2. SFTP Depósito</text>
+    <text x="15" y="150" font-size="7" fill="#64748b">Usuario backend_sftp</text>
+  </g>
+
+  <!-- Flechas hacia CT 104 -->
+  <path d="M 155 180 L 195 140" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <text x="175" y="145" font-size="7" font-weight="700" fill="#2563eb">SMTP :25</text>
+
+  <path d="M 155 230 L 195 245" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-purple)"/>
+  <text x="175" y="255" font-size="7" font-weight="700" fill="#7c3aed">SFTP :22</text>
+
+  <!-- ==================== CONTENEDOR CENTRAL: CT 104 (ANDRÉS) ==================== -->
+  <rect x="195" y="20" width="410" height="320" rx="10" fill="#faf5ff" stroke="#7c3aed" stroke-width="2"/>
+  <rect x="195" y="20" width="410" height="28" rx="10" fill="#7c3aed"/>
+  <text x="400" y="39" font-size="10.5" font-weight="700" fill="#ffffff" text-anchor="middle">📧 CT 104: SERVIDOR MAIL &amp; SFTP CHROOT (ANDRÉS)</text>
+
+  <text x="400" y="60" font-size="8.5" font-weight="700" fill="#6b21a8" text-anchor="middle">IP: 192.168.56.104 | mail.grupo2.os | sftp.grupo2.os</text>
+
+  <!-- MÓDULO 1: CORREO DUAL (POSTFIX + DOVECOT) -->
+  <g transform="translate(208, 70)" filter="url(#shadow)">
+    <rect width="384" height="120" rx="6" fill="#ffffff" stroke="#c084fc" stroke-width="1.5"/>
+    <rect width="384" height="20" rx="6" fill="#f3e8ff"/>
+    <text x="15" y="14" font-size="8" font-weight="700" fill="#6b21a8">MÓDULO 1: Servidor de Correo Dual (Postfix MTA + Dovecot MDA)</text>
+
+    <!-- Postfix -->
+    <rect x="10" y="28" width="175" height="50" rx="4" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="18" y="42" font-size="8" font-weight="700" fill="#1e40af">Postfix SMTP (:25)</text>
+    <text x="18" y="55" font-size="7" fill="#64748b">• Recibe avisos de notificaciones@...</text>
+    <text x="18" y="68" font-size="7" fill="#16a34a" font-weight="600">➜ Escribe en /home/paciente/Maildir/</text>
+
+    <!-- Dovecot -->
+    <rect x="198" y="28" width="175" height="50" rx="4" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="206" y="42" font-size="8" font-weight="700" fill="#7c3aed">Dovecot IMAP (:143)</text>
+    <text x="206" y="55" font-size="7" fill="#64748b">• Lee buzón físico ~/Maildir/</text>
+    <text x="206" y="68" font-size="7" fill="#7c3aed" font-weight="600">➜ Sincroniza con Thunderbird</text>
+
+    <!-- Maildir storage -->
+    <rect x="10" y="84" width="363" height="28" rx="4" fill="#fdf4ff" stroke="#f0abfc" stroke-width="1"/>
+    <text x="191" y="97" font-size="7.5" font-weight="700" fill="#a21caf" text-anchor="middle">Formato de Almacenamiento Maildir (1 archivo por mensaje):</text>
+    <text x="191" y="107" font-size="7" fill="#86198f" text-anchor="middle">/home/paciente/Maildir/{cur, new, tmp} — Máxima integridad y sin bloqueos de archivo</text>
+  </g>
+
+  <!-- MÓDULO 2: SFTP CHROOT JAIL -->
+  <g transform="translate(208, 200)" filter="url(#shadow-active)">
+    <rect width="384" height="130" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect width="384" height="20" rx="6" fill="#ede9fe"/>
+    <text x="15" y="14" font-size="8" font-weight="700" fill="#5b21b6">MÓDULO 2: Servidor SFTP con Chroot Jail y Blindaje Read-Only (-R)</text>
+
+    <!-- Jaula Chroot -->
+    <rect x="10" y="26" width="363" height="42" rx="4" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="16" y="38" font-size="7.5" font-weight="700" fill="#334155">Jaula Chroot: /home/sftp/paciente_sftp (root:root 755)</text>
+    <text x="16" y="50" font-size="7" fill="#64748b">Aislamiento total del árbol raíz de Linux — Imposible fuga por directory traversal (..)</text>
+    <text x="16" y="61" font-size="7" fill="#2563eb">Subcarpeta de descarga: /constancias/ (Permisos de lectura)</text>
+
+    <!-- Separación de cuentas -->
+    <rect x="10" y="74" width="175" height="48" rx="4" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+    <text x="16" y="87" font-size="7.5" font-weight="700" fill="#166534">Usuario: backend_sftp</text>
+    <text x="16" y="99" font-size="7" fill="#15803d">• Permiso: Lectura y Escritura (775)</text>
+    <text x="16" y="111" font-size="7" fill="#047857">• Deposita constancias PDF de Next.js</text>
+
+    <rect x="198" y="74" width="175" height="48" rx="4" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+    <text x="204" y="87" font-size="7.5" font-weight="700" fill="#b91c1c">Usuario: paciente_sftp</text>
+    <text x="204" y="99" font-size="7" fill="#991b1b">• Permiso: Solo Lectura estricta (-R)</text>
+    <text x="204" y="111" font-size="7" font-weight="700" fill="#dc2626">• Bloqueo total de subida (PUT/MKDIR)</text>
+  </g>
+
+  <!-- ==================== CLIENTES RECEPTOR / PRUEBAS ==================== -->
+  <!-- Thunderbird -->
+  <g transform="translate(640, 70)" filter="url(#shadow)">
+    <rect width="200" height="110" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="1.5"/>
+    <rect width="200" height="24" rx="8" fill="#eff6ff"/>
+    <text x="100" y="16" font-size="8.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">💻 Mozilla Thunderbird (Windows)</text>
+
+    <text x="12" y="44" font-size="7.5" font-weight="700" fill="#334155">Cuenta:</text>
+    <text x="50" y="44" font-size="7.5" fill="#2563eb">paciente@grupo2.os</text>
+    
+    <text x="12" y="60" font-size="7.5" font-weight="700" fill="#334155">Protocolo:</text>
+    <text x="60" y="60" font-size="7.5" fill="#475569">IMAP :143 en mail.grupo2.os</text>
+
+    <rect x="10" y="70" width="180" height="30" rx="4" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+    <text x="100" y="84" font-size="7.5" font-weight="700" fill="#15803d" text-anchor="middle">✔ Correo Recibido en Tiempo Real</text>
+    <text x="100" y="94" font-size="7" fill="#166534" text-anchor="middle">Aviso de consulta y constancia disponible</text>
+  </g>
+
+  <!-- FileZilla / Cliente SFTP -->
+  <g transform="translate(640, 200)" filter="url(#shadow)">
+    <rect width="200" height="130" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+    <rect width="200" height="24" rx="8" fill="#ede9fe"/>
+    <text x="100" y="16" font-size="8.5" font-weight="700" fill="#6b21a8" text-anchor="middle">📁 Cliente SFTP (FileZilla / Terminal)</text>
+
+    <text x="12" y="42" font-size="7.5" font-weight="700" fill="#334155">Host:</text>
+    <text x="45" y="42" font-size="7.5" fill="#7c3aed">sftp.grupo2.os:22</text>
+    
+    <rect x="10" y="52" width="180" height="30" rx="4" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+    <text x="16" y="65" font-size="7" font-weight="700" fill="#166534">✔ Descarga de PDF:</text>
+    <text x="16" y="75" font-size="6.5" fill="#15803d">Descarga exitosa de /constancias/...</text>
+
+    <rect x="10" y="88" width="180" height="32" rx="4" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+    <text x="16" y="101" font-size="7" font-weight="700" fill="#b91c1c">✖ Intento de Subida (Blindaje -R):</text>
+    <text x="16" y="112" font-size="6.5" font-weight="700" fill="#dc2626">Upload failed: Permission denied</text>
+  </g>
+
+  <!-- Flechas CT 104 -> Clientes -->
+  <path d="M 592 125 L 640 125" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <path d="M 592 265 L 640 265" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-purple)"/>
+
+</svg>

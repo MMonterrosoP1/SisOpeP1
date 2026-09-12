@@ -63,3 +63,11 @@ skill-output*.txt
 .github
 generate_test_data.js
 generate-test-data.sql
+
+# Proxmox / Vagrant
+.vagrant/
+*.log
+
+# Private keys
+*.key
+*.pem

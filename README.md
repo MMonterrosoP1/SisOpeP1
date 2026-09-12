@@ -1,8 +1,39 @@
-# Gestión Clínica Premed
+# Sistema de Gestión Clínica y Expedientes Médicos Seguros — Grupo 2
 
-Sistema integral de gestión clínica y expedientes médicos electrónicos, diseñado para la administración eficiente de pacientes, historial clínico, consultas médicas y emisión de constancias certificadas.
+> **Universidad Mariano Gálvez de Guatemala (UMG)**  
+> **Facultad de Ingeniería en Sistemas de Información y Ciencias de la Computación**  
+> **Curso:** Sistemas Operativos I (Sección B)  
+> **Proyecto Final:** Ecosistema de Servicios Auditado y Seguro  
+> **Dominio Autoritativo:** `grupo2.os`
 
 ---
+
+## Arquitectura de Infraestructura en Sistemas Operativos (Proxmox VE 8)
+
+El ecosistema opera sobre virtualización a nivel de sistema operativo utilizando **5 Contenedores Linux (LXC)** sobre el hipervisor **Proxmox VE 8** (Debian 12), interconectados mediante el switch virtual `vmbr0` en la subred privada `192.168.56.0/24`:
+
+| Contenedor | IP Estática | Hostname / Dominio | Servicios y Puertos | Rol / Responsable |
+| :---: | :---: | :--- | :--- | :--- |
+| **CT 101** | `192.168.56.101` | `ns1.grupo2.os` | **BIND9 DNS** (:53) + Forwarders | Líder de Red & DNS (Wilson) |
+| **CT 102** | `192.168.56.102` | `app.grupo2.os` | **Next.js Fullstack** (:3000) bajo PM2 Daemon | Desarrollador Fullstack (Aaron) |
+| **CT 103** | `192.168.56.103` | `clinica.grupo2.os` | **Nginx HTTPS** (:443) + **Redis 7 NoSQL** (:6379) | Ingeniero Web & SSL (Reyli) |
+| **CT 104** | `192.168.56.104` | `mail.grupo2.os`<br>`sftp.grupo2.os` | **Postfix SMTP** (:25) + **Dovecot IMAP** (:143) + **SFTP Chroot** (:22) | Especialista en Servicios (Andrés) |
+| **CT 105** | `192.168.56.105` | `db.grupo2.os` | **MariaDB SQL** (:3306 Aislado) | Administrador de BD (Marvin) |
+| **Host PVE**| `192.168.56.100` | `pve.local` | Vagrant, iptables (Egress WAN & DB Isolation) | DevSecOps & Líder (Marvin) |
+
+### Puntos Extra e Innovaciones Implementadas:
+1. **Subdominios por Protocolo en `.os`:** `clinica.grupo2.os` (Web), `mail.grupo2.os` (MX SMTP), `sftp.grupo2.os` (Archivos), `db.grupo2.os` (SQL).
+2. **Base de Datos Híbrida (SQL + NoSQL):** MariaDB en CT 105 para consistencia ACID relacional + Redis 7 en CT 103 para sesiones volátiles y caché.
+3. **Aislamiento Estricto de Base de Datos:** Puertos 3306 y 6379 bloqueados con `iptables` con acceso concedido exclusivamente a CT 102.
+4. **Restricción WAN (Egress Filtering):** Bloqueo total de salida a Internet en CT 105, CT 104 y CT 102 para evitar fuga de información.
+5. **Servidor DHCP Local:** OPNsense gestionando direccionamiento `.200-.250` y entregando DNS local `192.168.56.101`.
+6. **Almacenamiento Seguro SFTP Chroot Jail:** Bandera `-R` forzada para cuenta `paciente_sftp` (solo lectura) y permisos de escritura para `backend_sftp`.
+
+---
+
+## Aplicación Web de Gestión Clínica (Next.js)
+
+Sistema integral de gestión clínica y expedientes médicos electrónicos, diseñado para la administración eficiente de pacientes, historial clínico, consultas médicas y emisión de constancias certificadas.
 
 ## Tecnologías Principales
 

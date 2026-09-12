@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 360" width="100%" height="100%" style="background-color: #ffffff; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <filter id="shadow-active" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#059669" flood-opacity="0.2"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#059669"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <!-- ==================== ENTRADA: DESDE PROXY NGINX (CT 103) ==================== -->
+  <g transform="translate(20, 110)" filter="url(#shadow)">
+    <rect width="130" height="140" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+    <rect width="130" height="24" rx="8" fill="#dbeafe"/>
+    <text x="65" y="16" font-size="8.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">🔒 CT 103: NGINX</text>
+    <text x="65" y="45" font-size="8" fill="#1e40af" text-anchor="middle">Reverse Proxy</text>
+    <text x="65" y="60" font-size="7.5" fill="#475569" text-anchor="middle">proxy_pass :3000</text>
+    <rect x="10" y="75" width="110" height="50" rx="4" fill="#ffffff" stroke="#bfdbfe" stroke-width="1"/>
+    <text x="65" y="90" font-size="7" font-weight="700" fill="#2563eb" text-anchor="middle">Cabeceras Inyectadas:</text>
+    <text x="15" y="103" font-size="6.5" fill="#64748b">• X-Forwarded-Proto</text>
+    <text x="15" y="115" font-size="6.5" fill="#64748b">• X-Real-IP</text>
+  </g>
+
+  <!-- Flecha de entrada al CT 102 -->
+  <path d="M 150 180 L 195 180" stroke="#2563eb" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+  <text x="172" y="172" font-size="7" font-weight="700" fill="#2563eb" text-anchor="middle">:3000</text>
+
+  <!-- ==================== CONTENEDOR CENTRAL: CT 102 (AARON) ==================== -->
+  <rect x="195" y="20" width="370" height="320" rx="10" fill="#f0fdf4" stroke="#059669" stroke-width="2"/>
+  <rect x="195" y="20" width="370" height="28" rx="10" fill="#059669"/>
+  <text x="380" y="39" font-size="10.5" font-weight="700" fill="#ffffff" text-anchor="middle">⚙️ CT 102: SERVIDOR DE APLICACIÓN NEXT.JS (AARON)</text>
+
+  <text x="380" y="62" font-size="8.5" font-weight="700" fill="#047857" text-anchor="middle">IP Estática: 192.168.56.102 | /var/www/proyecto-grupo2 | Node.js 20 LTS</text>
+
+  <!-- Capa PM2 y Runtime -->
+  <g transform="translate(210, 72)" filter="url(#shadow)">
+    <rect width="340" height="52" rx="6" fill="#ffffff" stroke="#10b981" stroke-width="1.2"/>
+    <rect width="340" height="18" rx="6" fill="#d1fae5"/>
+    <text x="12" y="13" font-size="8" font-weight="700" fill="#065f46">Gestión de Procesos en Segundo Plano (PM2 Daemon):</text>
+    <text x="12" y="32" font-size="8" fill="#334155"><b>Proceso:</b> clinica | <b>Estado:</b> online | <b>Modo:</b> cluster / fork | <b>Puerto:</b> :3000</text>
+    <text x="12" y="44" font-size="7.5" fill="#059669">Monitoreo activo de memoria y reinicio automático por fallos (--update-env)</text>
+  </g>
+
+  <!-- Capa Better Auth y Middleware -->
+  <g transform="translate(210, 130)" filter="url(#shadow)">
+    <rect width="340" height="50" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+    <rect width="340" height="18" rx="6" fill="#f1f5f9"/>
+    <text x="12" y="13" font-size="8" font-weight="700" fill="#334155">Módulo de Autenticación &amp; Seguridad (Better Auth):</text>
+    <text x="12" y="32" font-size="7.5" fill="#475569"><b>URL Oficial:</b> BETTER_AUTH_URL="https://clinica.grupo2.os"</text>
+    <text x="12" y="43" font-size="7.5" fill="#047857"><b>Optimización de Middleware:</b> baseURL local en http://127.0.0.1:3000 (Latencia 0 ms)</text>
+  </g>
+
+  <!-- Capa Lógica de Negocio y Eventos Clínicos -->
+  <g transform="translate(210, 186)" filter="url(#shadow-active)">
+    <rect width="340" height="142" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+    <rect width="340" height="20" rx="6" fill="#d1fae5"/>
+    <text x="12" y="14" font-size="8.5" font-weight="700" fill="#065f46">🏥 Lógica de Negocio: Transacción Clínica E2E</text>
+
+    <!-- Pasos dentro del backend -->
+    <rect x="10" y="26" width="320" height="26" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="16" y="38" font-size="7.5" font-weight="700" fill="#334155">1. Consulta Médica:</text>
+    <text x="100" y="38" font-size="7.5" fill="#64748b">Registro de signos vitales, diagnósticos y recetas</text>
+    <text x="16" y="47" font-size="7" fill="#059669">➜ Prisma Client ejecuta transacción ACID en MariaDB</text>
+
+    <rect x="10" y="56" width="320" height="26" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="16" y="68" font-size="7.5" font-weight="700" fill="#334155">2. Emisión de Constancia:</text>
+    <text x="116" y="68" font-size="7.5" fill="#64748b">Generación dinámica del certificado médico PDF</text>
+    <text x="16" y="77" font-size="7" fill="#059669">➜ Stream binario cifrado listo para almacenamiento y despacho</text>
+
+    <rect x="10" y="86" width="320" height="48" rx="4" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+    <text x="16" y="99" font-size="7.5" font-weight="700" fill="#1e40af">3. Reacción en Cadena Asíncrona (Disparos del SO):</text>
+    <text x="16" y="112" font-size="7" fill="#1e3a8a">• Socket TCP :25 ➜ Notificación por correo al paciente vía Postfix</text>
+    <text x="16" y="125" font-size="7" fill="#1e3a8a">• Túnel SSH/SFTP :22 ➜ Depósito del PDF en jaula chroot con usuario backend_sftp</text>
+  </g>
+
+  <!-- ==================== SALIDAS: SERVICIOS CONECTADOS ==================== -->
+  <!-- BD MariaDB CT 105 -->
+  <g transform="translate(620, 60)" filter="url(#shadow)">
+    <rect width="220" height="60" rx="6" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
+    <text x="12" y="18" font-size="8.5" font-weight="700" fill="#334155">🗄️ CT 105: MariaDB SQL (:3306)</text>
+    <text x="12" y="32" font-size="7" fill="#64748b">Prisma ORM | DATABASE_URL</text>
+    <text x="12" y="44" font-size="7" fill="#059669">Transacciones de pacientes, citas y recetas</text>
+  </g>
+
+  <!-- Redis CT 103 -->
+  <g transform="translate(620, 130)" filter="url(#shadow)">
+    <rect width="220" height="52" rx="6" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
+    <text x="12" y="18" font-size="8.5" font-weight="700" fill="#334155">⚡ CT 103: Redis NoSQL (:6379)</text>
+    <text x="12" y="32" font-size="7" fill="#64748b">ioredis Client | REDIS_URL</text>
+    <text x="12" y="44" font-size="7" fill="#d97706">Caché en memoria de sesiones de usuario</text>
+  </g>
+
+  <!-- Postfix SMTP CT 104 -->
+  <g transform="translate(620, 192)" filter="url(#shadow)">
+    <rect width="220" height="60" rx="6" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
+    <text x="12" y="18" font-size="8.5" font-weight="700" fill="#334155">📧 CT 104: Postfix SMTP (:25)</text>
+    <text x="12" y="32" font-size="7" fill="#64748b">Nodemailer Client | mail.grupo2.os</text>
+    <text x="12" y="44" font-size="7" fill="#2563eb">Envío automático del aviso al paciente</text>
+  </g>
+
+  <!-- SFTP CT 104 -->
+  <g transform="translate(620, 262)" filter="url(#shadow)">
+    <rect width="220" height="60" rx="6" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
+    <text x="12" y="18" font-size="8.5" font-weight="700" fill="#334155">📁 CT 104: OpenSSH SFTP (:22)</text>
+    <text x="12" y="32" font-size="7" fill="#64748b">ssh2-sftp-client | backend_sftp</text>
+    <text x="12" y="44" font-size="7" fill="#059669">Depósito de constancias PDF en chroot</text>
+  </g>
+
+  <!-- LÍNEAS DE SALIDA DESDE CT 102 -->
+  <path d="M 550 210 L 620 90" stroke="#059669" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <path d="M 550 230 L 620 156" stroke="#d97706" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M 550 260 L 620 222" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+  <path d="M 550 280 L 620 292" stroke="#059669" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+</svg>
